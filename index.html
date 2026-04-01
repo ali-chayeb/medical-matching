@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>نظام المفاضلة الطبية - تحديث فوري</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fb;
+            padding: 12px;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            padding: 20px 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .big-number {
+            background: linear-gradient(135deg, #0056b3, #28a745);
+            border-radius: 24px;
+            padding: 20px 12px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .big-number .number {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .big-number .label {
+            font-size: 15px;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+        .update-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eef2ff;
+            padding: 8px 14px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .live-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .update-time {
+            color: #334155;
+            font-family: monospace;
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            background: #eef2ff;
+            border: none;
+            padding: 10px 6px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #1e293b;
+        }
+        .tab-btn.active {
+            background: #0056b3;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,86,179,0.2);
+        }
+        .tab-pane {
+            display: none;
+            animation: fade 0.2s ease;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(5px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .search-box input {
+            flex: 2;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 48px;
+            font-size: 15px;
+            background: white;
+        }
+        .search-box button {
+            padding: 0 20px;
+            background: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 48px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .search-box button:active { transform: scale(0.97); background: #003d80; }
+        .results-card, .specialty-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-right: 4px solid #28a745;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .specialty-card {
+            border-right-color: #0056b3;
+        }
+        .student-list {
+            max-height: 460px;
+            overflow-y: auto;
+        }
+        .student-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+        }
+        .student-id {
+            font-weight: 700;
+            color: #0056b3;
+        }
+        .accepted { color: #28a745; font-weight: 600; }
+        .rejected { color: #dc3545; font-weight: 600; }
+        .admin-badge {
+            background: #dc3545;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 11px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        .admin-panel {
+            margin-top: 28px;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .specialties-grid {
+            max-height: 460px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .btn-add, .btn-secondary, button[onclick*="refreshData"], button[onclick*="saveSheetId"] {
+            background: #0056b3;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-add { background: #28a745; }
+        .btn-secondary { background: #475569; }
+        input, select {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 40px;
+            font-size: 14px;
+        }
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .students-table th, .students-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 6px;
+            text-align: center;
+        }
+        .students-table th {
+            background: #eef2ff;
+        }
+        footer {
+            text-align: center;
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 24px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+        @media (max-width: 600px) {
+            body { padding: 8px; }
+            .container { padding: 14px; border-radius: 24px; }
+            .big-number .number { font-size: 44px; }
+            .search-box button { padding: 0 16px; }
+            .tab-btn { font-size: 13px; padding: 8px 4px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 onclick="showAdminLogin()">🎓 نظام المفاضلة الطبية</h1>
+    <p style="text-align: center; font-size: 12px; color: #64748b; margin-top: -6px;">(اضغط العنوان للدخول كمسؤول)</p>
+    
+    <div class="big-number">
+        <div class="number" id="totalCount">0</div>
+        <div class="label">عدد الطلاب المسجلين</div>
+    </div>
+    
+    <div class="update-info">
+        <span class="live-badge">🔄 تحديث فوري كل 15 ثانية</span>
+        <span class="update-time" id="updateTime">جاري التحميل...</span>
+    </div>
+    
+    <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="search">🔍 بحث</button>
+        <button class="tab-btn" data-tab="stats">📊 الإحصائيات</button>
+        <button class="tab-btn" data-tab="students">👥 أعلى الطلاب</button>
+    </div>
+    
+    <div id="tabSearch" class="tab-pane active">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 الرقم الجامعي أو اسم الاختصاص (مثال: أطفال)">
+            <button onclick="performSearch()">بحث</button>
+        </div>
+        <div id="searchResults"> <div style="padding:20px; text-align:center; color:#64748b;">أدخل رقمك الجامعي أو اسم اختصاص</div> </div>
+    </div>
+    
+    <div id="tabStats" class="tab-pane">
+        <div class="search-box">
+            <input type="text" id="statsSearchInput" placeholder="🔍 ابحث عن اختصاص" onkeyup="filterSpecialties()">
+        </div>
+        <div id="statsResults" class="specialties-grid"><div class="loading">جاري التحميل...</div></div>
+    </div>
+    
+    <div id="tabStudents" class="tab-pane">
+        <div class="student-list" id="topStudentsList"><div class="loading">جاري التحميل...</div></div>
+    </div>
+    
+    <div id="adminPanel" style="display: none;" class="admin-panel">
+        <div class="admin-badge">🔐 وضع المشرف - تحكم كامل</div>
+        <div class="flex-between"><h3>📋 إعدادات Google Sheets</h3><button onclick="manualRefresh()">🔄 تحديث يدوي</button></div>
+        <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap:wrap;">
+            <input type="text" id="adminSheetId" placeholder="معرف جدول Google Sheets" style="flex:2">
+            <button onclick="saveSheetIdAndLoad()">💾 حفظ وتحميل</button>
+        </div>
+        <div class="flex-between"><h3>📌 إدارة المقاعد</h3><button onclick="addSpecialtyPrompt()" class="btn-add">➕ إضافة اختصاص</button></div>
+        <div id="adminSpecialtiesList" class="specialties-grid"></div>
+        <div class="flex-between"><h3>👥 جميع الطلاب</h3><button onclick="exportCSV()" class="btn-secondary">📥 تصدير CSV</button></div>
+        <div style="overflow-x: auto;"><table class="students-table" id="adminStudentsTable"><thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><th>الرغبات (أول 5)</th></tr></thead><tbody id="adminStudentsTableBody"></tbody></table></div>
+    </div>
+    <footer>تحديث مباشر كل 15 ثانية | البيانات من Google Forms</footer>
+</div>
+
+<script>
+    // ------------------- قائمة الاختصاصات الأساسية -------------------
+    const baseNames = ["جلدية","اذنية","عينية","أطفال","نسائية وتوليد","داخلية قلبية","داخلية هضمية","داخلية صدرية","داخلية عامة","داخلية كلية","داخلية غدية","داخلية عصبية","داخلية دم","داخلية ثوية","جراحة عامة","جراحة عظمية","جراحة بولية","جراحة عصبية","جراحة تجميل","جراحة أطفال","جراحة قلبية","جراحة وعائية","جراحة صدرية","أشعة","طب مخبري","تشريح مرضي","تخدير","أورام","طب نفسي","طب أسرة","الطب الفيزيائي واعادة التاهيل"];
+    const singleOnly = new Set(["جراحة صدرية","طب نفسي","طب أسرة","الطب الفيزيائي واعادة التاهيل"]);
+    function buildSpecialties() {
+        const list = [];
+        for (let name of baseNames) {
+            if (singleOnly.has(name)) list.push({ name, seats:5 });
+            else {
+                list.push({ name: `${name} - دراسات عام`, seats:5 });
+                list.push({ name: `${name} - دراسات موازي`, seats:5 });
+                list.push({ name: `${name} - صحة`, seats:5 });
+            }
+        }
+        return list;
+    }
+    
+    let specialties = [];
+    let allStudents = [];
+    let processedStudents = [];
+    let currentSheetId = "";
+    let refreshTimer = null;
+    const ADMIN_PW = "Alichayeb@23184";
+    let isAdmin = false;
+    
+    function saveSpecialtiesToLocal() { localStorage.setItem('specialties', JSON.stringify(specialties)); if(isAdmin) renderAdminSpecialties(); runMatching(); }
+    function loadSpecialties() {
+        const saved = localStorage.getItem('specialties');
+        if(saved) specialties = JSON.parse(saved);
+        else specialties = buildSpecialties();
+        saveSpecialtiesToLocal();
+    }
+    
+    // حساب عدد المتقدمين لكل اختصاص (بدون تكرار داخل نفس الطالب)
+    function computeDemand() {
+        let demand = {};
+        specialties.forEach(s => demand[s.name]=0);
+        for(let s of allStudents){
+            let seen = new Set();
+            for(let pref of s.preferences){
+                if(pref && !seen.has(pref) && demand[pref]!==undefined){
+                    seen.add(pref);
+                    demand[pref]++;
+                }
+            }
+        }
+        return demand;
+    }
+    
+    // تشغيل المفاضلة
+    function runMatching() {
+        if(allStudents.length===0){ processedStudents=[]; updateAllUI(); return; }
+        let studentsCopy = allStudents.map(s=>({...s, preferences:[...s.preferences]}));
+        studentsCopy.sort((a,b)=>b.gpa - a.gpa);
+        let seats = {};
+        specialties.forEach(s=> seats[s.name]=s.seats);
+        let accepted = {};
+        specialties.forEach(s=> accepted[s.name]=[]);
+        let results = [];
+        for(let st of studentsCopy){
+            let assigned = null;
+            for(let pref of st.preferences){
+                if(!pref) continue;
+                if(seats[pref] > 0){
+                    assigned = pref;
+                    seats[pref]--;
+                    accepted[pref].push({id:st.id, gpa:st.gpa});
+                    break;
+                }
+            }
+            results.push({id:st.id, gpa:st.gpa, preferences:st.preferences, assignedSpecialty: assigned || 'لم يحصل على مقعد'});
+        }
+        processedStudents = results;
+        updateAllUI(accepted, seats);
+    }
+    
+    function updateAllUI(acceptedData, seatsAvailable) {
+        document.getElementById('totalCount').innerText = allStudents.length;
+        renderTopStudents();
+        const searchVal = document.getElementById('searchInput')?.value;
+        if(searchVal) performSearch();
+        filterSpecialties();  // يحدث إحصائيات البحث
+        if(isAdmin){
+            renderAdminSpecialties();
+            renderAdminTable();
+        }
+    }
+    
+    function renderTopStudents(){
+        const container = document.getElementById('topStudentsList');
+        if(!container) return;
+        let top = [...processedStudents].sort((a,b)=>b.gpa - a.gpa).slice(0,50);
+        if(top.length===0){ container.innerHTML='<div class="loading">لا توجد بيانات</div>'; return; }
+        let html='';
+        top.forEach((s,i)=>{
+            let cls = s.assignedSpecialty === 'لم يحصل على مقعد' ? 'rejected' : 'accepted';
+            html+=`<div class="student-item"><span class="student-id">${i+1}. ${s.id}</span> <span style="float:left;">معدل: ${s.gpa}</span><br><span class="${cls}">📌 ${s.assignedSpecialty}</span></div>`;
+        });
+        container.innerHTML = html;
+    }
+    
+    function performSearch(){
+        let q = document.getElementById('searchInput').value.trim();
+        let div = document.getElementById('searchResults');
+        if(!q){ div.innerHTML='<div style="padding:20px;text-align:center;">أدخل رقمك الجامعي أو اسم اختصاص</div>'; return; }
+        let student = processedStudents.find(s=> s.id === q);
+        if(student){
+            let cls = student.assignedSpecialty === 'لم يحصل على مقعد' ? 'rejected' : 'accepted';
+            div.innerHTML = `<div class="results-card"><h3>🔍 نتيجة البحث</h3><p><strong>الرقم:</strong> ${student.id}</p><p><strong>المعدل:</strong> ${student.gpa}</p><p><strong>الاختصاص المقبول:</strong> <span class="${cls}">${student.assignedSpecialty}</span></p><details><summary>📋 الرغبات (${student.preferences.length})</summary><ul>${student.preferences.map(p=>`<li>${p}</li>`).join('')}</ul></details></div>`;
+            return;
+        }
+        let matched = specialties.filter(s=> s.name.includes(q));
+        if(matched.length===0){ div.innerHTML='<div class="results-card">❌ لا توجد نتائج</div>'; return; }
+        let seats={}; specialties.forEach(s=> seats[s.name]=s.seats);
+        let acceptedMap={}; matched.forEach(s=> acceptedMap[s.name]=[]);
+        let copy = [...allStudents].sort((a,b)=>b.gpa-a.gpa);
+        for(let st of copy){
+            for(let pref of st.preferences){
+                if(!pref) continue;
+                if(seats[pref] > 0){
+                    if(acceptedMap[pref]) acceptedMap[pref].push({id:st.id, gpa:st.gpa});
+                    seats[pref]--;
+                    break;
+                }
+            }
+        }
+        let demand = computeDemand();
+        let html = `<div class="results-card"><h3>🔍 نتائج "${q}"</h3>`;
+        for(let spec of matched){
+            let acc = acceptedMap[spec.name]||[];
+            let minS = acc.length ? Math.min(...acc.map(a=>a.gpa)).toFixed(2) : 'لا يوجد';
+            html+=`<div style="border-right:2px solid #0056b3; margin:10px 0; padding:8px;"><strong>📌 ${spec.name}</strong><br>🎓 المقاعد: ${spec.seats} | ✅ المقبولون: ${acc.length}<br>👥 المتقدمون: ${demand[spec.name]||0}<br>📊 الحد الأدنى: ${minS}</div>`;
+        }
+        div.innerHTML = html+'</div>';
+    }
+    
+    function filterSpecialties(){
+        let query = document.getElementById('statsSearchInput')?.value.trim().toLowerCase() || '';
+        let matched = specialties.filter(s=> s.name.toLowerCase().includes(query));
+        let div = document.getElementById('statsResults');
+        if(matched.length===0){ div.innerHTML='<div class="loading">❌ لا يوجد اختصاص</div>'; return; }
+        let seats={}; specialties.forEach(s=> seats[s.name]=s.seats);
+        let accepted={}; matched.forEach(s=> accepted[s.name]=[]);
+        let copy = [...allStudents].sort((a,b)=>b.gpa-a.gpa);
+        for(let st of copy){
+            for(let pref of st.preferences){
+                if(!pref) continue;
+                if(seats[pref] > 0){
+                    if(accepted[pref]) accepted[pref].push({id:st.id, gpa:st.gpa});
+                    seats[pref]--;
+                    break;
+                }
+            }
+        }
+        let demand = computeDemand();
+        let html='';
+        for(let spec of matched){
+            let acc = accepted[spec.name]||[];
+            let minS = acc.length ? Math.min(...acc.map(a=>a.gpa)).toFixed(2) : 'لا يوجد';
+            html+=`<div class="specialty-card"><h3>📌 ${spec.name}</h3><p>🎓 المقاعد: ${spec.seats}</p><p>✅ المقبولون: ${acc.length}</p><p>👥 المتقدمون: ${demand[spec.name]||0}</p><p>📊 الحد الأدنى: ${minS}</p>`;
+            if(acc.length) html+=`<details><summary>📋 الأرقام (${acc.length})</summary><ul>${acc.map(a=>`<li>${a.id} - ${a.gpa}</li>`).join('')}</ul></details>`;
+            html+=`</div>`;
+        }
+        div.innerHTML = html;
+    }
+    
+    // تحميل من جوجل شيت
+    async function loadSheetData(sheetId, showMsg=false){
+        if(!sheetId) return false;
+        try{
+            let url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+            let resp = await fetch(url, {cache:"no-store"});
+            let csv = await resp.text();
+            parseCSV(csv, showMsg);
+            updateTime();
+            return true;
+        }catch(e){ if(showMsg) alert("خطأ في تحميل البيانات"); return false; }
+    }
+    
+    function parseCSV(csv, showMsg){
+        let lines = csv.split(/\r?\n/);
+        if(lines.length<2) return;
+        let headers = parseCSVLine(lines[0]);
+        let idIdx=-1, gpaIdx=-1, prefIdx=[];
+        for(let i=0;i<headers.length;i++){
+            let h = headers[i].trim().toLowerCase();
+            if(h.includes('الرقم')||h.includes('امتحاني')||h.includes('id')) idIdx=i;
+            if(h.includes('معدل')||h.includes('gpa')) gpaIdx=i;
+            if(h.includes('رغبة')) prefIdx.push(i);
+        }
+        if(idIdx===-1 || gpaIdx===-1) return;
+        let students = [];
+        for(let i=1;i<lines.length;i++){
+            let cols = parseCSVLine(lines[i]);
+            if(cols.length<=idIdx || cols.length<=gpaIdx) continue;
+            let id = cols[idIdx]?.trim();
+            let gpa = parseFloat(cols[gpaIdx]);
+            if(!id || isNaN(gpa)) continue;
+            let prefs = [];
+            for(let j=0; j<prefIdx.length && j<100; j++){
+                let p = cols[prefIdx[j]]?.trim();
+                if(p) prefs.push(p);
+            }
+            if(prefs.length) students.push({id, gpa, preferences:prefs});
+        }
+        allStudents = students;
+        if(showMsg) alert(`تم تحميل ${allStudents.length} طالب`);
+        runMatching();
+    }
+    function parseCSVLine(line){
+        let res=[], cur='', inQ=false;
+        for(let ch of line){
+            if(ch==='"') inQ=!inQ;
+            else if(ch===',' && !inQ){ res.push(cur.trim()); cur=''; }
+            else cur+=ch;
+        }
+        res.push(cur.trim());
+        return res;
+    }
+    
+    // واجهة المشرف
+    function showAdminLogin(){
+        let pwd = prompt("كلمة السر للمشرف:");
+        if(pwd===ADMIN_PW){
+            isAdmin=true;
+            document.getElementById('adminPanel').style.display='block';
+            renderAdminSpecialties();
+            renderAdminTable();
+        }else if(pwd) alert("كلمة سر غير صحيحة");
+    }
+    function renderAdminSpecialties(){
+        let cont = document.getElementById('adminSpecialtiesList');
+        if(!cont) return;
+        let html='';
+        specialties.forEach((sp,i)=>{
+            html+=`<div class="specialty-card"><div class="flex-between"><input type="text" id="spName${i}" value="${sp.name}" style="width:55%;"><input type="number" id="spSeats${i}" value="${sp.seats}" style="width:20%;"><button onclick="updateSpecialty(${i})" style="background:#28a745;">💾</button><button onclick="deleteSpecialty(${i})" style="background:#dc3545;">🗑️</button></div></div>`;
+        });
+        cont.innerHTML=html;
+    }
+    window.updateSpecialty=function(i){
+        let newName = document.getElementById(`spName${i}`).value;
+        let newSeats = parseInt(document.getElementById(`spSeats${i}`).value);
+        if(newName && !isNaN(newSeats)){ specialties[i]={name:newName, seats:newSeats}; saveSpecialtiesToLocal(); renderAdminSpecialties(); runMatching(); }
+    };
+    window.deleteSpecialty=function(i){ if(confirm("حذف الاختصاص؟")){ specialties.splice(i,1); saveSpecialtiesToLocal(); renderAdminSpecialties(); runMatching(); } };
+    function addSpecialtyPrompt(){ let n=prompt("اسم الاختصاص الجديد (مثال: أطفال - دراسات عام)"); if(n){ let s=parseInt(prompt("عدد المقاعد:","5")); specialties.push({name:n, seats:s||5}); saveSpecialtiesToLocal(); renderAdminSpecialties(); runMatching(); } }
+    function renderAdminTable(){
+        let tbody = document.getElementById('adminStudentsTableBody');
+        if(!tbody) return;
+        let sorted = [...processedStudents].sort((a,b)=>b.gpa-a.gpa);
+        tbody.innerHTML='';
+        sorted.forEach((s,i)=>{
+            let row = tbody.insertRow();
+            row.insertCell(0).innerText=i+1;
+            row.insertCell(1).innerText=s.id;
+            row.insertCell(2).innerText=s.gpa;
+            row.insertCell(3).innerText=s.assignedSpecialty;
+            row.insertCell(4).innerText=s.preferences.slice(0,5).join(' → ')+(s.preferences.length>5?' ...':'');
+        });
+    }
+    function saveSheetIdAndLoad(){
+        let id = document.getElementById('adminSheetId').value.trim();
+        if(id){ currentSheetId=id; localStorage.setItem('lastSheetId',id); loadSheetData(id,true); }
+        else alert("أدخل معرف الجدول");
+    }
+    function manualRefresh(){ if(currentSheetId) loadSheetData(currentSheetId,true); }
+    function exportCSV(){
+        let csv = "الرقم الجامعي,المعدل,الاختصاص المقبول,الرغبات\n";
+        processedStudents.forEach(s=>{ csv+=`"${s.id}",${s.gpa},"${s.assignedSpecialty}","${s.preferences.join(' | ')}"\n`; });
+        let blob = new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8'});
+        let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`نتائج_${new Date().toISOString().slice(0,19)}.csv`; a.click(); URL.revokeObjectURL(a.href);
+    }
+    function updateTime(){ document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`; }
+    function switchTab(tabId){
+        document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+        document.getElementById(`tab${tabId.charAt(0).toUpperCase()+tabId.slice(1)}`).classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.remove('active'));
+        event.target.classList.add('active');
+        if(tabId==='stats') filterSpecialties();
+        if(tabId==='students') renderTopStudents();
+    }
+    function startAutoRefresh(){ if(refreshTimer) clearInterval(refreshTimer); refreshTimer = setInterval(()=>{ if(currentSheetId) loadSheetData(currentSheetId,false); },15000); }
+    
+    // ربط الأحداث
+    document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.getAttribute('data-tab'))));
+    window.performSearch=performSearch;
+    window.filterSpecialties=filterSpecialties;
+    window.showAdminLogin=showAdminLogin;
+    window.addSpecialtyPrompt=addSpecialtyPrompt;
+    window.saveSheetIdAndLoad=saveSheetIdAndLoad;
+    window.manualRefresh=manualRefresh;
+    window.exportCSV=exportCSV;
+    
+    loadSpecialties();
+    let savedId = localStorage.getItem('lastSheetId');
+    if(savedId){ currentSheetId=savedId; document.getElementById('adminSheetId').value=savedId; setTimeout(()=>loadSheetData(savedId,false),500); }
+    startAutoRefresh();
+    updateTime();
+</script>
+</body>
+</html>
