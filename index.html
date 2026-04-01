@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>نظام المفاضلة الطبية - تحديث فوري</title>
+    <title>نظام المفاضلة الطبية - تحديث مباشر</title>
     <style>
         * {
             margin: 0;
@@ -168,11 +168,6 @@
             margin-bottom: 10px;
             color: #0056b3;
         }
-        .specialty-card p {
-            font-size: 13px;
-            margin: 6px 0;
-            color: #334155;
-        }
         .specialty-card .stats-row {
             display: flex;
             flex-wrap: wrap;
@@ -198,11 +193,6 @@
             padding: 6px 12px;
             border-radius: 40px;
             display: inline-block;
-        }
-        ul {
-            margin-top: 8px;
-            padding-right: 20px;
-            font-size: 12px;
         }
         .search-box {
             margin-bottom: 16px;
@@ -238,76 +228,19 @@
             position: sticky;
             top: 0;
         }
-        .admin-badge {
-            background: #dc3545;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-size: 12px;
-            display: inline-block;
-            margin-bottom: 16px;
-        }
-        .admin-panel {
-            margin-top: 28px;
-            border-top: 2px solid #e2e8f0;
-            padding-top: 20px;
-        }
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .specialties-admin-grid {
-            max-height: 450px;
-            overflow-y: auto;
-            margin-bottom: 24px;
-        }
-        .specialty-admin-item {
-            background: #f8fafc;
-            border-radius: 20px;
+        .load-more-btn {
+            background: #e2e8f0;
+            border: none;
             padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 8px;
-        }
-        .specialty-admin-item input {
-            flex: 2;
-            padding: 8px 12px;
-            border: 1px solid #cbd5e1;
             border-radius: 40px;
-            font-size: 13px;
-        }
-        .specialty-admin-item input[type="number"] {
-            flex: 1;
-        }
-        .btn-icon {
-            background: #dc3545;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 40px;
-            color: white;
-            font-size: 12px;
+            margin-top: 12px;
+            width: 100%;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
         }
-        .btn-icon.green {
-            background: #28a745;
-        }
-        .btn-icon.blue {
-            background: #0056b3;
-        }
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-size: 13px;
-        }
+        .accepted { color: #28a745; font-weight: bold; }
+        .rejected { color: #dc3545; font-weight: bold; }
         footer {
             text-align: center;
             font-size: 10px;
@@ -321,8 +254,8 @@
             .container { padding: 16px; border-radius: 24px; }
             .big-number .number { font-size: 48px; }
             .tab-btn { font-size: 13px; padding: 8px 12px; }
-            .students-table th, .students-table td { font-size: 11px; padding: 6px 3px; }
-            .notice-box { font-size: 12px; }
+            .specialty-card h3 { font-size: 14px; }
+            .badge { font-size: 11px; }
         }
     </style>
 </head>
@@ -337,41 +270,43 @@
         <div class="label">عدد الطلاب المسجلين</div>
     </div>
     
-    <!-- الملاحظة المهمة -->
     <div class="notice-box">
-        <p>⚠️ <strong>ملاحظة مهمة:</strong> النتائج تتغير باستمرار مع استمرار الإضافات الجديدة، أي كلما دخل طالب جديد يتم إعادة الحسابات مرة أخرى، فلا تعتمد النتائج إلا إذا وصل عدد المسجلين إلى عدد كبير أو العدد الكامل.</p>
-        <p>📌 هذا الموقع تم إنشاؤه بالكامل بواسطة الذكاء الاصطناعي. هذه الإحصائيات للاستئناس فقط، هناك العديد من المتغيرات التي لا يمكن التحكم بها.</p>
-        <p>⚠️ لا تغير ترتيب رغباتك بناءً على إحصائيات هذا الموقع، لا تبني توقعاتك بناءً على هذه الإحصائيات.</p>
-        <p>📊 مرة أخرى: هذه الإحصائيات للاستئناس فقط.</p>
+        <p>⚠️ <strong>ملاحظة مهمة:</strong> النتائج تتغير باستمرار مع استمرار الإضافات الجديدة. لا تعتمد على النتائج إلا بعد اكتمال التسجيل.</p>
+        <p>📌 هذه الإحصائيات للاستئناس فقط، لا تغير ترتيب رغباتك بناءً عليها.</p>
         <div class="ai-note">🤖 بالتوفيق للجميع</div>
     </div>
 
     <div class="update-info">
-        <span class="live-badge">🔄 تحديث فوري كل 15 ثانية</span>
+        <span class="live-badge">🔄 تحديث فوري كل 20 ثانية</span>
         <span class="update-time" id="updateTime">جاري التحميل...</span>
     </div>
 
     <div class="tab-buttons">
         <button class="tab-btn active" data-tab="stats">📊 الإحصائيات</button>
-        <button class="tab-btn" data-tab="studentsList">📋 قائمة الطلاب</button>
+        <button class="tab-btn" data-tab="students">📋 قائمة الطلاب</button>
     </div>
 
-    <!-- تبويب الإحصائيات -->
     <div id="tabStats" class="tab-pane active">
         <div id="publicStats" class="specialties-grid">
             <div class="loading">جاري تحميل الإحصائيات...</div>
         </div>
+        <button id="loadMoreStatsBtn" class="load-more-btn" style="display: none;">➕ تحميل المزيد من الاختصاصات</button>
     </div>
 
-    <!-- تبويب قائمة الطلاب -->
-    <div id="tabStudentsList" class="tab-pane">
+    <div id="tabStudents" class="tab-pane">
         <div class="search-box">
             <input type="text" id="studentSearchInput" placeholder="🔍 ابحث بالرقم الجامعي...">
         </div>
         <div class="students-table-wrapper">
             <table class="students-table" id="allStudentsTable">
                 <thead>
-                    60<th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
+                    <tr>
+                        <th>#</th>
+                        <th>الرقم الجامعي</th>
+                        <th>المعدل</th>
+                        <th>الاختصاص المقبول</th>
+                    </tr>
+                </thead>
                 <tbody id="allStudentsTableBody">
                     <tr><td colspan="4">لا توجد بيانات</td></tr>
                 </tbody>
@@ -382,33 +317,29 @@
     <footer>البيانات تُحدَّث تلقائياً من نموذج Google</footer>
 </div>
 
+<!-- لوحة المشرف -->
 <div id="adminPanel" style="display: none;" class="container">
     <div class="header">
         <h1>🔐 لوحة المشرف</h1>
-        <button class="logout-btn" onclick="logoutAdmin()">🚪 تسجيل خروج</button>
+        <button class="admin-login-btn" onclick="closeAdminPanel()" style="background:#dc3545; color:white;">🚪 إغلاق</button>
     </div>
-    <div class="admin-badge">وضع المشرف - جميع البيانات</div>
-
-    <div class="flex-between">
+    <div class="admin-badge" style="background:#dc3545; color:white; padding:4px 12px; border-radius:40px; display:inline-block; margin-bottom:16px;">وضع المشرف - جميع البيانات</div>
+    
+    <div class="flex-between" style="display:flex; justify-content:space-between; margin-bottom:16px;">
         <h3>📋 إعدادات Google Sheets</h3>
-        <button onclick="manualRefresh()" class="btn-icon blue">🔄 تحديث يدوي</button>
+        <button onclick="manualRefresh()" style="background:#0056b3; border:none; padding:8px 16px; border-radius:40px; color:white;">🔄 تحديث يدوي</button>
     </div>
-    <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap:wrap;">
-        <input type="text" id="adminSheetId" placeholder="معرف جدول Google Sheets" style="flex:2; padding: 10px; border-radius: 40px;">
-        <button onclick="saveSheetIdAndLoad()" class="btn-icon blue">💾 حفظ وتحميل</button>
-    </div>
-
-    <div class="flex-between">
+    
+    <div class="flex-between" style="display:flex; justify-content:space-between; margin:16px 0;">
         <h3>📌 إدارة المقاعد (تعديل تلقائي)</h3>
-        <button onclick="addSpecialtyPrompt()" class="btn-icon green">➕ إضافة اختصاص</button>
     </div>
-    <div id="adminSpecialtiesList" class="specialties-admin-grid"></div>
-
-    <div class="flex-between">
+    <div id="adminSpecialtiesList" style="max-height:400px; overflow-y:auto; margin-bottom:20px;"></div>
+    
+    <div class="flex-between" style="display:flex; justify-content:space-between; margin:16px 0;">
         <h3>👥 جميع الطلاب</h3>
-        <button onclick="exportCSV()" class="btn-icon blue">📥 تصدير CSV</button>
+        <button onclick="exportCSV()" style="background:#28a745; border:none; padding:8px 16px; border-radius:40px; color:white;">📥 تصدير CSV</button>
     </div>
-    <div style="overflow-x: auto;">
+    <div style="overflow-x:auto;">
         <table class="students-table">
             <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><th>الرغبات (أول 5)</th></tr></thead>
             <tbody id="adminStudentsTableBody"></tbody>
@@ -418,88 +349,112 @@
 </div>
 
 <script>
-    // ---------- قائمة الاختصاصات الأساسية (تُنشأ تلقائياً) ----------
-    const baseNames = [
-        "جلدية","اذنية","عينية","أطفال","نسائية وتوليد",
-        "داخلية قلبية","داخلية هضمية","داخلية صدرية","داخلية عامة","داخلية كلية",
-        "داخلية غدية","داخلية عصبية","داخلية دم","داخلية ثوية",
-        "جراحة عامة","جراحة عظمية","جراحة بولية","جراحة عصبية","جراحة تجميل",
-        "جراحة أطفال","جراحة قلبية","جراحة وعائية",
-        "جراحة صدرية","أشعة","طب مخبري","تشريح مرضي","تخدير","أورام",
-        "طب نفسي","طب أسرة","الطب الفيزيائي واعادة التاهيل"
-    ];
-    const singleOnly = new Set(["جراحة صدرية","طب نفسي","طب أسرة","الطب الفيزيائي واعادة التاهيل"]);
-    function buildSpecialties() {
-        const list = [];
-        for (let name of baseNames) {
-            if (singleOnly.has(name)) list.push({ name, seats:5 });
-            else {
-                list.push({ name: `${name} - دراسات عام`, seats:5 });
-                list.push({ name: `${name} - دراسات موازي`, seats:5 });
-                list.push({ name: `${name} - صحة`, seats:5 });
-            }
-        }
-        return list;
-    }
-
-    let specialties = [];
+    // ===================== بيانات الاختصاصات (من إدخالك) =====================
+    const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5},{"name":"جلدية - دراسات موازي","seats":2},{"name":"جلدية - صحة","seats":2},{"name":"اذنية - دراسات عام","seats":8},{"name":"اذنية - دراسات موازي","seats":3},{"name":"اذنية - صحة","seats":4},{"name":"عينية - دراسات عام","seats":8},{"name":"عينية - دراسات موازي","seats":3},{"name":"عينية - صحة","seats":5},{"name":"أطفال - دراسات عام","seats":60},{"name":"أطفال - دراسات موازي","seats":18},{"name":"أطفال - صحة","seats":15},{"name":"نسائية وتوليد - دراسات عام","seats":22},{"name":"نسائية وتوليد - دراسات موازي","seats":7},{"name":"نسائية وتوليد - صحة","seats":13},{"name":"داخلية قلبية - دراسات عام","seats":8},{"name":"داخلية قلبية - دراسات موازي","seats":3},{"name":"داخلية قلبية - صحة","seats":7},{"name":"داخلية هضمية - دراسات عام","seats":8},{"name":"داخلية هضمية - دراسات موازي","seats":3},{"name":"داخلية هضمية - صحة","seats":2},{"name":"داخلية صدرية - دراسات عام","seats":7},{"name":"داخلية صدرية - دراسات موازي","seats":3},{"name":"داخلية صدرية - صحة","seats":2},{"name":"داخلية عامة - دراسات عام","seats":60},{"name":"داخلية عامة - دراسات موازي","seats":18},{"name":"داخلية عامة - صحة","seats":12},{"name":"داخلية كلية - دراسات عام","seats":7},{"name":"داخلية كلية - دراسات موازي","seats":3},{"name":"داخلية كلية - صحة","seats":1},{"name":"داخلية غدية - دراسات عام","seats":7},{"name":"داخلية غدية - دراسات موازي","seats":3},{"name":"داخلية غدية - صحة","seats":2},{"name":"داخلية عصبية - دراسات عام","seats":4},{"name":"داخلية عصبية - دراسات موازي","seats":2},{"name":"داخلية عصبية - صحة","seats":2},{"name":"داخلية دم - دراسات عام","seats":7},{"name":"داخلية دم - دراسات موازي","seats":3},{"name":"داخلية دم - صحة","seats":1},{"name":"داخلية ثوية - دراسات عام","seats":6},{"name":"داخلية ثوية - دراسات موازي","seats":2},{"name":"داخلية ثوية - صحة","seats":1},{"name":"جراحة عامة - دراسات عام","seats":25},{"name":"جراحة عامة - دراسات موازي","seats":8},{"name":"جراحة عامة - صحة","seats":14},{"name":"جراحة عظمية - دراسات عام","seats":11},{"name":"جراحة عظمية - دراسات موازي","seats":4},{"name":"جراحة عظمية - صحة","seats":10},{"name":"جراحة بولية - دراسات عام","seats":5},{"name":"جراحة بولية - دراسات موازي","seats":2},{"name":"جراحة بولية - صحة","seats":8},{"name":"جراحة عصبية - دراسات عام","seats":5},{"name":"جراحة عصبية - دراسات موازي","seats":2},{"name":"جراحة عصبية - صحة","seats":1},{"name":"جراحة تجميل - دراسات عام","seats":5},{"name":"جراحة تجميل - دراسات موازي","seats":2},{"name":"جراحة تجميل - صحة","seats":2},{"name":"جراحة أطفال - دراسات عام","seats":6},{"name":"جراحة أطفال - دراسات موازي","seats":2},{"name":"جراحة أطفال - صحة","seats":3},{"name":"جراحة قلبية - دراسات عام","seats":6},{"name":"جراحة قلبية - دراسات موازي","seats":2},{"name":"جراحة قلبية - صحة","seats":2},{"name":"جراحة وعائية - دراسات عام","seats":6},{"name":"جراحة وعائية - دراسات موازي","seats":2},{"name":"جراحة وعائية - صحة","seats":1},{"name":"جراحة صدرية","seats":2},{"name":"أشعة - دراسات عام","seats":30},{"name":"أشعة - دراسات موازي","seats":9},{"name":"أشعة - صحة","seats":14},{"name":"طب مخبري - دراسات عام","seats":18},{"name":"طب مخبري - دراسات موازي","seats":6},{"name":"طب مخبري - صحة","seats":9},{"name":"تشريح مرضي - دراسات عام","seats":9},{"name":"تشريح مرضي - دراسات موازي","seats":3},{"name":"تشريح مرضي - صحة","seats":1},{"name":"تخدير - دراسات عام","seats":85},{"name":"تخدير - دراسات موازي","seats":26},{"name":"تخدير - صحة","seats":16},{"name":"أورام - دراسات عام","seats":6},{"name":"أورام - دراسات موازي","seats":2},{"name":"أورام - صحة","seats":2},{"name":"طب نفسي","seats":12},{"name":"طب أسرة","seats":8},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3}];
+    
+    // ===================== إعدادات ثابتة =====================
+    const STUDENTS_SHEET_ID = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
+    
+    // ===================== البيانات العامة =====================
+    let specialties = [...specialtiesData];
     let allStudents = [];
     let processedStudents = [];
-    let currentSheetId = "";
     let refreshTimer = null;
-    const ADMIN_PW = "Alichayeb@23184";
     let isAdmin = false;
-
-    function saveSpecialtiesToLocal() {
-        localStorage.setItem('specialties', JSON.stringify(specialties));
-        if (isAdmin) renderAdminSpecialties();
+    let displayedSpecialtiesCount = 30;
+    const ADMIN_PW = "Alichayeb@23184";
+    
+    // تحميل بيانات الطلاب من Google Sheets
+    async function loadStudentsData() {
+        if (!STUDENTS_SHEET_ID) return;
+        try {
+            const url = `https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET_ID}/gviz/tq?tqx=out:csv`;
+            const resp = await fetch(url, { cache: "no-store" });
+            const csv = await resp.text();
+            parseStudentsCSV(csv);
+            updateTimeDisplay();
+        } catch(e) { console.error("خطأ بتحميل الطلاب", e); }
+    }
+    
+    function parseStudentsCSV(csv) {
+        const lines = csv.split(/\r?\n/);
+        if (lines.length < 2) return;
+        const headers = parseCSVLine(lines[0]);
+        let idIdx = -1, gpaIdx = -1, prefIdx = [];
+        for (let i=0; i<headers.length; i++) {
+            let h = headers[i].trim().toLowerCase();
+            if (h.includes('الرقم') || h.includes('امتحاني') || h.includes('id')) idIdx = i;
+            if (h.includes('معدل') || h.includes('gpa')) gpaIdx = i;
+            if (h.includes('رغبة')) prefIdx.push(i);
+        }
+        if (idIdx === -1 || gpaIdx === -1) return;
+        let students = [];
+        for (let i=1; i<lines.length; i++) {
+            let cols = parseCSVLine(lines[i]);
+            if (cols.length <= idIdx || cols.length <= gpaIdx) continue;
+            let id = cols[idIdx]?.trim();
+            let gpa = parseFloat(cols[gpaIdx]);
+            if (!id || isNaN(gpa)) continue;
+            let prefs = [];
+            for (let j=0; j<prefIdx.length && j<100; j++) {
+                let p = cols[prefIdx[j]]?.trim();
+                if (p) prefs.push(p);
+            }
+            if (prefs.length) students.push({ id, gpa, preferences: prefs });
+        }
+        allStudents = students;
         runMatching();
     }
-    function loadSpecialties() {
-        const saved = localStorage.getItem('specialties');
-        if (saved) specialties = JSON.parse(saved);
-        else specialties = buildSpecialties();
-        saveSpecialtiesToLocal();
+    
+    function parseCSVLine(line) {
+        let res = [], cur = '', inQ = false;
+        for (let ch of line) {
+            if (ch === '"') inQ = !inQ;
+            else if (ch === ',' && !inQ) { res.push(cur.trim()); cur = ''; }
+            else cur += ch;
+        }
+        res.push(cur.trim());
+        return res;
     }
-
-    // حساب عدد المتقدمين لكل اختصاص (بدون تكرار لكل طالب)
+    
+    // حساب عدد المتقدمين
     function computeDemand() {
         let demand = {};
         specialties.forEach(s => demand[s.name] = 0);
         for (let s of allStudents) {
             let seen = new Set();
-            for (let pref of s.preferences) {
-                if (pref && !seen.has(pref) && demand[pref] !== undefined) {
-                    seen.add(pref);
-                    demand[pref]++;
+            for (let p of s.preferences) {
+                if (p && !seen.has(p) && demand[p] !== undefined) {
+                    seen.add(p);
+                    demand[p]++;
                 }
             }
         }
         return demand;
     }
-
+    
     // تشغيل المفاضلة
     function runMatching() {
         if (allStudents.length === 0) {
             processedStudents = [];
-            updateAllUI();
+            updateUI();
             return;
         }
-        let studentsCopy = allStudents.map(s => ({ ...s, preferences: [...s.preferences] }));
-        studentsCopy.sort((a, b) => b.gpa - a.gpa);
+        let copy = allStudents.map(s => ({...s, preferences: [...s.preferences]}));
+        copy.sort((a,b) => b.gpa - a.gpa);
         let seats = {};
         specialties.forEach(s => seats[s.name] = s.seats);
         let accepted = {};
         specialties.forEach(s => accepted[s.name] = []);
         let results = [];
-        for (let st of studentsCopy) {
+        for (let st of copy) {
             let assigned = null;
-            for (let pref of st.preferences) {
-                if (!pref) continue;
-                if (seats[pref] > 0) {
-                    assigned = pref;
-                    seats[pref]--;
-                    accepted[pref].push({ id: st.id, gpa: st.gpa });
+            for (let p of st.preferences) {
+                if (!p) continue;
+                if (seats[p] > 0) {
+                    assigned = p;
+                    seats[p]--;
+                    accepted[p].push({ id: st.id, gpa: st.gpa });
                     break;
                 }
             }
@@ -511,146 +466,89 @@
             });
         }
         processedStudents = results;
-        updateAllUI(accepted, seats);
+        updateUI(accepted, seats);
     }
-
-    function updateAllUI(acceptedData, seatsAvailable) {
+    
+    function updateUI(acceptedData, seatsAvailable) {
         document.getElementById('totalCount').innerText = allStudents.length;
-        renderPublicStats(acceptedData, seatsAvailable);
-        renderAllStudentsTable();
+        renderStats(acceptedData, seatsAvailable);
+        renderStudentsTable();
         if (isAdmin) {
             renderAdminSpecialties();
             renderAdminTable();
         }
     }
-
-    function renderPublicStats(acceptedData, seatsAvailable) {
+    
+    let currentAcceptedData = null;
+    let currentSeatsAvailable = null;
+    
+    function renderStats(acceptedData, seatsAvailable) {
+        currentAcceptedData = acceptedData;
+        currentSeatsAvailable = seatsAvailable;
         const container = document.getElementById('publicStats');
         if (!container) return;
-        if (specialties.length === 0) {
-            container.innerHTML = '<div class="loading">لا توجد اختصاصات</div>';
-            return;
-        }
+        if (specialties.length === 0) { container.innerHTML = '<div>لا توجد اختصاصات</div>'; return; }
         const demand = computeDemand();
         let html = '';
-        for (let spec of specialties) {
-            const accepted = acceptedData?.[spec.name] || [];
-            const minScore = accepted.length ? Math.min(...accepted.map(a => a.gpa)).toFixed(2) : 'لا يوجد';
-            const remaining = seatsAvailable?.[spec.name] ?? spec.seats;
-            html += `
-                <div class="specialty-card">
-                    <h3>📌 ${spec.name}</h3>
-                    <div class="stats-row">
-                        <span class="badge">🎓 المقاعد: ${spec.seats}</span>
-                        <span class="badge">✅ المقبولون: ${accepted.length}</span>
-                        <span class="badge">👥 المتقدمون: ${demand[spec.name] || 0}</span>
-                    </div>
-                    <p>📊 الحد الأدنى للقبول: <strong>${minScore}</strong></p>
-            `;
-            if (accepted.length) {
-                html += `<details><summary>📋 أرقام المقبولين (${accepted.length})</summary><ul>`;
-                accepted.forEach(a => { html += `<li>${a.id} - ${a.gpa}</li>`; });
-                html += `</ul></details>`;
-            } else {
-                html += `<div style="font-size:12px; color:#888;">لا يوجد مقبولين بعد</div>`;
+        const displayCount = Math.min(displayedSpecialtiesCount, specialties.length);
+        for (let i = 0; i < displayCount; i++) {
+            const spec = specialties[i];
+            const acc = acceptedData?.[spec.name] || [];
+            const minScore = acc.length ? Math.min(...acc.map(a=>a.gpa)).toFixed(2) : 'لا يوجد';
+            html += `<div class="specialty-card">
+                        <h3>📌 ${spec.name}</h3>
+                        <div class="stats-row">
+                            <span class="badge">🎓 المقاعد: ${spec.seats}</span>
+                            <span class="badge">✅ المقبولون: ${acc.length}</span>
+                            <span class="badge">👥 المتقدمون: ${demand[spec.name] || 0}</span>
+                        </div>
+                        <p>📊 الحد الأدنى: <strong>${minScore}</strong></p>`;
+            if (acc.length) {
+                html += `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${acc.map(a=>`<li>${a.id} - ${a.gpa}</li>`).join('')}</ul></details>`;
             }
             html += `</div>`;
         }
         container.innerHTML = html;
+        
+        const loadMoreBtn = document.getElementById('loadMoreStatsBtn');
+        if (loadMoreBtn) {
+            if (displayedSpecialtiesCount < specialties.length) {
+                loadMoreBtn.style.display = 'block';
+                loadMoreBtn.onclick = () => {
+                    displayedSpecialtiesCount += 30;
+                    renderStats(currentAcceptedData, currentSeatsAvailable);
+                };
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
     }
-
-    function renderAllStudentsTable() {
+    
+    function renderStudentsTable() {
         const tbody = document.getElementById('allStudentsTableBody');
         if (!tbody) return;
-        const searchTerm = document.getElementById('studentSearchInput')?.value.trim() || '';
-        let filtered = [...processedStudents];
-        if (searchTerm) {
-            filtered = filtered.filter(s => s.id.includes(searchTerm));
-        }
-        if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات مطابقة</td></tr>';
-            return;
-        }
-        let html = '';
-        filtered.forEach((s, idx) => {
-            html += `<tr>
-                        <td>${idx+1}</td>
+        let search = document.getElementById('studentSearchInput')?.value.trim() || '';
+        let filtered = processedStudents.filter(s => s.id.includes(search));
+        tbody.innerHTML = '';
+        filtered.forEach((s, i) => {
+            let cls = s.assignedSpecialty === 'لم يحصل على مقعد' ? 'rejected' : 'accepted';
+            tbody.innerHTML += `<tr>
+                        <td>${i+1}</td>
                         <td>${s.id}</td>
                         <td>${s.gpa}</td>
-                        <td class="${s.assignedSpecialty === 'لم يحصل على مقعد' ? 'rejected' : 'accepted'}">${s.assignedSpecialty}</td>
-                     </tr>`;
+                        <td class="${cls}">${s.assignedSpecialty}</td>
+                    </tr>`;
         });
-        tbody.innerHTML = html;
+        if (filtered.length === 0) tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>';
     }
-
-    // تحميل من Google Sheets
-    async function loadSheetData(sheetId, showMsg = false) {
-        if (!sheetId) return false;
-        try {
-            const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
-            const resp = await fetch(url, { cache: "no-store" });
-            const csv = await resp.text();
-            parseCSV(csv, showMsg);
-            updateTime();
-            return true;
-        } catch (e) {
-            if (showMsg) alert("خطأ في تحميل البيانات. تأكد من نشر الجدول للعامة.");
-            return false;
-        }
+    
+    function updateTimeDisplay() {
+        document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
     }
-
-    function parseCSV(csv, showMsg) {
-        const lines = csv.split(/\r?\n/);
-        if (lines.length < 2) return;
-        const headers = parseCSVLine(lines[0]);
-        let idIdx = -1, gpaIdx = -1, prefIdx = [];
-        for (let i = 0; i < headers.length; i++) {
-            const h = headers[i].trim().toLowerCase();
-            if (h.includes('الرقم') || h.includes('امتحاني') || h.includes('id')) idIdx = i;
-            if (h.includes('معدل') || h.includes('gpa')) gpaIdx = i;
-            if (h.includes('رغبة')) prefIdx.push(i);
-        }
-        if (idIdx === -1 || gpaIdx === -1) {
-            if (showMsg) alert("لم يتم العثور على عمود الرقم الجامعي أو المعدل");
-            return;
-        }
-        const students = [];
-        for (let i = 1; i < lines.length; i++) {
-            const cols = parseCSVLine(lines[i]);
-            if (cols.length <= idIdx || cols.length <= gpaIdx) continue;
-            const id = cols[idIdx]?.trim();
-            let gpa = parseFloat(cols[gpaIdx]);
-            if (isNaN(gpa)) gpa = 0;
-            if (!id) continue;
-            const prefs = [];
-            for (let j = 0; j < prefIdx.length && j < 100; j++) {
-                const p = cols[prefIdx[j]]?.trim();
-                if (p) prefs.push(p);
-            }
-            if (prefs.length) students.push({ id, gpa, preferences: prefs });
-        }
-        allStudents = students;
-        if (showMsg) alert(`تم تحميل ${allStudents.length} طالب`);
-        runMatching();
-    }
-
-    function parseCSVLine(line) {
-        const res = [];
-        let cur = '', inQ = false;
-        for (let ch of line) {
-            if (ch === '"') inQ = !inQ;
-            else if (ch === ',' && !inQ) {
-                res.push(cur.trim());
-                cur = '';
-            } else cur += ch;
-        }
-        res.push(cur.trim());
-        return res;
-    }
-
-    // واجهة المشرف
+    
+    // ===================== واجهة المشرف =====================
     function showAdminLogin() {
-        const pwd = prompt("كلمة السر للمشرف:");
+        const pwd = prompt("🔐 أدخل كلمة السر للمشرف:");
         if (pwd === ADMIN_PW) {
             isAdmin = true;
             document.getElementById('publicContainer').style.display = 'none';
@@ -659,29 +557,27 @@
             renderAdminTable();
         } else if (pwd) alert("كلمة سر غير صحيحة");
     }
-
-    function logoutAdmin() {
+    
+    function closeAdminPanel() {
         isAdmin = false;
         document.getElementById('adminPanel').style.display = 'none';
         document.getElementById('publicContainer').style.display = 'block';
     }
-
+    
     function renderAdminSpecialties() {
         const container = document.getElementById('adminSpecialtiesList');
         if (!container) return;
         let html = '';
         specialties.forEach((spec, idx) => {
-            html += `
-                <div class="specialty-admin-item">
-                    <input type="text" value="${spec.name.replace(/"/g, '&quot;')}" id="specName${idx}" style="flex:3;">
-                    <input type="number" value="${spec.seats}" id="specSeats${idx}" style="flex:1;">
-                    <button onclick="deleteSpecialty(${idx})" class="btn-icon">🗑️</button>
-                </div>
-            `;
+            html += `<div style="background:#f8fafc; border-radius:20px; padding:10px; margin-bottom:10px; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                        <input type="text" value="${spec.name.replace(/"/g, '&quot;')}" id="specName${idx}" style="flex:3; padding:8px; border-radius:40px; border:1px solid #cbd5e1;">
+                        <input type="number" value="${spec.seats}" id="specSeats${idx}" style="flex:1; padding:8px; border-radius:40px; border:1px solid #cbd5e1;">
+                        <button onclick="updateSpecialty(${idx})" style="background:#28a745; border:none; padding:6px 12px; border-radius:40px; color:white;">💾</button>
+                        <button onclick="deleteSpecialty(${idx})" style="background:#dc3545; border:none; padding:6px 12px; border-radius:40px; color:white;">🗑️</button>
+                    </div>`;
         });
         container.innerHTML = html;
-
-        // إضافة مستمعات الحفظ التلقائي
+        
         specialties.forEach((_, idx) => {
             const nameInput = document.getElementById(`specName${idx}`);
             const seatsInput = document.getElementById(`specSeats${idx}`);
@@ -689,43 +585,29 @@
             if (seatsInput) seatsInput.onblur = () => updateSpecialty(idx);
         });
     }
-
+    
     function updateSpecialty(idx) {
         const newName = document.getElementById(`specName${idx}`).value;
         const newSeats = parseInt(document.getElementById(`specSeats${idx}`).value);
         if (newName && !isNaN(newSeats)) {
             specialties[idx] = { name: newName, seats: newSeats };
-            saveSpecialtiesToLocal();
-            renderAdminSpecialties(); // إعادة رسم مع الاحتفاظ بالقيم
+            renderAdminSpecialties();
             runMatching();
         }
     }
-
-    window.updateSpecialty = updateSpecialty;
-    window.deleteSpecialty = function(idx) {
+    
+    function deleteSpecialty(idx) {
         if (confirm("حذف هذا الاختصاص؟")) {
             specialties.splice(idx, 1);
-            saveSpecialtiesToLocal();
-            renderAdminSpecialties();
-            runMatching();
-        }
-    };
-
-    function addSpecialtyPrompt() {
-        const newName = prompt("اسم الاختصاص الجديد (مثال: أطفال - دراسات عام)");
-        if (newName) {
-            const newSeats = parseInt(prompt("عدد المقاعد:", "5"));
-            specialties.push({ name: newName, seats: newSeats || 5 });
-            saveSpecialtiesToLocal();
             renderAdminSpecialties();
             runMatching();
         }
     }
-
+    
     function renderAdminTable() {
         const tbody = document.getElementById('adminStudentsTableBody');
         if (!tbody) return;
-        const sorted = [...processedStudents].sort((a, b) => b.gpa - a.gpa);
+        const sorted = [...processedStudents].sort((a,b) => b.gpa - a.gpa);
         tbody.innerHTML = '';
         sorted.forEach((s, i) => {
             const row = tbody.insertRow();
@@ -736,21 +618,11 @@
             row.insertCell(4).innerText = s.preferences.slice(0,5).join(' → ') + (s.preferences.length > 5 ? ' ...' : '');
         });
     }
-
-    function saveSheetIdAndLoad() {
-        const id = document.getElementById('adminSheetId').value.trim();
-        if (id) {
-            currentSheetId = id;
-            localStorage.setItem('lastSheetId', id);
-            loadSheetData(id, true);
-        } else alert("أدخل معرف الجدول");
-    }
-
+    
     function manualRefresh() {
-        if (currentSheetId) loadSheetData(currentSheetId, true);
-        else alert("لم يتم تعيين معرف الجدول بعد");
+        loadStudentsData();
     }
-
+    
     function exportCSV() {
         let csv = "الرقم الجامعي,المعدل,الاختصاص المقبول,الرغبات\n";
         processedStudents.forEach(s => {
@@ -763,56 +635,37 @@
         a.click();
         URL.revokeObjectURL(a.href);
     }
-
-    function updateTime() {
-        document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
-    }
-
+    
+    // بدء التحديث التلقائي
     function startAutoRefresh() {
         if (refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(() => {
-            if (currentSheetId) loadSheetData(currentSheetId, false);
-        }, 15000);
+            loadStudentsData();
+        }, 20000);
     }
-
+    
     // التبويبات
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        if (tabName === 'stats') {
-            document.getElementById('tabStats').classList.add('active');
-            document.querySelector('.tab-btn[data-tab="stats"]').classList.add('active');
-        } else {
-            document.getElementById('tabStudentsList').classList.add('active');
-            document.querySelector('.tab-btn[data-tab="studentsList"]').classList.add('active');
-            renderAllStudentsTable(); // تحديث الجدول عند التبديل
-        }
-    }
-
     document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`tab${btn.getAttribute('data-tab') === 'stats' ? 'Stats' : 'Students'}`).classList.add('active');
+            if (btn.getAttribute('data-tab') === 'students') renderStudentsTable();
+        });
     });
-    document.getElementById('studentSearchInput')?.addEventListener('input', () => renderAllStudentsTable());
-
-    // تهيئة
-    loadSpecialties();
-    const savedId = localStorage.getItem('lastSheetId');
-    if (savedId) {
-        currentSheetId = savedId;
-        document.getElementById('adminSheetId').value = savedId;
-        setTimeout(() => loadSheetData(savedId, false), 500);
-    }
+    document.getElementById('studentSearchInput')?.addEventListener('input', () => renderStudentsTable());
+    
+    // التهيئة
+    loadStudentsData();
     startAutoRefresh();
-    updateTime();
-
-    // ربط الدوال العامة
+    
     window.showAdminLogin = showAdminLogin;
-    window.logoutAdmin = logoutAdmin;
-    window.addSpecialtyPrompt = addSpecialtyPrompt;
-    window.saveSheetIdAndLoad = saveSheetIdAndLoad;
+    window.closeAdminPanel = closeAdminPanel;
+    window.updateSpecialty = updateSpecialty;
+    window.deleteSpecialty = deleteSpecialty;
     window.manualRefresh = manualRefresh;
     window.exportCSV = exportCSV;
-    window.deleteSpecialty = deleteSpecialty;
 </script>
 </body>
 </html>
