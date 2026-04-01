@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام المفاضلة - اختصاصات منفصلة (عام/موازي/صحة)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7fc;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #0056b3;
+        }
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+        th {
+            background: #e9ecef;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+        button {
+            background: #0056b3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #003d80;
+        }
+        .flex-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            border-right: 4px solid #28a745;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .stat-card h4 {
+            margin: 0 0 8px 0;
+            color: #0056b3;
+        }
+        .stat-card p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .min-score {
+            font-weight: bold;
+            color: #28a745;
+            font-size: 18px;
+        }
+        .note {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin: 2px;
+            background: #6c757d;
+            color: white;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #0056b3;
+        }
+        .refresh-btn {
+            background: #28a745;
+            margin-bottom: 10px;
+        }
+        .setup-guide {
+            background: #d4edda;
+            border: 1px solid #28a745;
+        }
+        .students-list {
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: white;
+            padding: 5px;
+            border-radius: 4px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+        }
+        .students-list summary {
+            font-weight: bold;
+            cursor: pointer;
+            color: #0056b3;
+            margin-bottom: 5px;
+        }
+        .students-list ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>نظام المفاضلة للاختصاصات الطبية</h1>
+    <div class="note">
+        <strong>📌 ملاحظة:</strong> كل اختصاص مع نوعه (عام/موازي/صحة) يعتبر اختصاصًا منفصلاً. الطالب يختار النوع الذي يريده مباشرة في رغباته.
+    </div>
+    
+    <div class="note setup-guide">
+        <strong>📋 خطوات الإعداد:</strong>
+        <ol>
+            <li>في جدول الاختصاصات أدناه، أضف كل اختصاص مع نوعه (مثال: هضمية - عام، هضمية - موازي، هضمية - صحة).</li>
+            <li>حدد عدد المقاعد لكل اختصاص.</li>
+            <li>أنشئ Google Form بنفس أسماء الاختصاصات بالضبط في القوائم المنسدلة.</li>
+            <li>اربط Google Form بجدول Sheets وانشره للعامة.</li>
+            <li>أدخل معرف الجدول واضغط تحميل البيانات.</li>
+        </ol>
+    </div>
+
+    <!-- إعدادات Google Sheets -->
+    <div class="section">
+        <h2>🔗 إعدادات Google Sheets</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="sheetIdInput" placeholder="أدخل معرف Google Sheet (Sheet ID)" style="flex: 2;">
+            <button id="loadFromSheetBtn" style="background: #28a745;">📥 تحميل البيانات من Google Sheets</button>
+        </div>
+        <div class="note" style="margin-top: 10px;">
+            <strong>كيف تجد معرف الجدول؟</strong><br>
+            افتح جدول Google Sheets، انظر إلى الرابط:<br>
+            <code>https://docs.google.com/spreadsheets/d/<strong>1ABC123xyz...</strong>/edit</code><br>
+            الجزء <strong>1ABC123xyz...</strong> هو المعرف.
+        </div>
+    </div>
+
+    <!-- قسم إدارة الاختصاصات -->
+    <div class="section">
+        <h2>إدارة الاختصاصات (كل اختصاص + نوع منفصل)</h2>
+        <div class="flex-buttons">
+            <button id="addSpecialtyBtn">➕ إضافة اختصاص</button>
+            <button id="removeLastSpecialtyBtn">➖ حذف آخر اختصاص</button>
+            <button id="exportSpecialtiesBtn">📥 تصدير الاختصاصات (JSON)</button>
+            <button id="importSpecialtiesBtn">📂 استيراد الاختصاصات (JSON)</button>
+            <input type="file" id="importSpecialtiesFile" style="display:none" accept=".json">
+        </div>
+        <table id="specialtiesTable">
+            <thead>
+                60<th>الاختصاص (مع النوع)</th><th>عدد المقاعد</th><th style="width:50px">حذف</th> </thead>
+            <tbody id="specialtiesTableBody">
+                <tr>
+                    <td><input type="text" value="هضمية - عام"></td>
+                    <td><input type="number" value="5"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="هضمية - موازي"></td>
+                    <td><input type="number" value="3"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="هضمية - صحة"></td>
+                    <td><input type="number" value="2"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="قلبية - عام"></td>
+                    <td><input type="number" value="4"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="قلبية - موازي"></td>
+                    <td><input type="number" value="2"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="قلبية - صحة"></td>
+                    <td><input type="number" value="1"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+            </tbody>
+         </table>
+    </div>
+
+    <!-- قسم الإحصائيات -->
+    <div class="section">
+        <h2>📊 الإحصائيات والحد الأدنى للمعدلات</h2>
+        <div class="flex-buttons">
+            <button id="refreshStatsBtn" class="refresh-btn">🔄 تحديث الإحصائيات</button>
+        </div>
+        <div id="statsDiv">
+            <div class="loading">لم يتم تحميل البيانات بعد.</div>
+        </div>
+    </div>
+
+    <!-- قسم عرض الطلاب -->
+    <div class="section">
+        <h2>قائمة الطلاب المسجلين</h2>
+        <div style="overflow-x: auto; max-height: 400px;">
+            <table id="studentsTable">
+                <thead>
+                    <tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول فيه</th><th>الرغبات</th></tr>
+                </thead>
+                <tbody id="studentsTableBody">
+                    <tr><td colspan="5" style="text-align:center;">لم يتم تحميل البيانات</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let specialties = []; // [{ name, seats }]
+    let students = []; // [{ id, gpa, preferences[] }]
+    let processedStudents = [];
+
+    // تحميل الاختصاصات من localStorage
+    function loadSpecialties() {
+        const saved = localStorage.getItem('specialties');
+        if (saved) {
+            specialties = JSON.parse(saved);
+        } else {
+            specialties = [
+                { name: 'هضمية - عام', seats: 5 },
+                { name: 'هضمية - موازي', seats: 3 },
+                { name: 'هضمية - صحة', seats: 2 },
+                { name: 'قلبية - عام', seats: 4 },
+                { name: 'قلبية - موازي', seats: 2 },
+                { name: 'قلبية - صحة', seats: 1 }
+            ];
+        }
+        renderSpecialtiesTable();
+    }
+
+    function saveSpecialties() {
+        localStorage.setItem('specialties', JSON.stringify(specialties));
+    }
+
+    function renderSpecialtiesTable() {
+        const tbody = document.getElementById('specialtiesTableBody');
+        tbody.innerHTML = '';
+        specialties.forEach((spec, idx) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = `<input type="text" value="${spec.name}" onchange="updateSpecialty(${idx}, 'name', this.value)">`;
+            row.insertCell(1).innerHTML = `<input type="number" value="${spec.seats}" onchange="updateSpecialty(${idx}, 'seats', parseInt(this.value) || 0)">`;
+            row.insertCell(2).innerHTML = `<button onclick="deleteSpecialty(${idx})" style="background:#dc3545;padding:5px 10px;">🗑️</button>`;
+        });
+        saveSpecialties();
+        runMatching();
+    }
+
+    function updateSpecialty(idx, field, value) {
+        specialties[idx][field] = value;
+        saveSpecialties();
+        runMatching();
+    }
+
+    function deleteSpecialty(idx) {
+        specialties.splice(idx, 1);
+        renderSpecialtiesTable();
+    }
+
+    function addSpecialty() {
+        specialties.push({ name: 'اختصاص جديد', seats: 0 });
+        renderSpecialtiesTable();
+    }
+
+    function removeLastSpecialty() {
+        if (specialties.length > 0) {
+            specialties.pop();
+            renderSpecialtiesTable();
+        }
+    }
+
+    function deleteSpecialtyRow(btn) {
+        const row = btn.closest('tr');
+        const idx = row.rowIndex - 1;
+        if (idx >= 0 && idx < specialties.length) {
+            specialties.splice(idx, 1);
+            renderSpecialtiesTable();
+        }
+    }
+
+    async function loadFromGoogleSheet(sheetId) {
+        if (!sheetId) {
+            alert('الرجاء إدخال معرف Google Sheet');
+            return;
+        }
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+        try {
+            const response = await fetch(url);
+            const csvText = await response.text();
+            parseCSVToStudents(csvText);
+        } catch (error) {
+            alert('خطأ في تحميل البيانات. تأكد من أن الجدول منشور للعامة.');
+        }
+    }
+
+    function parseCSVToStudents(csvText) {
+        const lines = csvText.split(/\r?\n/);
+        if (lines.length < 2) {
+            alert('البيانات غير كافية');
+            return;
+        }
+        const headers = parseCSVLine(lines[0]);
+        let idColIdx = -1, gpaColIdx = -1;
+        let prefColIndices = [];
+        for (let i = 0; i < headers.length; i++) {
+            const h = headers[i].trim().toLowerCase();
+            if (h.includes('الرقم') || h.includes('امتحاني') || h.includes('id') || h.includes('جامعي')) idColIdx = i;
+            else if (h.includes('معدل') || h.includes('gpa')) gpaColIdx = i;
+            else if (h.includes('رغبة') || h.includes('الرغبة')) prefColIndices.push(i);
+        }
+        if (idColIdx === -1 || gpaColIdx === -1) {
+            alert('لم يتم العثور على عمود الرقم الجامعي أو المعدل');
+            return;
+        }
+        const newStudents = [];
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            const cols = parseCSVLine(lines[i]);
+            if (cols.length <= idColIdx || cols.length <= gpaColIdx) continue;
+            const id = cols[idColIdx]?.trim();
+            const gpa = parseFloat(cols[gpaColIdx]);
+            if (!id || isNaN(gpa)) continue;
+            const preferences = [];
+            for (let j = 0; j < prefColIndices.length && j < 20; j++) {
+                const pref = cols[prefColIndices[j]]?.trim();
+                if (pref) preferences.push(pref);
+            }
+            if (preferences.length > 0) {
+                newStudents.push({ id, gpa, preferences });
+            }
+        }
+        if (newStudents.length === 0) {
+            alert('لم يتم العثور على بيانات طلاب صالحة');
+            return;
+        }
+        students = newStudents;
+        alert(`تم تحميل ${students.length} طالب/طالبة بنجاح!`);
+        runMatching();
+    }
+
+    function parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current.trim());
+        return result;
+    }
+
+    function runMatching() {
+        if (students.length === 0) {
+            updateStatsDisplayEmpty();
+            renderStudentsListEmpty();
+            return;
+        }
+
+        let studentsCopy = students.map(s => ({ ...s, preferences: [...s.preferences] }));
+        studentsCopy.sort((a, b) => b.gpa - a.gpa);
+
+        let seatsAvailable = {};
+        specialties.forEach(spec => {
+            seatsAvailable[spec.name] = spec.seats;
+        });
+
+        let acceptedIds = {};
+        let acceptedScores = {};
+        specialties.forEach(spec => {
+            acceptedIds[spec.name] = [];
+            acceptedScores[spec.name] = [];
+        });
+
+        const results = [];
+        for (let student of studentsCopy) {
+            let assigned = null;
+            for (let pref of student.preferences) {
+                if (!pref) continue;
+                if (seatsAvailable[pref] > 0) {
+                    assigned = pref;
+                    seatsAvailable[pref]--;
+                    acceptedScores[pref].push(student.gpa);
+                    acceptedIds[pref].push(student.id);
+                    break;
+                }
+            }
+            results.push({
+                id: student.id,
+                gpa: student.gpa,
+                preferences: student.preferences,
+                assignedSpecialty: assigned || 'لم يحصل على مقعد'
+            });
+        }
+        processedStudents = results;
+        updateStatsDisplay(acceptedScores, seatsAvailable, acceptedIds);
+        renderStudentsList();
+    }
+
+    function updateStatsDisplay(acceptedScores, seatsAvailable, acceptedIds) {
+        const statsDiv = document.getElementById('statsDiv');
+        let html = `<div class="stats-grid">`;
+        
+        for (let spec of specialties) {
+            const scores = acceptedScores[spec.name] || [];
+            const ids = acceptedIds[spec.name] || [];
+            const minScore = scores.length > 0 ? Math.min(...scores).toFixed(2) : 'لم يقبل أحد';
+            const remaining = seatsAvailable[spec.name] || 0;
+            const acceptedCount = scores.length;
+            
+            html += `
+                <div class="stat-card">
+                    <h4>📌 ${spec.name}</h4>
+                    <p>🎓 الحد الأدنى: <strong>${minScore}</strong></p>
+                    <p>📊 المقبولون: ${acceptedCount} / ${spec.seats}</p>
+                    <p>📭 المتبقي: ${remaining}</p>
+            `;
+            
+            if (ids.length > 0) {
+                html += `
+                    <details class="students-list">
+                        <summary>📋 الأرقام الجامعية (${ids.length})</summary>
+                        <ul>
+                            ${ids.map(id => `<li>${id}</li>`).join('')}
+                        </ul>
+                    </details>
+                `;
+            } else {
+                html += `<div class="students-list" style="color:gray;">لا يوجد مقبولين بعد</div>`;
+            }
+            html += `</div>`;
+        }
+        
+        const unassigned = processedStudents.filter(s => s.assignedSpecialty === 'لم يحصل على مقعد');
+        html += `
+            <div class="stat-card" style="border-right-color: #dc3545;">
+                <h4>📈 إحصائيات عامة</h4>
+                <p>👥 إجمالي الطلاب: ${processedStudents.length}</p>
+                <p>✅ المقبولون: ${processedStudents.length - unassigned.length}</p>
+                <p>⚠️ غير المقبولين: ${unassigned.length}</p>
+                <details class="students-list">
+                    <summary>📋 أرقام غير المقبولين (${unassigned.length})</summary>
+                    <ul>${unassigned.map(s => `<li>${s.id}</li>`).join('')}</ul>
+                </details>
+            </div>
+        `;
+        html += `</div>`;
+        statsDiv.innerHTML = html;
+    }
+
+    function updateStatsDisplayEmpty() {
+        const statsDiv = document.getElementById('statsDiv');
+        let html = `<div class="stats-grid">`;
+        for (let spec of specialties) {
+            html += `
+                <div class="stat-card">
+                    <h4>📌 ${spec.name}</h4>
+                    <p>🎓 الحد الأدنى: <strong>لم يقبل أحد</strong></p>
+                    <p>📊 المقاعد: ${spec.seats}</p>
+                    <p>📭 المتبقي: ${spec.seats}</p>
+                    <div class="students-list" style="color:gray;">لا يوجد مقبولين بعد</div>
+                </div>
+            `;
+        }
+        html += `
+            <div class="stat-card">
+                <h4>📈 إحصائيات عامة</h4>
+                <p>👥 إجمالي الطلاب: 0</p>
+                <p>✅ المقبولون: 0</p>
+                <p>⚠️ غير المقبولين: 0</p>
+            </div>
+        `;
+        html += `</div>`;
+        statsDiv.innerHTML = html;
+    }
+
+    function renderStudentsList() {
+        const tbody = document.getElementById('studentsTableBody');
+        tbody.innerHTML = '';
+        if (processedStudents.length === 0) return;
+        const sorted = [...processedStudents].sort((a, b) => b.gpa - a.gpa);
+        sorted.forEach((student, idx) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = idx + 1;
+            row.insertCell(1).innerText = student.id;
+            row.insertCell(2).innerText = student.gpa;
+            row.insertCell(3).innerText = student.assignedSpecialty;
+            row.insertCell(4).innerText = student.preferences.join(' → ');
+        });
+    }
+
+    function renderStudentsListEmpty() {
+        const tbody = document.getElementById('studentsTableBody');
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد بيانات</td></tr>';
+    }
+
+    function exportSpecialties() {
+        const data = JSON.stringify(specialties, null, 2);
+        const blob = new Blob([data], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'specialties.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function importSpecialties(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    specialties = imported;
+                    renderSpecialtiesTable();
+                    runMatching();
+                    alert('تم استيراد الاختصاصات بنجاح');
+                } else alert('الملف لا يحتوي على مصفوفة صحيحة');
+            } catch (err) { alert('خطأ في قراءة الملف'); }
+        };
+        reader.readAsText(file);
+    }
+
+    document.getElementById('addSpecialtyBtn').onclick = addSpecialty;
+    document.getElementById('removeLastSpecialtyBtn').onclick = removeLastSpecialty;
+    document.getElementById('exportSpecialtiesBtn').onclick = exportSpecialties;
+    document.getElementById('importSpecialtiesBtn').onclick = () => document.getElementById('importSpecialtiesFile').click();
+    document.getElementById('importSpecialtiesFile').onchange = (e) => { if(e.target.files[0]) importSpecialties(e.target.files[0]); };
+    document.getElementById('loadFromSheetBtn').onclick = () => {
+        const sheetId = document.getElementById('sheetIdInput').value.trim();
+        loadFromGoogleSheet(sheetId);
+    };
+    document.getElementById('refreshStatsBtn').onclick = () => {
+        const sheetId = document.getElementById('sheetIdInput').value.trim();
+        if (sheetId) loadFromGoogleSheet(sheetId);
+        else runMatching();
+    };
+
+    loadSpecialties();
+</script>
+</body>
+</html>
