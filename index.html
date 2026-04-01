@@ -81,29 +81,25 @@
             border-right: 4px solid #f59e0b;
             border-radius: 20px;
             padding: 14px 16px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             font-size: 13px;
             color: #92400e;
             line-height: 1.6;
         }
-        .notice-box p {
-            margin: 8px 0;
-        }
-        .admin-notice {
-            background: #e6f7e6;
-            border-right: 4px solid #28a745;
-            margin-top: 12px;
-            padding: 10px;
-            border-radius: 16px;
-        }
-        .admin-notice textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 16px;
+        .alerts-box {
+            background: #fee2e2;
+            border-right: 4px solid #dc3545;
+            border-radius: 20px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
             font-size: 13px;
-            font-family: inherit;
+            color: #991b1b;
+            line-height: 1.6;
+        }
+        .alerts-box h4 {
+            font-size: 14px;
             margin-bottom: 8px;
+            color: #dc3545;
         }
         .update-info {
             display: flex;
@@ -273,6 +269,26 @@
             margin: 12px 0;
             font-size: 12px;
         }
+        .admin-notice, .admin-alerts {
+            background: #e6f7e6;
+            border-right: 4px solid #28a745;
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 16px;
+        }
+        .admin-alerts {
+            background: #ffe6e6;
+            border-right-color: #dc3545;
+        }
+        .admin-notice textarea, .admin-alerts textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            font-size: 13px;
+            font-family: inherit;
+            margin-bottom: 8px;
+        }
         footer {
             text-align: center;
             font-size: 10px;
@@ -304,14 +320,27 @@
     
     <!-- الملاحظات المهمة (تظهر للجميع) -->
     <div class="notice-box" id="publicNoticeBox">
-        <p>🤖 <strong>تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek</strong></p>
-        <p>⚠️ <strong>النتائج تتغير باستمرار مع استمرار الإضافات الجديدة، أي كلما دخل طالب جديد يتم إعادة الحسابات مرة أخرى، فلا تعتمد النتائج إلا إذا وصل عدد المسجلين إلى عدد كبير أو العدد الكامل.</strong></p>
-        <p>📊 جميع الإحصائيات هي <strong>للاستئناس فقط</strong>، لا يمكن توقع النتائج بدقة كاملة لوجود العديد من المتغيرات التي لا يمكن التوقع بها.</p>
-        <p>⚠️ <strong>رجاءً:</strong> لا تعدل ترتيب رغباتك بناءً على نتائج هذا الموقع، لا تبني توقعاتك بناءً على هذه النتائج.</p>
-        <p>📈 دقة هذه النتائج تعتمد على دقة إدخال البيانات وعدد المشاركين.</p>
-        <p>🔐 <strong>رجاءً:</strong> تأكد من أن البيانات المدخلة دقيقة، ولا يستخدم أي أحد الرقم الجامعي لشخص آخر.</p>
-        <p class="contact">📱 إذا كان هناك أي مشكلة، يرجى التواصل عبر تلغرام: <strong>@ALI15cha</strong></p>
-        <div class="ai-note">🌟 بالتوفيق للجميع</div>
+        <div style="white-space: pre-line;">🤖 تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek
+
+⚠️ النتائج تتغير باستمرار مع استمرار الإضافات الجديدة، أي كلما دخل طالب جديد يتم إعادة الحسابات مرة أخرى، فلا تعتمد النتائج إلا إذا وصل عدد المسجلين إلى عدد كبير أو العدد الكامل.
+
+📊 جميع الإحصائيات هي للاستئناس فقط، لا يمكن توقع النتائج بدقة كاملة لوجود العديد من المتغيرات التي لا يمكن التوقع بها.
+
+⚠️ رجاءً: لا تعدل ترتيب رغباتك بناءً على نتائج هذا الموقع، لا تبني توقعاتك بناءً على هذه النتائج.
+
+📈 دقة هذه النتائج تعتمد على دقة إدخال البيانات وعدد المشاركين.
+
+🔐 رجاءً: تأكد من أن البيانات المدخلة دقيقة، ولا يستخدم أي أحد الرقم الجامعي لشخص آخر.
+
+📱 إذا كان هناك أي مشكلة، يرجى التواصل عبر تلغرام: @ALI15cha
+
+🌟 بالتوفيق للجميع</div>
+    </div>
+    
+    <!-- صندوق التنبيهات (يظهر للجميع) -->
+    <div class="alerts-box" id="publicAlertsBox">
+        <h4>⚠️ تنبيهات</h4>
+        <div id="alertsContent" style="white-space: pre-line;">لا توجد تنبيهات حالياً</div>
     </div>
 
     <div class="update-info">
@@ -340,9 +369,9 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table" id="allStudentsTable">
-                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
-                <tbody id="allStudentsTableBody"><tr><td colspan="4">لا توجد بيانات</td></tr></tbody>
-            </table>
+                <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
+                <tbody id="allStudentsTableBody"> <td colspan="4">لا توجد بيانات</td> </tbody>
+             </table>
         </div>
     </div>
 
@@ -360,9 +389,21 @@
     <!-- قسم تعديل الملاحظات -->
     <div class="admin-notice">
         <h3 style="font-size:14px; margin-bottom:8px;">✏️ تعديل الملاحظات (التي تظهر للطلاب)</h3>
-        <textarea id="adminNoticeText" rows="8" style="width:100%; padding:10px; border-radius:16px; border:1px solid #cbd5e1; font-family:inherit;"></textarea>
+        <textarea id="adminNoticeText" rows="6" style="width:100%; padding:10px; border-radius:16px; border:1px solid #cbd5e1; font-family:inherit;"></textarea>
         <button onclick="saveAdminNotice()" style="background:#0056b3; border:none; padding:8px 16px; border-radius:40px; color:white; margin-top:8px;">💾 حفظ التغييرات</button>
         <button onclick="resetAdminNotice()" style="background:#6c757d; border:none; padding:8px 16px; border-radius:40px; color:white; margin-top:8px;">↺ استعادة النص الافتراضي</button>
+    </div>
+    
+    <!-- قسم تعديل التنبيهات -->
+    <div class="admin-alerts">
+        <h3 style="font-size:14px; margin-bottom:8px;">⚠️ تعديل التنبيهات (التي تظهر للطلاب)</h3>
+        <p style="font-size:12px; color:#666; margin-bottom:8px;">اكتب هنا الأرقام الجامعية المفقودة أو أي تنبيهات أخرى</p>
+        <textarea id="adminAlertsText" rows="5" style="width:100%; padding:10px; border-radius:16px; border:1px solid #cbd5e1; font-family:inherit;" placeholder="مثال:
+⚠️ الطلاب التالية أرقامهم غير صحيحة، يرجى تعديلها:
+- 20241234
+- 20245678"></textarea>
+        <button onclick="saveAdminAlerts()" style="background:#dc3545; border:none; padding:8px 16px; border-radius:40px; color:white; margin-top:8px;">💾 حفظ التنبيهات</button>
+        <button onclick="clearAdminAlerts()" style="background:#6c757d; border:none; padding:8px 16px; border-radius:40px; color:white; margin-top:8px;">🗑️ مسح التنبيهات</button>
     </div>
     
     <!-- قسم رفع ملف الأرقام الجامعية -->
@@ -390,7 +431,7 @@
     </div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><th>الرغبات (أول 5)</th><th>التحقق</th></tr></thead>
+            <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><th>الرغبات (أول 5)</th><th>التحقق</th> </thead>
             <tbody id="adminStudentsTableBody"></tbody>
         </table>
     </div>
@@ -413,13 +454,14 @@
     let displayedSpecialtiesCount = 30;
     let currentAcceptedData = null;
     let currentSeatsAvailable = null;
-    let validStudentsMap = new Map(); // لتخزين الأرقام الجامعية الصحيحة والمعدلات
+    let validStudentsMap = new Map();
     const ADMIN_PW = "Alichayeb@23184";
     
-    // النص الافتراضي للملاحظات
+    // النصوص الافتراضية
     const defaultNoticeText = `🤖 تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek\n\n⚠️ النتائج تتغير باستمرار مع استمرار الإضافات الجديدة، أي كلما دخل طالب جديد يتم إعادة الحسابات مرة أخرى، فلا تعتمد النتائج إلا إذا وصل عدد المسجلين إلى عدد كبير أو العدد الكامل.\n\n📊 جميع الإحصائيات هي للاستئناس فقط، لا يمكن توقع النتائج بدقة كاملة لوجود العديد من المتغيرات التي لا يمكن التوقع بها.\n\n⚠️ رجاءً: لا تعدل ترتيب رغباتك بناءً على نتائج هذا الموقع، لا تبني توقعاتك بناءً على هذه النتائج.\n\n📈 دقة هذه النتائج تعتمد على دقة إدخال البيانات وعدد المشاركين.\n\n🔐 رجاءً: تأكد من أن البيانات المدخلة دقيقة، ولا يستخدم أي أحد الرقم الجامعي لشخص آخر.\n\n📱 إذا كان هناك أي مشكلة، يرجى التواصل عبر تلغرام: @ALI15cha\n\n🌟 بالتوفيق للجميع`;
+    const defaultAlertsText = "⚠️ لا توجد تنبيهات حالياً";
     
-    // تحميل النص المحفوظ للملاحظات
+    // تحميل النصوص المحفوظة
     function loadNoticeText() {
         const saved = localStorage.getItem('adminNoticeText');
         if (saved) {
@@ -431,12 +473,28 @@
         }
     }
     
+    function loadAlertsText() {
+        const saved = localStorage.getItem('adminAlertsText');
+        if (saved) {
+            document.getElementById('adminAlertsText').value = saved;
+            updatePublicAlerts(saved);
+        } else {
+            document.getElementById('adminAlertsText').value = defaultAlertsText;
+            updatePublicAlerts(defaultAlertsText);
+        }
+    }
+    
     function updatePublicNotice(text) {
         const noticeBox = document.getElementById('publicNoticeBox');
         if (noticeBox) {
-            // تحويل النص إلى HTML (الحفاظ على الأسطر)
-            const htmlText = text.replace(/\n/g, '<br>');
-            noticeBox.innerHTML = `<div style="white-space: pre-line;">${htmlText}</div>`;
+            noticeBox.innerHTML = `<div style="white-space: pre-line;">${text}</div>`;
+        }
+    }
+    
+    function updatePublicAlerts(text) {
+        const alertsBox = document.getElementById('alertsContent');
+        if (alertsBox) {
+            alertsBox.innerHTML = text.replace(/\n/g, '<br>');
         }
     }
     
@@ -454,11 +512,24 @@
         alert("تم استعادة النص الافتراضي!");
     }
     
+    function saveAdminAlerts() {
+        const newText = document.getElementById('adminAlertsText').value;
+        localStorage.setItem('adminAlertsText', newText);
+        updatePublicAlerts(newText);
+        alert("تم حفظ التنبيهات بنجاح!");
+    }
+    
+    function clearAdminAlerts() {
+        document.getElementById('adminAlertsText').value = "";
+        localStorage.setItem('adminAlertsText', "");
+        updatePublicAlerts("");
+        alert("تم مسح التنبيهات!");
+    }
+    
     // التحقق من الأرقام الجامعية
     function validateStudentNumber(studentId, studentGpa) {
         if (validStudentsMap.size === 0) return { valid: true, message: "" };
         
-        // البحث عن تطابق تام
         if (validStudentsMap.has(studentId)) {
             const expectedGpa = validStudentsMap.get(studentId);
             if (expectedGpa !== null && Math.abs(expectedGpa - studentGpa) > 0.5) {
@@ -467,7 +538,6 @@
             return { valid: true, message: "" };
         }
         
-        // البحث عن أرقام متشابهة (تسامح بسيط)
         for (let [validId, expectedGpa] of validStudentsMap) {
             if (studentId.includes(validId) || validId.includes(studentId) || 
                 Math.abs(studentId.length - validId.length) <= 2 && studentId.slice(-4) === validId.slice(-4)) {
@@ -509,7 +579,6 @@
             resultDiv.innerHTML = `<strong>✅ تم تحميل ${validStudentsMap.size} رقم جامعي</strong><br>
                                    📌 سيتم التحقق من الأرقام المدخلة مقابل هذه القائمة.`;
             
-            // إعادة عرض جدول المشرف مع التحقق
             if (isAdmin) renderAdminTable();
         };
         reader.readAsText(file, "UTF-8");
@@ -568,7 +637,6 @@
         return res;
     }
     
-    // حساب عدد المتقدمين
     function computeDemand() {
         let demand = {};
         specialties.forEach(s => demand[s.name] = 0);
@@ -584,7 +652,6 @@
         return demand;
     }
     
-    // تشغيل المفاضلة
     function runMatching() {
         if (allStudents.length === 0) {
             processedStudents = [];
@@ -717,12 +784,12 @@
         tbody.innerHTML = '';
         filtered.forEach((s, i) => {
             let cls = s.assignedSpecialty === 'لم يحصل على مقعد' ? 'rejected' : 'accepted';
-            tbody.innerHTML += `<tr>
+            tbody.innerHTML += `bac
                         <td style="font-weight:bold;">${i+1}</td>
                         <td>${s.id}</td>
                         <td>${s.gpa}</td>
                         <td class="${cls}">${s.assignedSpecialty}</td>
-                    </tr>`;
+                     </tr>`;
         });
         if (filtered.length === 0) tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>';
     }
@@ -741,6 +808,7 @@
             renderAdminSpecialties();
             renderAdminTable();
             loadNoticeText();
+            loadAlertsText();
         } else if (pwd) alert("كلمة سر غير صحيحة");
     }
     
@@ -826,7 +894,6 @@
         URL.revokeObjectURL(a.href);
     }
     
-    // بدء التحديث التلقائي
     function startAutoRefresh() {
         if (refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(() => {
@@ -834,7 +901,6 @@
         }, 20000);
     }
     
-    // ربط أحداث البحث
     document.getElementById('specialtySearchInput')?.addEventListener('input', () => {
         displayedSpecialtiesCount = 30;
         renderStats(currentAcceptedData, currentSeatsAvailable);
@@ -842,7 +908,6 @@
     
     document.getElementById('studentSearchInput')?.addEventListener('input', () => renderStudentsTable());
     
-    // التبويبات
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
@@ -854,7 +919,6 @@
         });
     });
     
-    // التهيئة
     loadStudentsData();
     startAutoRefresh();
     
@@ -866,6 +930,8 @@
     window.exportCSV = exportCSV;
     window.saveAdminNotice = saveAdminNotice;
     window.resetAdminNotice = resetAdminNotice;
+    window.saveAdminAlerts = saveAdminAlerts;
+    window.clearAdminAlerts = clearAdminAlerts;
     window.uploadStudentsData = uploadStudentsData;
 </script>
 </body>
