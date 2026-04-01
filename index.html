@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام المفاضلة - عرض أرقام المقبولين</title>
+    <title>نظام المفاضلة - اختصاصات منفصلة (عام/موازي/صحة)</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -74,7 +74,7 @@
         }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
@@ -83,7 +83,6 @@
             border-right: 4px solid #28a745;
             padding: 12px;
             border-radius: 8px;
-            transition: all 0.2s;
         }
         .stat-card h4 {
             margin: 0 0 8px 0;
@@ -109,12 +108,11 @@
             display: inline-block;
             padding: 2px 8px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
             margin: 2px;
+            background: #6c757d;
+            color: white;
         }
-        .type-general { background: #28a745; color: white; }
-        .type-parallel { background: #ffc107; color: #333; }
-        .type-health { background: #17a2b8; color: white; }
         .loading {
             text-align: center;
             padding: 20px;
@@ -153,15 +151,18 @@
 <body>
 <div class="container">
     <h1>نظام المفاضلة للاختصاصات الطبية</h1>
+    <div class="note">
+        <strong>📌 ملاحظة:</strong> كل اختصاص مع نوعه (عام/موازي/صحة) يعتبر اختصاصًا منفصلاً. الطالب يختار النوع الذي يريده مباشرة في رغباته.
+    </div>
     
     <div class="note setup-guide">
-        <strong>📋 خطوات الإعداد (مرة واحدة فقط):</strong>
+        <strong>📋 خطوات الإعداد:</strong>
         <ol>
-            <li>أنشئ <strong>Google Form</strong> لجمع بيانات الطلاب (الرقم الجامعي، المعدل، الرغبات).</li>
-            <li>اربط النموذج بـ <strong>Google Sheets</strong> (من علامة الردود).</li>
-            <li>في جدول Google Sheets، اضغط على <strong>مشاركة</strong> → <strong>تغيير</strong> → اختر <strong>"أي شخص لديه الرابط"</strong> → <strong>"مشاهد"</strong>.</li>
-            <li>انسخ <strong>معرف الجدول (ID)</strong> من الرابط (الأحرف بين /d/ و /edit).</li>
-            <li>أدخل المعرف في الحقل أدناه واضغط <strong>تحميل البيانات</strong>.</li>
+            <li>في جدول الاختصاصات أدناه، أضف كل اختصاص مع نوعه (مثال: هضمية - عام، هضمية - موازي، هضمية - صحة).</li>
+            <li>حدد عدد المقاعد لكل اختصاص.</li>
+            <li>أنشئ Google Form بنفس أسماء الاختصاصات بالضبط في القوائم المنسدلة.</li>
+            <li>اربط Google Form بجدول Sheets وانشره للعامة.</li>
+            <li>أدخل معرف الجدول واضغط تحميل البيانات.</li>
         </ol>
     </div>
 
@@ -174,48 +175,81 @@
         </div>
         <div class="note" style="margin-top: 10px;">
             <strong>كيف تجد معرف الجدول؟</strong><br>
-            افتح جدول Google Sheets، انظر إلى الرابط في المتصفح:<br>
+            افتح جدول Google Sheets، انظر إلى الرابط:<br>
             <code>https://docs.google.com/spreadsheets/d/<strong>1ABC123xyz...</strong>/edit</code><br>
-            الجزء <strong>1ABC123xyz...</strong> هو المعرف. انسخه والصقه.
+            الجزء <strong>1ABC123xyz...</strong> هو المعرف.
         </div>
     </div>
 
     <!-- قسم إدارة الاختصاصات -->
     <div class="section">
-        <h2>إدارة الاختصاصات (3 أنواع لكل اختصاص)</h2>
+        <h2>إدارة الاختصاصات (كل اختصاص + نوع منفصل)</h2>
         <div class="flex-buttons">
-            <button id="addSpecialtyBtn">➕ إضافة اختصاص جديد</button>
+            <button id="addSpecialtyBtn">➕ إضافة اختصاص</button>
+            <button id="removeLastSpecialtyBtn">➖ حذف آخر اختصاص</button>
             <button id="exportSpecialtiesBtn">📥 تصدير الاختصاصات (JSON)</button>
             <button id="importSpecialtiesBtn">📂 استيراد الاختصاصات (JSON)</button>
             <input type="file" id="importSpecialtiesFile" style="display:none" accept=".json">
         </div>
         <table id="specialtiesTable">
             <thead>
-                60<th>الاختصاص</th><th>عام (مقاعد)</th><th>موازي (مقاعد)</th><th>صحة (مقاعد)</th><th style="width:50px">حذف</th> </thead>
-            <tbody id="specialtiesTableBody"></tbody>
-          </table>
+                60<th>الاختصاص (مع النوع)</th><th>عدد المقاعد</th><th style="width:50px">حذف</th> </thead>
+            <tbody id="specialtiesTableBody">
+                <tr>
+                    <td><input type="text" value="هضمية - عام"></td>
+                    <td><input type="number" value="5"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="هضمية - موازي"></td>
+                    <td><input type="number" value="3"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="هضمية - صحة"></td>
+                    <td><input type="number" value="2"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="قلبية - عام"></td>
+                    <td><input type="number" value="4"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="قلبية - موازي"></td>
+                    <td><input type="number" value="2"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="قلبية - صحة"></td>
+                    <td><input type="number" value="1"></td>
+                    <td><button onclick="deleteSpecialtyRow(this)" style="background:#dc3545;padding:5px 10px;">🗑️</button></td>
+                </tr>
+            </tbody>
+         </table>
     </div>
 
-    <!-- قسم الإحصائيات والحد الأدنى -->
+    <!-- قسم الإحصائيات -->
     <div class="section">
-        <h2>📊 الإحصائيات والحد الأدنى للمعدلات (تحديث فوري)</h2>
+        <h2>📊 الإحصائيات والحد الأدنى للمعدلات</h2>
         <div class="flex-buttons">
             <button id="refreshStatsBtn" class="refresh-btn">🔄 تحديث الإحصائيات</button>
         </div>
         <div id="statsDiv">
-            <div class="loading">لم يتم تحميل البيانات بعد. قم بإعداد Google Sheet أولاً.</div>
+            <div class="loading">لم يتم تحميل البيانات بعد.</div>
         </div>
     </div>
 
-    <!-- قسم عرض الطلاب المسجلين -->
+    <!-- قسم عرض الطلاب -->
     <div class="section">
-        <h2>قائمة الطلاب المسجلين (من Google Form)</h2>
+        <h2>قائمة الطلاب المسجلين</h2>
         <div style="overflow-x: auto; max-height: 400px;">
             <table id="studentsTable">
                 <thead>
-                    <tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول فيه</th><th>النوع</th><th>الرغبات</th> </thead>
+                    <tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول فيه</th><th>الرغبات</th></tr>
+                </thead>
                 <tbody id="studentsTableBody">
-                    <tr><td colspan="6" style="text-align:center;">لم يتم تحميل البيانات</td> </tr>
+                    <tr><td colspan="5" style="text-align:center;">لم يتم تحميل البيانات</td></tr>
                 </tbody>
             </table>
         </div>
@@ -223,17 +257,10 @@
 </div>
 
 <script>
-    // هيكل البيانات
-    let specialties = []; // [{ name, seatsGeneral, seatsParallel, seatsHealth }]
+    let specialties = []; // [{ name, seats }]
     let students = []; // [{ id, gpa, preferences[] }]
-    let processedStudents = []; // مع النتائج
-    
-    const TYPES = [
-        { key: 'general', name: 'عام', class: 'type-general' },
-        { key: 'parallel', name: 'موازي', class: 'type-parallel' },
-        { key: 'health', name: 'صحة', class: 'type-health' }
-    ];
-    
+    let processedStudents = [];
+
     // تحميل الاختصاصات من localStorage
     function loadSpecialties() {
         const saved = localStorage.getItem('specialties');
@@ -241,49 +268,66 @@
             specialties = JSON.parse(saved);
         } else {
             specialties = [
-                { name: 'الهضمية', seatsGeneral: 5, seatsParallel: 3, seatsHealth: 2 },
-                { name: 'القلبية', seatsGeneral: 4, seatsParallel: 2, seatsHealth: 1 },
-                { name: 'الأطفال', seatsGeneral: 6, seatsParallel: 4, seatsHealth: 3 }
+                { name: 'هضمية - عام', seats: 5 },
+                { name: 'هضمية - موازي', seats: 3 },
+                { name: 'هضمية - صحة', seats: 2 },
+                { name: 'قلبية - عام', seats: 4 },
+                { name: 'قلبية - موازي', seats: 2 },
+                { name: 'قلبية - صحة', seats: 1 }
             ];
         }
         renderSpecialtiesTable();
     }
-    
+
     function saveSpecialties() {
         localStorage.setItem('specialties', JSON.stringify(specialties));
     }
-    
+
     function renderSpecialtiesTable() {
         const tbody = document.getElementById('specialtiesTableBody');
         tbody.innerHTML = '';
         specialties.forEach((spec, idx) => {
             const row = tbody.insertRow();
             row.insertCell(0).innerHTML = `<input type="text" value="${spec.name}" onchange="updateSpecialty(${idx}, 'name', this.value)">`;
-            row.insertCell(1).innerHTML = `<input type="number" value="${spec.seatsGeneral}" onchange="updateSpecialty(${idx}, 'seatsGeneral', parseInt(this.value) || 0)">`;
-            row.insertCell(2).innerHTML = `<input type="number" value="${spec.seatsParallel}" onchange="updateSpecialty(${idx}, 'seatsParallel', parseInt(this.value) || 0)">`;
-            row.insertCell(3).innerHTML = `<input type="number" value="${spec.seatsHealth}" onchange="updateSpecialty(${idx}, 'seatsHealth', parseInt(this.value) || 0)">`;
-            row.insertCell(4).innerHTML = `<button onclick="deleteSpecialty(${idx})" style="background:#dc3545;padding:5px 10px;">🗑️</button>`;
+            row.insertCell(1).innerHTML = `<input type="number" value="${spec.seats}" onchange="updateSpecialty(${idx}, 'seats', parseInt(this.value) || 0)">`;
+            row.insertCell(2).innerHTML = `<button onclick="deleteSpecialty(${idx})" style="background:#dc3545;padding:5px 10px;">🗑️</button>`;
         });
         saveSpecialties();
         runMatching();
     }
-    
+
     function updateSpecialty(idx, field, value) {
         specialties[idx][field] = value;
-        renderSpecialtiesTable();
+        saveSpecialties();
+        runMatching();
     }
-    
+
     function deleteSpecialty(idx) {
         specialties.splice(idx, 1);
         renderSpecialtiesTable();
     }
-    
+
     function addSpecialty() {
-        specialties.push({ name: 'اختصاص جديد', seatsGeneral: 0, seatsParallel: 0, seatsHealth: 0 });
+        specialties.push({ name: 'اختصاص جديد', seats: 0 });
         renderSpecialtiesTable();
     }
-    
-    // تحميل البيانات من Google Sheets
+
+    function removeLastSpecialty() {
+        if (specialties.length > 0) {
+            specialties.pop();
+            renderSpecialtiesTable();
+        }
+    }
+
+    function deleteSpecialtyRow(btn) {
+        const row = btn.closest('tr');
+        const idx = row.rowIndex - 1;
+        if (idx >= 0 && idx < specialties.length) {
+            specialties.splice(idx, 1);
+            renderSpecialtiesTable();
+        }
+    }
+
     async function loadFromGoogleSheet(sheetId) {
         if (!sheetId) {
             alert('الرجاء إدخال معرف Google Sheet');
@@ -295,11 +339,10 @@
             const csvText = await response.text();
             parseCSVToStudents(csvText);
         } catch (error) {
-            console.error('خطأ في التحميل:', error);
-            alert('خطأ في تحميل البيانات. تأكد من أن الجدول منشور للعامة (أي شخص لديه الرابط).');
+            alert('خطأ في تحميل البيانات. تأكد من أن الجدول منشور للعامة.');
         }
     }
-    
+
     function parseCSVToStudents(csvText) {
         const lines = csvText.split(/\r?\n/);
         if (lines.length < 2) {
@@ -316,7 +359,7 @@
             else if (h.includes('رغبة') || h.includes('الرغبة')) prefColIndices.push(i);
         }
         if (idColIdx === -1 || gpaColIdx === -1) {
-            alert('لم يتم العثور على عمود الرقم الجامعي أو المعدل في الجدول');
+            alert('لم يتم العثور على عمود الرقم الجامعي أو المعدل');
             return;
         }
         const newStudents = [];
@@ -344,7 +387,7 @@
         alert(`تم تحميل ${students.length} طالب/طالبة بنجاح!`);
         runMatching();
     }
-    
+
     function parseCSVLine(line) {
         const result = [];
         let current = '';
@@ -363,110 +406,84 @@
         result.push(current.trim());
         return result;
     }
-    
-    // تشغيل المفاضلة وجمع قوائم المقبولين بالأرقام
+
     function runMatching() {
         if (students.length === 0) {
             updateStatsDisplayEmpty();
             renderStudentsListEmpty();
             return;
         }
-        
+
         let studentsCopy = students.map(s => ({ ...s, preferences: [...s.preferences] }));
         studentsCopy.sort((a, b) => b.gpa - a.gpa);
-        
+
         let seatsAvailable = {};
         specialties.forEach(spec => {
-            seatsAvailable[spec.name] = {
-                general: spec.seatsGeneral,
-                parallel: spec.seatsParallel,
-                health: spec.seatsHealth
-            };
+            seatsAvailable[spec.name] = spec.seats;
         });
-        
-        // لتخزين قوائم المقبولين بالأرقام
+
         let acceptedIds = {};
-        specialties.forEach(spec => {
-            acceptedIds[spec.name] = { general: [], parallel: [], health: [] };
-        });
         let acceptedScores = {};
         specialties.forEach(spec => {
-            acceptedScores[spec.name] = { general: [], parallel: [], health: [] };
+            acceptedIds[spec.name] = [];
+            acceptedScores[spec.name] = [];
         });
-        
+
         const results = [];
         for (let student of studentsCopy) {
-            let assignedSpecialty = null;
-            let assignedType = null;
+            let assigned = null;
             for (let pref of student.preferences) {
                 if (!pref) continue;
-                const spec = specialties.find(s => s.name === pref);
-                if (!spec) continue;
-                for (let type of ['general', 'parallel', 'health']) {
-                    if (seatsAvailable[pref][type] > 0) {
-                        assignedSpecialty = pref;
-                        assignedType = type;
-                        seatsAvailable[pref][type]--;
-                        acceptedScores[pref][type].push(student.gpa);
-                        acceptedIds[pref][type].push(student.id);
-                        break;
-                    }
+                if (seatsAvailable[pref] > 0) {
+                    assigned = pref;
+                    seatsAvailable[pref]--;
+                    acceptedScores[pref].push(student.gpa);
+                    acceptedIds[pref].push(student.id);
+                    break;
                 }
-                if (assignedSpecialty) break;
             }
             results.push({
                 id: student.id,
                 gpa: student.gpa,
                 preferences: student.preferences,
-                assignedSpecialty: assignedSpecialty || 'لم يحصل على مقعد',
-                assignedType: assignedType || ''
+                assignedSpecialty: assigned || 'لم يحصل على مقعد'
             });
         }
-        
         processedStudents = results;
         updateStatsDisplay(acceptedScores, seatsAvailable, acceptedIds);
         renderStudentsList();
     }
-    
+
     function updateStatsDisplay(acceptedScores, seatsAvailable, acceptedIds) {
         const statsDiv = document.getElementById('statsDiv');
         let html = `<div class="stats-grid">`;
         
         for (let spec of specialties) {
+            const scores = acceptedScores[spec.name] || [];
+            const ids = acceptedIds[spec.name] || [];
+            const minScore = scores.length > 0 ? Math.min(...scores).toFixed(2) : 'لم يقبل أحد';
+            const remaining = seatsAvailable[spec.name] || 0;
+            const acceptedCount = scores.length;
+            
             html += `
                 <div class="stat-card">
                     <h4>📌 ${spec.name}</h4>
+                    <p>🎓 الحد الأدنى: <strong>${minScore}</strong></p>
+                    <p>📊 المقبولون: ${acceptedCount} / ${spec.seats}</p>
+                    <p>📭 المتبقي: ${remaining}</p>
             `;
-            for (let type of TYPES) {
-                const scores = acceptedScores[spec.name]?.[type.key] || [];
-                const ids = acceptedIds[spec.name]?.[type.key] || [];
-                const minScore = scores.length > 0 ? Math.min(...scores).toFixed(2) : 'لم يقبل أحد';
-                const remaining = seatsAvailable[spec.name]?.[type.key] || 0;
-                const total = spec[`seats${type.key.charAt(0).toUpperCase() + type.key.slice(1)}`] || 0;
-                const acceptedCount = scores.length;
-                
+            
+            if (ids.length > 0) {
                 html += `
-                    <p>
-                        <span class="type-badge ${type.class}">${type.name}</span><br>
-                        🎓 الحد الأدنى: <strong>${minScore}</strong><br>
-                        📊 المقبولون: ${acceptedCount} / ${total}<br>
-                        📭 المتبقي: ${remaining}
-                    </p>
+                    <details class="students-list">
+                        <summary>📋 الأرقام الجامعية (${ids.length})</summary>
+                        <ul>
+                            ${ids.map(id => `<li>${id}</li>`).join('')}
+                        </ul>
+                    </details>
                 `;
-                
-                // عرض الأرقام الجامعية للمقبولين
-                if (ids.length > 0) {
-                    html += `
-                        <details class="students-list">
-                            <summary>📋 الأرقام الجامعية (${ids.length})</summary>
-                            <ul>
-                                ${ids.map(id => `<li>${id}</li>`).join('')}
-                            </ul>
-                        </details>
-                    `;
-                } else {
-                    html += `<div class="students-list" style="color:gray;">لا يوجد مقبولين بعد</div>`;
-                }
+            } else {
+                html += `<div class="students-list" style="color:gray;">لا يوجد مقبولين بعد</div>`;
             }
             html += `</div>`;
         }
@@ -475,22 +492,19 @@
         html += `
             <div class="stat-card" style="border-right-color: #dc3545;">
                 <h4>📈 إحصائيات عامة</h4>
-                <p>👥 إجمالي الطلاب المسجلين: ${processedStudents.length}</p>
-                <p>✅ الطلاب المقبولون: ${processedStudents.length - unassigned.length}</p>
+                <p>👥 إجمالي الطلاب: ${processedStudents.length}</p>
+                <p>✅ المقبولون: ${processedStudents.length - unassigned.length}</p>
                 <p>⚠️ غير المقبولين: ${unassigned.length}</p>
-                <p>🕐 آخر تحديث: ${new Date().toLocaleTimeString()}</p>
                 <details class="students-list">
                     <summary>📋 أرقام غير المقبولين (${unassigned.length})</summary>
-                    <ul>
-                        ${unassigned.map(s => `<li>${s.id}</li>`).join('')}
-                    </ul>
+                    <ul>${unassigned.map(s => `<li>${s.id}</li>`).join('')}</ul>
                 </details>
             </div>
         `;
         html += `</div>`;
         statsDiv.innerHTML = html;
     }
-    
+
     function updateStatsDisplayEmpty() {
         const statsDiv = document.getElementById('statsDiv');
         let html = `<div class="stats-grid">`;
@@ -498,40 +512,29 @@
             html += `
                 <div class="stat-card">
                     <h4>📌 ${spec.name}</h4>
-            `;
-            for (let type of TYPES) {
-                const total = spec[`seats${type.key.charAt(0).toUpperCase() + type.key.slice(1)}`] || 0;
-                html += `
-                    <p>
-                        <span class="type-badge ${type.class}">${type.name}</span><br>
-                        🎓 الحد الأدنى: <strong>لم يقبل أحد</strong><br>
-                        📊 المقاعد: ${total}<br>
-                        📭 المتبقي: ${total}
-                    </p>
+                    <p>🎓 الحد الأدنى: <strong>لم يقبل أحد</strong></p>
+                    <p>📊 المقاعد: ${spec.seats}</p>
+                    <p>📭 المتبقي: ${spec.seats}</p>
                     <div class="students-list" style="color:gray;">لا يوجد مقبولين بعد</div>
-                `;
-            }
-            html += `</div>`;
+                </div>
+            `;
         }
         html += `
-            <div class="stat-card" style="border-right-color: #17a2b8;">
+            <div class="stat-card">
                 <h4>📈 إحصائيات عامة</h4>
-                <p>👥 إجمالي الطلاب المسجلين: 0</p>
-                <p>✅ الطلاب المقبولون: 0</p>
+                <p>👥 إجمالي الطلاب: 0</p>
+                <p>✅ المقبولون: 0</p>
                 <p>⚠️ غير المقبولين: 0</p>
             </div>
         `;
         html += `</div>`;
         statsDiv.innerHTML = html;
     }
-    
+
     function renderStudentsList() {
         const tbody = document.getElementById('studentsTableBody');
         tbody.innerHTML = '';
-        if (processedStudents.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد بيانات</td></tr>';
-            return;
-        }
+        if (processedStudents.length === 0) return;
         const sorted = [...processedStudents].sort((a, b) => b.gpa - a.gpa);
         sorted.forEach((student, idx) => {
             const row = tbody.insertRow();
@@ -539,16 +542,15 @@
             row.insertCell(1).innerText = student.id;
             row.insertCell(2).innerText = student.gpa;
             row.insertCell(3).innerText = student.assignedSpecialty;
-            row.insertCell(4).innerHTML = student.assignedType ? `<span class="type-badge ${TYPES.find(t => t.key === student.assignedType)?.class || ''}">${TYPES.find(t => t.key === student.assignedType)?.name || ''}</span>` : '-';
-            row.insertCell(5).innerText = student.preferences.join(' → ');
+            row.insertCell(4).innerText = student.preferences.join(' → ');
         });
     }
-    
+
     function renderStudentsListEmpty() {
         const tbody = document.getElementById('studentsTableBody');
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد بيانات، قم بتحميل البيانات من Google Sheets أولاً</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد بيانات</td></tr>';
     }
-    
+
     function exportSpecialties() {
         const data = JSON.stringify(specialties, null, 2);
         const blob = new Blob([data], {type: 'application/json'});
@@ -559,7 +561,7 @@
         a.click();
         URL.revokeObjectURL(url);
     }
-    
+
     function importSpecialties(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -575,9 +577,9 @@
         };
         reader.readAsText(file);
     }
-    
-    // ربط الأحداث
+
     document.getElementById('addSpecialtyBtn').onclick = addSpecialty;
+    document.getElementById('removeLastSpecialtyBtn').onclick = removeLastSpecialty;
     document.getElementById('exportSpecialtiesBtn').onclick = exportSpecialties;
     document.getElementById('importSpecialtiesBtn').onclick = () => document.getElementById('importSpecialtiesFile').click();
     document.getElementById('importSpecialtiesFile').onchange = (e) => { if(e.target.files[0]) importSpecialties(e.target.files[0]); };
@@ -590,7 +592,7 @@
         if (sheetId) loadFromGoogleSheet(sheetId);
         else runMatching();
     };
-    
+
     loadSpecialties();
 </script>
 </body>
