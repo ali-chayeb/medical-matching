@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام المفاضلة - عرض أرقام المقبولين</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7fc;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #0056b3;
+        }
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+        th {
+            background: #e9ecef;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+        button {
+            background: #0056b3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #003d80;
+        }
+        .flex-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            border-right: 4px solid #28a745;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .stat-card h4 {
+            margin: 0 0 8px 0;
+            color: #0056b3;
+        }
+        .stat-card p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .min-score {
+            font-weight: bold;
+            color: #28a745;
+            font-size: 18px;
+        }
+        .note {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        .type-general { background: #28a745; color: white; }
+        .type-parallel { background: #ffc107; color: #333; }
+        .type-health { background: #17a2b8; color: white; }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #0056b3;
+        }
+        .refresh-btn {
+            background: #28a745;
+            margin-bottom: 10px;
+        }
+        .setup-guide {
+            background: #d4edda;
+            border: 1px solid #28a745;
+        }
+        .students-list {
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: white;
+            padding: 5px;
+            border-radius: 4px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+        }
+        .students-list summary {
+            font-weight: bold;
+            cursor: pointer;
+            color: #0056b3;
+            margin-bottom: 5px;
+        }
+        .students-list ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>نظام المفاضلة للاختصاصات الطبية</h1>
+    
+    <div class="note setup-guide">
+        <strong>📋 خطوات الإعداد (مرة واحدة فقط):</strong>
+        <ol>
+            <li>أنشئ <strong>Google Form</strong> لجمع بيانات الطلاب (الرقم الجامعي، المعدل، الرغبات).</li>
+            <li>اربط النموذج بـ <strong>Google Sheets</strong> (من علامة الردود).</li>
+            <li>في جدول Google Sheets، اضغط على <strong>مشاركة</strong> → <strong>تغيير</strong> → اختر <strong>"أي شخص لديه الرابط"</strong> → <strong>"مشاهد"</strong>.</li>
+            <li>انسخ <strong>معرف الجدول (ID)</strong> من الرابط (الأحرف بين /d/ و /edit).</li>
+            <li>أدخل المعرف في الحقل أدناه واضغط <strong>تحميل البيانات</strong>.</li>
+        </ol>
+    </div>
+
+    <!-- إعدادات Google Sheets -->
+    <div class="section">
+        <h2>🔗 إعدادات Google Sheets</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="sheetIdInput" placeholder="أدخل معرف Google Sheet (Sheet ID)" style="flex: 2;">
+            <button id="loadFromSheetBtn" style="background: #28a745;">📥 تحميل البيانات من Google Sheets</button>
+        </div>
+        <div class="note" style="margin-top: 10px;">
+            <strong>كيف تجد معرف الجدول؟</strong><br>
+            افتح جدول Google Sheets، انظر إلى الرابط في المتصفح:<br>
+            <code>https://docs.google.com/spreadsheets/d/<strong>1ABC123xyz...</strong>/edit</code><br>
+            الجزء <strong>1ABC123xyz...</strong> هو المعرف. انسخه والصقه.
+        </div>
+    </div>
+
+    <!-- قسم إدارة الاختصاصات -->
+    <div class="section">
+        <h2>إدارة الاختصاصات (3 أنواع لكل اختصاص)</h2>
+        <div class="flex-buttons">
+            <button id="addSpecialtyBtn">➕ إضافة اختصاص جديد</button>
+            <button id="exportSpecialtiesBtn">📥 تصدير الاختصاصات (JSON)</button>
+            <button id="importSpecialtiesBtn">📂 استيراد الاختصاصات (JSON)</button>
+            <input type="file" id="importSpecialtiesFile" style="display:none" accept=".json">
+        </div>
+        <table id="specialtiesTable">
+            <thead>
+                60<th>الاختصاص</th><th>عام (مقاعد)</th><th>موازي (مقاعد)</th><th>صحة (مقاعد)</th><th style="width:50px">حذف</th> </thead>
+            <tbody id="specialtiesTableBody"></tbody>
+          </table>
+    </div>
+
+    <!-- قسم الإحصائيات والحد الأدنى -->
+    <div class="section">
+        <h2>📊 الإحصائيات والحد الأدنى للمعدلات (تحديث فوري)</h2>
+        <div class="flex-buttons">
+            <button id="refreshStatsBtn" class="refresh-btn">🔄 تحديث الإحصائيات</button>
+        </div>
+        <div id="statsDiv">
+            <div class="loading">لم يتم تحميل البيانات بعد. قم بإعداد Google Sheet أولاً.</div>
+        </div>
+    </div>
+
+    <!-- قسم عرض الطلاب المسجلين -->
+    <div class="section">
+        <h2>قائمة الطلاب المسجلين (من Google Form)</h2>
+        <div style="overflow-x: auto; max-height: 400px;">
+            <table id="studentsTable">
+                <thead>
+                    <tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول فيه</th><th>النوع</th><th>الرغبات</th> </thead>
+                <tbody id="studentsTableBody">
+                    <tr><td colspan="6" style="text-align:center;">لم يتم تحميل البيانات</td> </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // هيكل البيانات
+    let specialties = []; // [{ name, seatsGeneral, seatsParallel, seatsHealth }]
+    let students = []; // [{ id, gpa, preferences[] }]
+    let processedStudents = []; // مع النتائج
+    
+    const TYPES = [
+        { key: 'general', name: 'عام', class: 'type-general' },
+        { key: 'parallel', name: 'موازي', class: 'type-parallel' },
+        { key: 'health', name: 'صحة', class: 'type-health' }
+    ];
+    
+    // تحميل الاختصاصات من localStorage
+    function loadSpecialties() {
+        const saved = localStorage.getItem('specialties');
+        if (saved) {
+            specialties = JSON.parse(saved);
+        } else {
+            specialties = [
+                { name: 'الهضمية', seatsGeneral: 5, seatsParallel: 3, seatsHealth: 2 },
+                { name: 'القلبية', seatsGeneral: 4, seatsParallel: 2, seatsHealth: 1 },
+                { name: 'الأطفال', seatsGeneral: 6, seatsParallel: 4, seatsHealth: 3 }
+            ];
+        }
+        renderSpecialtiesTable();
+    }
+    
+    function saveSpecialties() {
+        localStorage.setItem('specialties', JSON.stringify(specialties));
+    }
+    
+    function renderSpecialtiesTable() {
+        const tbody = document.getElementById('specialtiesTableBody');
+        tbody.innerHTML = '';
+        specialties.forEach((spec, idx) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = `<input type="text" value="${spec.name}" onchange="updateSpecialty(${idx}, 'name', this.value)">`;
+            row.insertCell(1).innerHTML = `<input type="number" value="${spec.seatsGeneral}" onchange="updateSpecialty(${idx}, 'seatsGeneral', parseInt(this.value) || 0)">`;
+            row.insertCell(2).innerHTML = `<input type="number" value="${spec.seatsParallel}" onchange="updateSpecialty(${idx}, 'seatsParallel', parseInt(this.value) || 0)">`;
+            row.insertCell(3).innerHTML = `<input type="number" value="${spec.seatsHealth}" onchange="updateSpecialty(${idx}, 'seatsHealth', parseInt(this.value) || 0)">`;
+            row.insertCell(4).innerHTML = `<button onclick="deleteSpecialty(${idx})" style="background:#dc3545;padding:5px 10px;">🗑️</button>`;
+        });
+        saveSpecialties();
+        runMatching();
+    }
+    
+    function updateSpecialty(idx, field, value) {
+        specialties[idx][field] = value;
+        renderSpecialtiesTable();
+    }
+    
+    function deleteSpecialty(idx) {
+        specialties.splice(idx, 1);
+        renderSpecialtiesTable();
+    }
+    
+    function addSpecialty() {
+        specialties.push({ name: 'اختصاص جديد', seatsGeneral: 0, seatsParallel: 0, seatsHealth: 0 });
+        renderSpecialtiesTable();
+    }
+    
+    // تحميل البيانات من Google Sheets
+    async function loadFromGoogleSheet(sheetId) {
+        if (!sheetId) {
+            alert('الرجاء إدخال معرف Google Sheet');
+            return;
+        }
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+        try {
+            const response = await fetch(url);
+            const csvText = await response.text();
+            parseCSVToStudents(csvText);
+        } catch (error) {
+            console.error('خطأ في التحميل:', error);
+            alert('خطأ في تحميل البيانات. تأكد من أن الجدول منشور للعامة (أي شخص لديه الرابط).');
+        }
+    }
+    
+    function parseCSVToStudents(csvText) {
+        const lines = csvText.split(/\r?\n/);
+        if (lines.length < 2) {
+            alert('البيانات غير كافية');
+            return;
+        }
+        const headers = parseCSVLine(lines[0]);
+        let idColIdx = -1, gpaColIdx = -1;
+        let prefColIndices = [];
+        for (let i = 0; i < headers.length; i++) {
+            const h = headers[i].trim().toLowerCase();
+            if (h.includes('الرقم') || h.includes('امتحاني') || h.includes('id') || h.includes('جامعي')) idColIdx = i;
+            else if (h.includes('معدل') || h.includes('gpa')) gpaColIdx = i;
+            else if (h.includes('رغبة') || h.includes('الرغبة')) prefColIndices.push(i);
+        }
+        if (idColIdx === -1 || gpaColIdx === -1) {
+            alert('لم يتم العثور على عمود الرقم الجامعي أو المعدل في الجدول');
+            return;
+        }
+        const newStudents = [];
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            const cols = parseCSVLine(lines[i]);
+            if (cols.length <= idColIdx || cols.length <= gpaColIdx) continue;
+            const id = cols[idColIdx]?.trim();
+            const gpa = parseFloat(cols[gpaColIdx]);
+            if (!id || isNaN(gpa)) continue;
+            const preferences = [];
+            for (let j = 0; j < prefColIndices.length && j < 20; j++) {
+                const pref = cols[prefColIndices[j]]?.trim();
+                if (pref) preferences.push(pref);
+            }
+            if (preferences.length > 0) {
+                newStudents.push({ id, gpa, preferences });
+            }
+        }
+        if (newStudents.length === 0) {
+            alert('لم يتم العثور على بيانات طلاب صالحة');
+            return;
+        }
+        students = newStudents;
+        alert(`تم تحميل ${students.length} طالب/طالبة بنجاح!`);
+        runMatching();
+    }
+    
+    function parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current.trim());
+        return result;
+    }
+    
+    // تشغيل المفاضلة وجمع قوائم المقبولين بالأرقام
+    function runMatching() {
+        if (students.length === 0) {
+            updateStatsDisplayEmpty();
+            renderStudentsListEmpty();
+            return;
+        }
+        
+        let studentsCopy = students.map(s => ({ ...s, preferences: [...s.preferences] }));
+        studentsCopy.sort((a, b) => b.gpa - a.gpa);
+        
+        let seatsAvailable = {};
+        specialties.forEach(spec => {
+            seatsAvailable[spec.name] = {
+                general: spec.seatsGeneral,
+                parallel: spec.seatsParallel,
+                health: spec.seatsHealth
+            };
+        });
+        
+        // لتخزين قوائم المقبولين بالأرقام
+        let acceptedIds = {};
+        specialties.forEach(spec => {
+            acceptedIds[spec.name] = { general: [], parallel: [], health: [] };
+        });
+        let acceptedScores = {};
+        specialties.forEach(spec => {
+            acceptedScores[spec.name] = { general: [], parallel: [], health: [] };
+        });
+        
+        const results = [];
+        for (let student of studentsCopy) {
+            let assignedSpecialty = null;
+            let assignedType = null;
+            for (let pref of student.preferences) {
+                if (!pref) continue;
+                const spec = specialties.find(s => s.name === pref);
+                if (!spec) continue;
+                for (let type of ['general', 'parallel', 'health']) {
+                    if (seatsAvailable[pref][type] > 0) {
+                        assignedSpecialty = pref;
+                        assignedType = type;
+                        seatsAvailable[pref][type]--;
+                        acceptedScores[pref][type].push(student.gpa);
+                        acceptedIds[pref][type].push(student.id);
+                        break;
+                    }
+                }
+                if (assignedSpecialty) break;
+            }
+            results.push({
+                id: student.id,
+                gpa: student.gpa,
+                preferences: student.preferences,
+                assignedSpecialty: assignedSpecialty || 'لم يحصل على مقعد',
+                assignedType: assignedType || ''
+            });
+        }
+        
+        processedStudents = results;
+        updateStatsDisplay(acceptedScores, seatsAvailable, acceptedIds);
+        renderStudentsList();
+    }
+    
+    function updateStatsDisplay(acceptedScores, seatsAvailable, acceptedIds) {
+        const statsDiv = document.getElementById('statsDiv');
+        let html = `<div class="stats-grid">`;
+        
+        for (let spec of specialties) {
+            html += `
+                <div class="stat-card">
+                    <h4>📌 ${spec.name}</h4>
+            `;
+            for (let type of TYPES) {
+                const scores = acceptedScores[spec.name]?.[type.key] || [];
+                const ids = acceptedIds[spec.name]?.[type.key] || [];
+                const minScore = scores.length > 0 ? Math.min(...scores).toFixed(2) : 'لم يقبل أحد';
+                const remaining = seatsAvailable[spec.name]?.[type.key] || 0;
+                const total = spec[`seats${type.key.charAt(0).toUpperCase() + type.key.slice(1)}`] || 0;
+                const acceptedCount = scores.length;
+                
+                html += `
+                    <p>
+                        <span class="type-badge ${type.class}">${type.name}</span><br>
+                        🎓 الحد الأدنى: <strong>${minScore}</strong><br>
+                        📊 المقبولون: ${acceptedCount} / ${total}<br>
+                        📭 المتبقي: ${remaining}
+                    </p>
+                `;
+                
+                // عرض الأرقام الجامعية للمقبولين
+                if (ids.length > 0) {
+                    html += `
+                        <details class="students-list">
+                            <summary>📋 الأرقام الجامعية (${ids.length})</summary>
+                            <ul>
+                                ${ids.map(id => `<li>${id}</li>`).join('')}
+                            </ul>
+                        </details>
+                    `;
+                } else {
+                    html += `<div class="students-list" style="color:gray;">لا يوجد مقبولين بعد</div>`;
+                }
+            }
+            html += `</div>`;
+        }
+        
+        const unassigned = processedStudents.filter(s => s.assignedSpecialty === 'لم يحصل على مقعد');
+        html += `
+            <div class="stat-card" style="border-right-color: #dc3545;">
+                <h4>📈 إحصائيات عامة</h4>
+                <p>👥 إجمالي الطلاب المسجلين: ${processedStudents.length}</p>
+                <p>✅ الطلاب المقبولون: ${processedStudents.length - unassigned.length}</p>
+                <p>⚠️ غير المقبولين: ${unassigned.length}</p>
+                <p>🕐 آخر تحديث: ${new Date().toLocaleTimeString()}</p>
+                <details class="students-list">
+                    <summary>📋 أرقام غير المقبولين (${unassigned.length})</summary>
+                    <ul>
+                        ${unassigned.map(s => `<li>${s.id}</li>`).join('')}
+                    </ul>
+                </details>
+            </div>
+        `;
+        html += `</div>`;
+        statsDiv.innerHTML = html;
+    }
+    
+    function updateStatsDisplayEmpty() {
+        const statsDiv = document.getElementById('statsDiv');
+        let html = `<div class="stats-grid">`;
+        for (let spec of specialties) {
+            html += `
+                <div class="stat-card">
+                    <h4>📌 ${spec.name}</h4>
+            `;
+            for (let type of TYPES) {
+                const total = spec[`seats${type.key.charAt(0).toUpperCase() + type.key.slice(1)}`] || 0;
+                html += `
+                    <p>
+                        <span class="type-badge ${type.class}">${type.name}</span><br>
+                        🎓 الحد الأدنى: <strong>لم يقبل أحد</strong><br>
+                        📊 المقاعد: ${total}<br>
+                        📭 المتبقي: ${total}
+                    </p>
+                    <div class="students-list" style="color:gray;">لا يوجد مقبولين بعد</div>
+                `;
+            }
+            html += `</div>`;
+        }
+        html += `
+            <div class="stat-card" style="border-right-color: #17a2b8;">
+                <h4>📈 إحصائيات عامة</h4>
+                <p>👥 إجمالي الطلاب المسجلين: 0</p>
+                <p>✅ الطلاب المقبولون: 0</p>
+                <p>⚠️ غير المقبولين: 0</p>
+            </div>
+        `;
+        html += `</div>`;
+        statsDiv.innerHTML = html;
+    }
+    
+    function renderStudentsList() {
+        const tbody = document.getElementById('studentsTableBody');
+        tbody.innerHTML = '';
+        if (processedStudents.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد بيانات</td></tr>';
+            return;
+        }
+        const sorted = [...processedStudents].sort((a, b) => b.gpa - a.gpa);
+        sorted.forEach((student, idx) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = idx + 1;
+            row.insertCell(1).innerText = student.id;
+            row.insertCell(2).innerText = student.gpa;
+            row.insertCell(3).innerText = student.assignedSpecialty;
+            row.insertCell(4).innerHTML = student.assignedType ? `<span class="type-badge ${TYPES.find(t => t.key === student.assignedType)?.class || ''}">${TYPES.find(t => t.key === student.assignedType)?.name || ''}</span>` : '-';
+            row.insertCell(5).innerText = student.preferences.join(' → ');
+        });
+    }
+    
+    function renderStudentsListEmpty() {
+        const tbody = document.getElementById('studentsTableBody');
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد بيانات، قم بتحميل البيانات من Google Sheets أولاً</td></tr>';
+    }
+    
+    function exportSpecialties() {
+        const data = JSON.stringify(specialties, null, 2);
+        const blob = new Blob([data], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'specialties.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    function importSpecialties(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    specialties = imported;
+                    renderSpecialtiesTable();
+                    runMatching();
+                    alert('تم استيراد الاختصاصات بنجاح');
+                } else alert('الملف لا يحتوي على مصفوفة صحيحة');
+            } catch (err) { alert('خطأ في قراءة الملف'); }
+        };
+        reader.readAsText(file);
+    }
+    
+    // ربط الأحداث
+    document.getElementById('addSpecialtyBtn').onclick = addSpecialty;
+    document.getElementById('exportSpecialtiesBtn').onclick = exportSpecialties;
+    document.getElementById('importSpecialtiesBtn').onclick = () => document.getElementById('importSpecialtiesFile').click();
+    document.getElementById('importSpecialtiesFile').onchange = (e) => { if(e.target.files[0]) importSpecialties(e.target.files[0]); };
+    document.getElementById('loadFromSheetBtn').onclick = () => {
+        const sheetId = document.getElementById('sheetIdInput').value.trim();
+        loadFromGoogleSheet(sheetId);
+    };
+    document.getElementById('refreshStatsBtn').onclick = () => {
+        const sheetId = document.getElementById('sheetIdInput').value.trim();
+        if (sheetId) loadFromGoogleSheet(sheetId);
+        else runMatching();
+    };
+    
+    loadSpecialties();
+</script>
+</body>
+</html>
