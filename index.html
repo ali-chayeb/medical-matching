@@ -279,6 +279,7 @@
     <!-- الملاحظات المهمة -->
     <div class="notice-box">
         <p>🤖 <strong>تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek</strong></p>
+        <p>⚠️ <strong>النتائج تتغير باستمرار مع استمرار الإضافات الجديدة، أي كلما دخل طالب جديد يتم إعادة الحسابات مرة أخرى، فلا تعتمد النتائج إلا إذا وصل عدد المسجلين إلى عدد كبير أو العدد الكامل.</strong></p>
         <p>📊 جميع الإحصائيات هي <strong>للاستئناس فقط</strong>، لا يمكن توقع النتائج بدقة كاملة لوجود العديد من المتغيرات التي لا يمكن التوقع بها.</p>
         <p>⚠️ <strong>رجاءً:</strong> لا تعدل ترتيب رغباتك بناءً على نتائج هذا الموقع، لا تبني توقعاتك بناءً على هذه النتائج.</p>
         <p>📈 دقة هذه النتائج تعتمد على دقة إدخال البيانات وعدد المشاركين.</p>
@@ -315,16 +316,9 @@
         <div class="students-table-wrapper">
             <table class="students-table" id="allStudentsTable">
                 <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>الرقم الجامعي</th>
-                        <th>المعدل</th>
-                        <th>الاختصاص المقبول</th>
-                    </tr>
-                </thead>
+                    60<th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
                 <tbody id="allStudentsTableBody">
-                    <tr><td colspan="4">لا توجد بيانات</td></tr>
-                </tbody>
+                    60<td colspan="4">لا توجد بيانات</td> </tbody>
             </table>
         </div>
     </div>
@@ -356,7 +350,7 @@
     </div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><th>الرغبات (أول 5)</th></tr></thead>
+            <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><th>الرغبات (أول 5)</th> </thead>
             <tbody id="adminStudentsTableBody"></tbody>
         </table>
     </div>
@@ -590,7 +584,7 @@
                         <td>${s.id}</td>
                         <td>${s.gpa}</td>
                         <td class="${cls}">${s.assignedSpecialty}</td>
-                    </tr>`;
+                     </tr>`;
         });
         if (filtered.length === 0) tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>';
     }
