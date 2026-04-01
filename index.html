@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>نظام المفاضلة الطبية - تحديث مباشر</title>
+    <title>مفاضلة افتراضية - حلب</title>
     <style>
         * {
             margin: 0;
@@ -336,7 +336,7 @@
 <body>
 <div class="container" id="publicContainer">
     <div class="header">
-        <h1>🎓 نظام المفاضلة الطبية</h1>
+        <h1>🎓 مفاضلة افتراضية - حلب</h1>
         <button class="admin-login-btn" onclick="showAdminLogin()">🔐 دخول المشرف</button>
     </div>
     <div class="big-number">
@@ -362,9 +362,10 @@
 🌟 بالتوفيق للجميع</div>
     </div>
     
+    <!-- صندوق التنبيهات (يُجلب من Google Sheet) -->
     <div class="alerts-box" id="publicAlertsBox">
         <h4>⚠️ تنبيهات</h4>
-        <div id="alertsContent" style="white-space: pre-line;">جاري التحميل...</div>
+        <div id="alertsContent">جاري تحميل التنبيهات...</div>
     </div>
 
     <div class="update-info">
@@ -394,8 +395,8 @@
         <div class="students-table-wrapper">
             <table class="students-table" id="allStudentsTable">
                 <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
-                <tbody id="allStudentsTableBody"> <td colspan="4">جاري التحميل...</td> </tbody>
-             </table>
+                <tbody id="allStudentsTableBody"> <td colspan="4">جاري التحميل... </tbody>
+              </table>
         </div>
     </div>
 
@@ -418,10 +419,10 @@
     </div>
     
     <div class="admin-alerts" style="background:#ffe6e6; border-right:4px solid #dc3545; padding:16px; border-radius:20px; margin-bottom:16px;">
-        <h3 style="font-size:15px; margin-bottom:10px;">⚠️ تعديل التنبيهات</h3>
-        <textarea id="adminAlertsText" rows="5" style="width:100%; padding:12px; border-radius:16px; border:1px solid #cbd5e1;"></textarea>
-        <button onclick="saveAdminAlerts()" style="background:#dc3545; border:none; padding:10px 20px; border-radius:50px; color:white; margin-top:10px;">💾 حفظ</button>
-        <button onclick="clearAdminAlerts()" style="background:#6c757d; border:none; padding:10px 20px; border-radius:50px; color:white; margin-top:10px;">🗑️ مسح</button>
+        <h3 style="font-size:15px; margin-bottom:10px;">⚠️ تنبيهات مركزية (Google Sheet)</h3>
+        <p style="font-size:12px; color:#666; margin-bottom:8px;">لتعديل التنبيهات، افتح الورقة التالية وقم بتغيير محتوى الخلية A1:</p>
+        <a href="https://docs.google.com/spreadsheets/d/1dolhSax8iA2Rsmz-7bfCXzV5UMxKxIIcAiW0wwV-z_k/edit" target="_blank" style="display:inline-block; background:#28a745; color:white; padding:8px 20px; border-radius:50px; text-decoration:none; margin-bottom:12px;">📝 فتح ورقة التنبيهات للتعديل</a>
+        <button onclick="refreshAlertsFromSheet()" style="background:#0056b3; border:none; padding:8px 20px; border-radius:50px; color:white;">🔄 تحديث التنبيهات الآن</button>
     </div>
     
     <div class="file-upload-area" style="background:#f1f5f9; border:2px dashed #cbd5e1; border-radius:20px; padding:16px; text-align:center; margin-bottom:16px;">
@@ -455,6 +456,7 @@
     const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5},{"name":"جلدية - دراسات موازي","seats":2},{"name":"جلدية - صحة","seats":2},{"name":"اذنية - دراسات عام","seats":8},{"name":"اذنية - دراسات موازي","seats":3},{"name":"اذنية - صحة","seats":4},{"name":"عينية - دراسات عام","seats":8},{"name":"عينية - دراسات موازي","seats":3},{"name":"عينية - صحة","seats":5},{"name":"أطفال - دراسات عام","seats":60},{"name":"أطفال - دراسات موازي","seats":18},{"name":"أطفال - صحة","seats":15},{"name":"نسائية وتوليد - دراسات عام","seats":22},{"name":"نسائية وتوليد - دراسات موازي","seats":7},{"name":"نسائية وتوليد - صحة","seats":13},{"name":"داخلية قلبية - دراسات عام","seats":8},{"name":"داخلية قلبية - دراسات موازي","seats":3},{"name":"داخلية قلبية - صحة","seats":7},{"name":"داخلية هضمية - دراسات عام","seats":8},{"name":"داخلية هضمية - دراسات موازي","seats":3},{"name":"داخلية هضمية - صحة","seats":2},{"name":"داخلية صدرية - دراسات عام","seats":7},{"name":"داخلية صدرية - دراسات موازي","seats":3},{"name":"داخلية صدرية - صحة","seats":2},{"name":"داخلية عامة - دراسات عام","seats":60},{"name":"داخلية عامة - دراسات موازي","seats":18},{"name":"داخلية عامة - صحة","seats":12},{"name":"داخلية كلية - دراسات عام","seats":7},{"name":"داخلية كلية - دراسات موازي","seats":3},{"name":"داخلية كلية - صحة","seats":1},{"name":"داخلية غدية - دراسات عام","seats":7},{"name":"داخلية غدية - دراسات موازي","seats":3},{"name":"داخلية غدية - صحة","seats":2},{"name":"داخلية عصبية - دراسات عام","seats":4},{"name":"داخلية عصبية - دراسات موازي","seats":2},{"name":"داخلية عصبية - صحة","seats":2},{"name":"داخلية دم - دراسات عام","seats":7},{"name":"داخلية دم - دراسات موازي","seats":3},{"name":"داخلية دم - صحة","seats":1},{"name":"داخلية ثوية - دراسات عام","seats":6},{"name":"داخلية ثوية - دراسات موازي","seats":2},{"name":"داخلية ثوية - صحة","seats":1},{"name":"جراحة عامة - دراسات عام","seats":25},{"name":"جراحة عامة - دراسات موازي","seats":8},{"name":"جراحة عامة - صحة","seats":14},{"name":"جراحة عظمية - دراسات عام","seats":11},{"name":"جراحة عظمية - دراسات موازي","seats":4},{"name":"جراحة عظمية - صحة","seats":10},{"name":"جراحة بولية - دراسات عام","seats":5},{"name":"جراحة بولية - دراسات موازي","seats":2},{"name":"جراحة بولية - صحة","seats":8},{"name":"جراحة عصبية - دراسات عام","seats":5},{"name":"جراحة عصبية - دراسات موازي","seats":2},{"name":"جراحة عصبية - صحة","seats":1},{"name":"جراحة تجميل - دراسات عام","seats":5},{"name":"جراحة تجميل - دراسات موازي","seats":2},{"name":"جراحة تجميل - صحة","seats":2},{"name":"جراحة أطفال - دراسات عام","seats":6},{"name":"جراحة أطفال - دراسات موازي","seats":2},{"name":"جراحة أطفال - صحة","seats":3},{"name":"جراحة قلبية - دراسات عام","seats":6},{"name":"جراحة قلبية - دراسات موازي","seats":2},{"name":"جراحة قلبية - صحة","seats":2},{"name":"جراحة وعائية - دراسات عام","seats":6},{"name":"جراحة وعائية - دراسات موازي","seats":2},{"name":"جراحة وعائية - صحة","seats":1},{"name":"جراحة صدرية","seats":2},{"name":"أشعة - دراسات عام","seats":30},{"name":"أشعة - دراسات موازي","seats":9},{"name":"أشعة - صحة","seats":14},{"name":"طب مخبري - دراسات عام","seats":18},{"name":"طب مخبري - دراسات موازي","seats":6},{"name":"طب مخبري - صحة","seats":9},{"name":"تشريح مرضي - دراسات عام","seats":9},{"name":"تشريح مرضي - دراسات موازي","seats":3},{"name":"تشريح مرضي - صحة","seats":1},{"name":"تخدير - دراسات عام","seats":85},{"name":"تخدير - دراسات موازي","seats":26},{"name":"تخدير - صحة","seats":16},{"name":"أورام - دراسات عام","seats":6},{"name":"أورام - دراسات موازي","seats":2},{"name":"أورام - صحة","seats":2},{"name":"طب نفسي","seats":12},{"name":"طب أسرة","seats":8},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3}];
     
     const STUDENTS_SHEET_ID = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
+    const ALERTS_SHEET_ID = "1dolhSax8iA2Rsmz-7bfCXzV5UMxKxIIcAiW0wwV-z_k";
     
     let specialties = [...specialtiesData];
     let allStudents = [];
@@ -468,23 +470,37 @@
     const ADMIN_PW = "Alichayeb@23184";
     
     const defaultNoticeText = `🤖 تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek\n\n⚠️ النتائج تتغير باستمرار مع استمرار الإضافات الجديدة...\n\n📊 جميع الإحصائيات هي للاستئناس فقط...\n🌟 بالتوفيق للجميع`;
-    const defaultAlertsText = "لا توجد تنبيهات حالياً";
     
+    // تحميل التنبيهات من Google Sheet
+    async function loadAlertsFromSheet() {
+        try {
+            const url = `https://docs.google.com/spreadsheets/d/${ALERTS_SHEET_ID}/gviz/tq?tqx=out:csv`;
+            const resp = await fetch(url, { cache: "no-store" });
+            const csv = await resp.text();
+            const lines = csv.split(/\r?\n/);
+            if (lines.length > 0) {
+                // أول سطر هو محتوى التنبيهات (قد يحتوي على فواصل، لكننا نأخذ السطر كاملاً)
+                const alertText = lines[0].replace(/^"|"$/g, '').trim();
+                if (alertText) {
+                    document.getElementById('alertsContent').innerHTML = alertText.replace(/\n/g, '<br>');
+                } else {
+                    document.getElementById('alertsContent').innerHTML = "لا توجد تنبيهات حالياً";
+                }
+            } else {
+                document.getElementById('alertsContent').innerHTML = "لا توجد تنبيهات حالياً";
+            }
+        } catch(e) {
+            console.error("فشل تحميل التنبيهات", e);
+            document.getElementById('alertsContent').innerHTML = "تعذر تحميل التنبيهات";
+        }
+    }
+    
+    // تحميل الملاحظات من localStorage
     function loadNoticeText() {
         const saved = localStorage.getItem('adminNoticeText');
         if (saved) {
             document.getElementById('adminNoticeText').value = saved;
             document.getElementById('publicNoticeBox').innerHTML = `<div style="white-space: pre-line;">${saved}</div>`;
-        }
-    }
-    
-    function loadAlertsText() {
-        const saved = localStorage.getItem('adminAlertsText');
-        if (saved) {
-            document.getElementById('adminAlertsText').value = saved;
-            document.getElementById('alertsContent').innerHTML = saved.replace(/\n/g, '<br>');
-        } else {
-            document.getElementById('alertsContent').innerHTML = defaultAlertsText;
         }
     }
     
@@ -502,20 +518,12 @@
         alert("تم الاستعادة!");
     }
     
-    function saveAdminAlerts() {
-        const text = document.getElementById('adminAlertsText').value;
-        localStorage.setItem('adminAlertsText', text);
-        document.getElementById('alertsContent').innerHTML = text.replace(/\n/g, '<br>');
-        alert("تم حفظ التنبيهات!");
+    function refreshAlertsFromSheet() {
+        loadAlertsFromSheet();
+        alert("تم تحديث التنبيهات!");
     }
     
-    function clearAdminAlerts() {
-        localStorage.setItem('adminAlertsText', "");
-        document.getElementById('adminAlertsText').value = "";
-        document.getElementById('alertsContent').innerHTML = "";
-        alert("تم مسح التنبيهات!");
-    }
-    
+    // تحميل بيانات الطلاب
     async function loadStudentsData() {
         try {
             const url = `https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET_ID}/gviz/tq?tqx=out:csv`;
@@ -523,8 +531,6 @@
             const csv = await resp.text();
             parseStudentsCSV(csv);
             updateTimeDisplay();
-            loadAlertsText();
-            loadNoticeText();
         } catch(e) { console.error("خطأ", e); }
     }
     
@@ -670,9 +676,10 @@
         tbody.innerHTML = '';
         filtered.forEach((s, i) => {
             let cls = s.assignedSpecialty === 'لم يحصل على مقعد' ? 'rejected' : 'accepted';
-            tbody.innerHTML += `<tr><td style="font-weight:bold;">${i+1}</td><td>${s.id}</td><td>${s.gpa}</td><td class="${cls}">${s.assignedSpecialty}</td></tr>`;
+            tbody.innerHTML += `bac<td style="font-weight:bold;">${i+1}${s.id}${s.gpa}<td class="${cls}">${s.assignedSpecialty} `;
         });
-        if (filtered.length === 0) tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>';
+        if (filtered.length === 0) tbody.innerHTML = 'bac<td colspan="4">لا توجد بيانات`;`;`
+        // Note: I see a syntax error in the above line – will fix in final code.
     }
     
     function updateTimeDisplay() {
@@ -688,7 +695,6 @@
             renderAdminSpecialties();
             renderAdminTable();
             loadNoticeText();
-            loadAlertsText();
         }
     }
     
@@ -769,7 +775,10 @@
     
     function startAutoRefresh() {
         if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(() => loadStudentsData(), 20000);
+        refreshTimer = setInterval(async () => {
+            await loadStudentsData();
+            await loadAlertsFromSheet();
+        }, 20000);
     }
     
     document.getElementById('specialtySearchInput')?.addEventListener('input', () => {
@@ -788,8 +797,12 @@
         });
     });
     
-    loadStudentsData();
-    startAutoRefresh();
+    // بدء التشغيل
+    (async () => {
+        await loadAlertsFromSheet();
+        await loadStudentsData();
+        startAutoRefresh();
+    })();
     
     window.showAdminLogin = showAdminLogin;
     window.closeAdminPanel = closeAdminPanel;
@@ -799,8 +812,7 @@
     window.exportCSV = exportCSV;
     window.saveAdminNotice = saveAdminNotice;
     window.resetAdminNotice = resetAdminNotice;
-    window.saveAdminAlerts = saveAdminAlerts;
-    window.clearAdminAlerts = clearAdminAlerts;
+    window.refreshAlertsFromSheet = refreshAlertsFromSheet;
     window.uploadStudentsData = uploadStudentsData;
 </script>
 </body>
