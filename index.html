@@ -15,216 +15,256 @@
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f4f8;
-            padding: 12px;
+            font-family: 'Cairo', system-ui, -apple-system, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px;
             color: #1e2a3a;
+            min-height: 100vh;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
-            border-radius: 32px;
-            padding: 20px 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-            transition: all 0.2s;
+            border-radius: 40px;
+            padding: 24px 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
         h1 {
-            font-size: 24px;
-            color: #0056b3;
-            font-weight: 700;
+            font-size: 28px;
+            background: linear-gradient(135deg, #0056b3, #28a745);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
             margin: 0;
         }
         .admin-login-btn {
-            background: #e2e8f0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
+            padding: 10px 20px;
+            border-radius: 50px;
             font-size: 14px;
-            font-weight: 500;
-            color: #1e293b;
+            font-weight: 600;
+            color: white;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .admin-login-btn:active {
-            background: #cbd5e1;
-            transform: scale(0.97);
+            transform: scale(0.96);
         }
         .big-number {
             background: linear-gradient(135deg, #0056b3, #28a745);
-            border-radius: 28px;
-            padding: 24px 12px;
+            border-radius: 32px;
+            padding: 28px 16px;
             text-align: center;
             color: white;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
         }
         .big-number .number {
-            font-size: 64px;
+            font-size: 72px;
             font-weight: 800;
             line-height: 1;
+            animation: pulse 0.5s ease;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         .big-number .label {
-            font-size: 16px;
+            font-size: 18px;
             margin-top: 8px;
-            opacity: 0.9;
+            opacity: 0.95;
         }
         .notice-box {
-            background: #fff8e7;
+            background: linear-gradient(135deg, #fff5e6, #ffe8d6);
             border-right: 4px solid #f59e0b;
-            border-radius: 20px;
-            padding: 14px 16px;
+            border-radius: 24px;
+            padding: 16px 20px;
             margin-bottom: 16px;
             font-size: 13px;
             color: #92400e;
-            line-height: 1.6;
+            line-height: 1.7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .alerts-box {
-            background: #fee2e2;
+            background: linear-gradient(135deg, #fee2e2, #ffd6d6);
             border-right: 4px solid #dc3545;
-            border-radius: 20px;
-            padding: 14px 16px;
+            border-radius: 24px;
+            padding: 16px 20px;
             margin-bottom: 20px;
             font-size: 13px;
             color: #991b1b;
-            line-height: 1.6;
+            line-height: 1.7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .alerts-box h4 {
-            font-size: 14px;
-            margin-bottom: 8px;
+            font-size: 15px;
+            margin-bottom: 10px;
             color: #dc3545;
+            font-weight: 700;
         }
         .update-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #eef2ff;
-            padding: 8px 16px;
-            border-radius: 48px;
-            margin-bottom: 24px;
+            padding: 10px 18px;
+            border-radius: 60px;
+            margin-bottom: 28px;
             font-size: 12px;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
         }
         .live-badge {
             background: #28a745;
             color: white;
-            padding: 4px 12px;
-            border-radius: 40px;
+            padding: 5px 14px;
+            border-radius: 50px;
             font-size: 11px;
-            font-weight: 500;
+            font-weight: 600;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
         .update-time {
             color: #334155;
             font-family: monospace;
+            font-weight: 500;
         }
         .tab-buttons {
             display: flex;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         .tab-btn {
             background: #eef2ff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 48px;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
             color: #1e293b;
             flex: 1;
             text-align: center;
-            transition: 0.2s;
+            transition: all 0.3s ease;
         }
         .tab-btn.active {
-            background: #0056b3;
+            background: linear-gradient(135deg, #0056b3, #28a745);
             color: white;
+            box-shadow: 0 4px 12px rgba(0,86,179,0.3);
         }
         .tab-pane {
             display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .tab-pane.active {
             display: block;
         }
         .search-box {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         .search-box input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 48px;
+            padding: 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 60px;
             font-size: 15px;
             background: white;
-            transition: 0.2s;
+            transition: all 0.3s ease;
         }
         .search-box input:focus {
             outline: none;
             border-color: #0056b3;
-            box-shadow: 0 0 0 2px rgba(0,86,179,0.1);
+            box-shadow: 0 0 0 3px rgba(0,86,179,0.1);
         }
         .specialties-grid {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            max-height: 600px;
+            gap: 14px;
+            max-height: 650px;
             overflow-y: auto;
-            padding: 2px;
+            padding: 4px;
         }
         .specialty-card {
             background: #f8fafc;
-            border-radius: 20px;
-            padding: 14px;
+            border-radius: 24px;
+            padding: 16px;
             border-right: 4px solid #0056b3;
-            transition: 0.2s;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
         .specialty-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
         .specialty-card h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
+            font-size: 17px;
+            margin-bottom: 12px;
             color: #0056b3;
+            font-weight: 700;
         }
         .specialty-card .stats-row {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
-            margin: 8px 0;
+            margin: 10px 0;
         }
         .badge {
             background: #e2e8f0;
-            border-radius: 40px;
-            padding: 4px 10px;
+            border-radius: 50px;
+            padding: 5px 12px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
         }
         details {
-            margin-top: 10px;
+            margin-top: 12px;
         }
         summary {
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             color: #0056b3;
             cursor: pointer;
             background: #eef2ff;
-            padding: 6px 12px;
-            border-radius: 40px;
+            padding: 6px 14px;
+            border-radius: 50px;
             display: inline-block;
         }
         .students-table-wrapper {
             overflow-x: auto;
-            max-height: 500px;
+            max-height: 550px;
             overflow-y: auto;
+            border-radius: 20px;
         }
         .students-table {
             width: 100%;
@@ -233,29 +273,29 @@
             background: white;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .students-table th, .students-table td {
             border: 1px solid #e2e8f0;
-            padding: 10px 6px;
+            padding: 12px 8px;
             text-align: center;
         }
         .students-table th {
-            background: #eef2ff;
+            background: linear-gradient(135deg, #eef2ff, #e2e8f0);
+            font-weight: 700;
             position: sticky;
             top: 0;
         }
         .load-more-btn {
-            background: #e2e8f0;
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
             border: none;
-            padding: 10px;
-            border-radius: 40px;
-            margin-top: 12px;
+            padding: 12px;
+            border-radius: 60px;
+            margin-top: 16px;
             width: 100%;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 500;
-            transition: 0.2s;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
         .load-more-btn:active {
             transform: scale(0.98);
@@ -265,61 +305,31 @@
         .warning-badge {
             background: #dc3545;
             color: white;
-            padding: 2px 8px;
-            border-radius: 20px;
+            padding: 3px 10px;
+            border-radius: 50px;
             font-size: 10px;
-            margin-left: 5px;
+            margin-left: 6px;
+            display: inline-block;
         }
-        .file-upload-area {
-            background: #f1f5f9;
-            border: 2px dashed #cbd5e1;
-            border-radius: 20px;
-            padding: 12px;
-            margin: 12px 0;
+        .loading-spinner {
             text-align: center;
-        }
-        .validation-summary {
-            background: #fef9c3;
-            border-radius: 16px;
-            padding: 10px;
-            margin: 12px 0;
-            font-size: 12px;
-        }
-        .admin-notice, .admin-alerts {
-            background: #e6f7e6;
-            border-right: 4px solid #28a745;
-            margin-top: 12px;
-            padding: 10px;
-            border-radius: 16px;
-        }
-        .admin-alerts {
-            background: #ffe6e6;
-            border-right-color: #dc3545;
-        }
-        .admin-notice textarea, .admin-alerts textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 16px;
-            font-size: 13px;
-            font-family: inherit;
-            margin-bottom: 8px;
+            padding: 40px;
+            color: #0056b3;
         }
         footer {
             text-align: center;
-            font-size: 10px;
+            font-size: 11px;
             color: #94a3b8;
-            margin-top: 24px;
-            padding-top: 12px;
+            margin-top: 28px;
+            padding-top: 16px;
             border-top: 1px solid #e2e8f0;
         }
         @media (max-width: 600px) {
-            body { padding: 8px; }
-            .container { padding: 16px; border-radius: 24px; }
-            .big-number .number { font-size: 48px; }
-            .tab-btn { font-size: 13px; padding: 8px 12px; }
-            .specialty-card h3 { font-size: 14px; }
-            .badge { font-size: 11px; }
+            body { padding: 12px; }
+            .container { padding: 16px; border-radius: 28px; }
+            .big-number .number { font-size: 52px; }
+            .tab-btn { font-size: 13px; padding: 10px 16px; }
+            h1 { font-size: 22px; }
         }
     </style>
 </head>
@@ -330,11 +340,10 @@
         <button class="admin-login-btn" onclick="showAdminLogin()">🔐 دخول المشرف</button>
     </div>
     <div class="big-number">
-        <div class="number" id="totalCount">0</div>
+        <div class="number" id="totalCount">--</div>
         <div class="label">عدد الطلاب المسجلين</div>
     </div>
     
-    <!-- الملاحظات المهمة (تظهر للجميع) -->
     <div class="notice-box" id="publicNoticeBox">
         <div style="white-space: pre-line;">🤖 تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek
 
@@ -353,10 +362,9 @@
 🌟 بالتوفيق للجميع</div>
     </div>
     
-    <!-- صندوق التنبيهات (يظهر للجميع) -->
     <div class="alerts-box" id="publicAlertsBox">
         <h4>⚠️ تنبيهات</h4>
-        <div id="alertsContent" style="white-space: pre-line;">لا توجد تنبيهات حالياً</div>
+        <div id="alertsContent" style="white-space: pre-line;">جاري التحميل...</div>
     </div>
 
     <div class="update-info">
@@ -374,7 +382,7 @@
             <input type="text" id="specialtySearchInput" placeholder="🔍 ابحث عن اختصاص... (مثال: هضمية، قلبية، أطفال)">
         </div>
         <div id="publicStats" class="specialties-grid">
-            <div class="loading">جاري تحميل الإحصائيات...</div>
+            <div class="loading-spinner">🔄 جاري تحميل الإحصائيات...</div>
         </div>
         <button id="loadMoreStatsBtn" class="load-more-btn" style="display: none;">➕ تحميل المزيد من الاختصاصات</button>
     </div>
@@ -386,7 +394,7 @@
         <div class="students-table-wrapper">
             <table class="students-table" id="allStudentsTable">
                 <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
-                <tbody id="allStudentsTableBody"> <td colspan="4">لا توجد بيانات</td> </tbody>
+                <tbody id="allStudentsTableBody"> <td colspan="4">جاري التحميل...</td> </tbody>
              </table>
         </div>
     </div>
@@ -398,52 +406,41 @@
 <div id="adminPanel" style="display: none;" class="container">
     <div class="header">
         <h1>🔐 لوحة المشرف</h1>
-        <button class="admin-login-btn" onclick="closeAdminPanel()" style="background:#dc3545; color:white;">🚪 إغلاق</button>
+        <button class="admin-login-btn" onclick="closeAdminPanel()" style="background:#dc3545;">🚪 إغلاق</button>
     </div>
-    <div class="admin-badge" style="background:#dc3545; color:white; padding:4px 12px; border-radius:40px; display:inline-block; margin-bottom:16px;">وضع المشرف - جميع البيانات</div>
+    <div class="admin-badge" style="background:#dc3545; color:white; padding:6px 16px; border-radius:50px; display:inline-block; margin-bottom:20px;">وضع المشرف - جميع البيانات</div>
     
-    <!-- قسم تعديل الملاحظات -->
-    <div class="admin-notice">
-        <h3 style="font-size:14px; margin-bottom:8px;">✏️ تعديل الملاحظات (التي تظهر للطلاب)</h3>
-        <textarea id="adminNoticeText" rows="6" style="width:100%; padding:10px; border-radius:16px; border:1px solid #cbd5e1; font-family:inherit;"></textarea>
-        <button onclick="saveAdminNotice()" style="background:#0056b3; border:none; padding:8px 16px; border-radius:40px; color:white; margin-top:8px;">💾 حفظ التغييرات</button>
-        <button onclick="resetAdminNotice()" style="background:#6c757d; border:none; padding:8px 16px; border-radius:40px; color:white; margin-top:8px;">↺ استعادة النص الافتراضي</button>
-    </div>
-    
-    <!-- قسم تعديل التنبيهات -->
-    <div class="admin-alerts">
-        <h3 style="font-size:14px; margin-bottom:8px;">⚠️ تعديل التنبيهات (التي تظهر للطلاب)</h3>
-        <p style="font-size:12px; color:#666; margin-bottom:8px;">اكتب هنا الأرقام الجامعية المفقودة أو أي تنبيهات أخرى</p>
-        <textarea id="adminAlertsText" rows="5" style="width:100%; padding:10px; border-radius:16px; border:1px solid #cbd5e1; font-family:inherit;" placeholder="مثال:
-⚠️ الطلاب التالية أرقامهم غير صحيحة، يرجى تعديلها:
-- 20241234
-- 20245678"></textarea>
-        <button onclick="saveAdminAlerts()" style="background:#dc3545; border:none; padding:8px 16px; border-radius:40px; color:white; margin-top:8px;">💾 حفظ التنبيهات</button>
-        <button onclick="clearAdminAlerts()" style="background:#6c757d; border:none; padding:8px 16px; border-radius:40px; color:white; margin-top:8px;">🗑️ مسح التنبيهات</button>
+    <div class="admin-notice" style="background:#e6f7e6; border-right:4px solid #28a745; padding:16px; border-radius:20px; margin-bottom:16px;">
+        <h3 style="font-size:15px; margin-bottom:10px;">✏️ تعديل الملاحظات</h3>
+        <textarea id="adminNoticeText" rows="6" style="width:100%; padding:12px; border-radius:16px; border:1px solid #cbd5e1;"></textarea>
+        <button onclick="saveAdminNotice()" style="background:#0056b3; border:none; padding:10px 20px; border-radius:50px; color:white; margin-top:10px;">💾 حفظ</button>
+        <button onclick="resetAdminNotice()" style="background:#6c757d; border:none; padding:10px 20px; border-radius:50px; color:white; margin-top:10px;">↺ استعادة</button>
     </div>
     
-    <!-- قسم رفع ملف الأرقام الجامعية -->
-    <div class="file-upload-area">
-        <h3 style="font-size:14px; margin-bottom:8px;">📂 رفع ملف الأرقام الجامعية الصحيحة</h3>
-        <p style="font-size:12px; color:#666; margin-bottom:8px;">قم برفع ملف CSV يحتوي على عمودين: الرقم الجامعي, المعدل التفاضلي (اختياري)</p>
-        <input type="file" id="studentsDataFile" accept=".csv, .xlsx, .xls, .txt" style="margin-bottom:8px;">
-        <button onclick="uploadStudentsData()" style="background:#28a745; border:none; padding:8px 16px; border-radius:40px; color:white;">📤 رفع الملف والتحقق</button>
-        <div id="validationResult" class="validation-summary" style="display:none;"></div>
+    <div class="admin-alerts" style="background:#ffe6e6; border-right:4px solid #dc3545; padding:16px; border-radius:20px; margin-bottom:16px;">
+        <h3 style="font-size:15px; margin-bottom:10px;">⚠️ تعديل التنبيهات</h3>
+        <textarea id="adminAlertsText" rows="5" style="width:100%; padding:12px; border-radius:16px; border:1px solid #cbd5e1;"></textarea>
+        <button onclick="saveAdminAlerts()" style="background:#dc3545; border:none; padding:10px 20px; border-radius:50px; color:white; margin-top:10px;">💾 حفظ</button>
+        <button onclick="clearAdminAlerts()" style="background:#6c757d; border:none; padding:10px 20px; border-radius:50px; color:white; margin-top:10px;">🗑️ مسح</button>
     </div>
     
-    <div class="flex-between" style="display:flex; justify-content:space-between; margin-bottom:16px; margin-top:16px;">
+    <div class="file-upload-area" style="background:#f1f5f9; border:2px dashed #cbd5e1; border-radius:20px; padding:16px; text-align:center; margin-bottom:16px;">
+        <h3 style="font-size:14px; margin-bottom:8px;">📂 رفع ملف الأرقام الجامعية</h3>
+        <input type="file" id="studentsDataFile" accept=".csv, .txt">
+        <button onclick="uploadStudentsData()" style="background:#28a745; border:none; padding:10px 20px; border-radius:50px; color:white; margin-top:10px;">📤 رفع والتحقق</button>
+        <div id="validationResult" style="display:none; background:#fef9c3; border-radius:16px; padding:10px; margin-top:12px;"></div>
+    </div>
+    
+    <div style="display:flex; justify-content:space-between; margin:20px 0;">
         <h3>📋 إعدادات Google Sheets</h3>
-        <button onclick="manualRefresh()" style="background:#0056b3; border:none; padding:8px 16px; border-radius:40px; color:white;">🔄 تحديث يدوي</button>
+        <button onclick="manualRefresh()" style="background:#0056b3; border:none; padding:8px 20px; border-radius:50px; color:white;">🔄 تحديث</button>
     </div>
     
-    <div class="flex-between" style="display:flex; justify-content:space-between; margin:16px 0;">
-        <h3>📌 إدارة المقاعد (تعديل تلقائي)</h3>
-    </div>
     <div id="adminSpecialtiesList" style="max-height:400px; overflow-y:auto; margin-bottom:20px;"></div>
     
-    <div class="flex-between" style="display:flex; justify-content:space-between; margin:16px 0;">
+    <div style="display:flex; justify-content:space-between; margin:20px 0;">
         <h3>👥 جميع الطلاب</h3>
-        <button onclick="exportCSV()" style="background:#28a745; border:none; padding:8px 16px; border-radius:40px; color:white;">📥 تصدير CSV</button>
+        <button onclick="exportCSV()" style="background:#28a745; border:none; padding:8px 20px; border-radius:50px; color:white;">📥 تصدير CSV</button>
     </div>
     <div style="overflow-x:auto;">
         <table class="students-table">
@@ -451,17 +448,14 @@
             <tbody id="adminStudentsTableBody"></tbody>
          </table>
     </div>
-    <footer>تعديل المقاعد يتم حفظه تلقائياً عند الخروج من الحقل</footer>
 </div>
 
 <script>
-    // ===================== بيانات الاختصاصات (من إدخالك) =====================
+    // بيانات الاختصاصات (مختصرة للعرض)
     const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5},{"name":"جلدية - دراسات موازي","seats":2},{"name":"جلدية - صحة","seats":2},{"name":"اذنية - دراسات عام","seats":8},{"name":"اذنية - دراسات موازي","seats":3},{"name":"اذنية - صحة","seats":4},{"name":"عينية - دراسات عام","seats":8},{"name":"عينية - دراسات موازي","seats":3},{"name":"عينية - صحة","seats":5},{"name":"أطفال - دراسات عام","seats":60},{"name":"أطفال - دراسات موازي","seats":18},{"name":"أطفال - صحة","seats":15},{"name":"نسائية وتوليد - دراسات عام","seats":22},{"name":"نسائية وتوليد - دراسات موازي","seats":7},{"name":"نسائية وتوليد - صحة","seats":13},{"name":"داخلية قلبية - دراسات عام","seats":8},{"name":"داخلية قلبية - دراسات موازي","seats":3},{"name":"داخلية قلبية - صحة","seats":7},{"name":"داخلية هضمية - دراسات عام","seats":8},{"name":"داخلية هضمية - دراسات موازي","seats":3},{"name":"داخلية هضمية - صحة","seats":2},{"name":"داخلية صدرية - دراسات عام","seats":7},{"name":"داخلية صدرية - دراسات موازي","seats":3},{"name":"داخلية صدرية - صحة","seats":2},{"name":"داخلية عامة - دراسات عام","seats":60},{"name":"داخلية عامة - دراسات موازي","seats":18},{"name":"داخلية عامة - صحة","seats":12},{"name":"داخلية كلية - دراسات عام","seats":7},{"name":"داخلية كلية - دراسات موازي","seats":3},{"name":"داخلية كلية - صحة","seats":1},{"name":"داخلية غدية - دراسات عام","seats":7},{"name":"داخلية غدية - دراسات موازي","seats":3},{"name":"داخلية غدية - صحة","seats":2},{"name":"داخلية عصبية - دراسات عام","seats":4},{"name":"داخلية عصبية - دراسات موازي","seats":2},{"name":"داخلية عصبية - صحة","seats":2},{"name":"داخلية دم - دراسات عام","seats":7},{"name":"داخلية دم - دراسات موازي","seats":3},{"name":"داخلية دم - صحة","seats":1},{"name":"داخلية ثوية - دراسات عام","seats":6},{"name":"داخلية ثوية - دراسات موازي","seats":2},{"name":"داخلية ثوية - صحة","seats":1},{"name":"جراحة عامة - دراسات عام","seats":25},{"name":"جراحة عامة - دراسات موازي","seats":8},{"name":"جراحة عامة - صحة","seats":14},{"name":"جراحة عظمية - دراسات عام","seats":11},{"name":"جراحة عظمية - دراسات موازي","seats":4},{"name":"جراحة عظمية - صحة","seats":10},{"name":"جراحة بولية - دراسات عام","seats":5},{"name":"جراحة بولية - دراسات موازي","seats":2},{"name":"جراحة بولية - صحة","seats":8},{"name":"جراحة عصبية - دراسات عام","seats":5},{"name":"جراحة عصبية - دراسات موازي","seats":2},{"name":"جراحة عصبية - صحة","seats":1},{"name":"جراحة تجميل - دراسات عام","seats":5},{"name":"جراحة تجميل - دراسات موازي","seats":2},{"name":"جراحة تجميل - صحة","seats":2},{"name":"جراحة أطفال - دراسات عام","seats":6},{"name":"جراحة أطفال - دراسات موازي","seats":2},{"name":"جراحة أطفال - صحة","seats":3},{"name":"جراحة قلبية - دراسات عام","seats":6},{"name":"جراحة قلبية - دراسات موازي","seats":2},{"name":"جراحة قلبية - صحة","seats":2},{"name":"جراحة وعائية - دراسات عام","seats":6},{"name":"جراحة وعائية - دراسات موازي","seats":2},{"name":"جراحة وعائية - صحة","seats":1},{"name":"جراحة صدرية","seats":2},{"name":"أشعة - دراسات عام","seats":30},{"name":"أشعة - دراسات موازي","seats":9},{"name":"أشعة - صحة","seats":14},{"name":"طب مخبري - دراسات عام","seats":18},{"name":"طب مخبري - دراسات موازي","seats":6},{"name":"طب مخبري - صحة","seats":9},{"name":"تشريح مرضي - دراسات عام","seats":9},{"name":"تشريح مرضي - دراسات موازي","seats":3},{"name":"تشريح مرضي - صحة","seats":1},{"name":"تخدير - دراسات عام","seats":85},{"name":"تخدير - دراسات موازي","seats":26},{"name":"تخدير - صحة","seats":16},{"name":"أورام - دراسات عام","seats":6},{"name":"أورام - دراسات موازي","seats":2},{"name":"أورام - صحة","seats":2},{"name":"طب نفسي","seats":12},{"name":"طب أسرة","seats":8},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3}];
     
-    // ===================== إعدادات ثابتة =====================
     const STUDENTS_SHEET_ID = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
     
-    // ===================== البيانات العامة =====================
     let specialties = [...specialtiesData];
     let allStudents = [];
     let processedStudents = [];
@@ -473,19 +467,14 @@
     let validStudentsMap = new Map();
     const ADMIN_PW = "Alichayeb@23184";
     
-    // النصوص الافتراضية
-    const defaultNoticeText = `🤖 تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek\n\n⚠️ النتائج تتغير باستمرار مع استمرار الإضافات الجديدة، أي كلما دخل طالب جديد يتم إعادة الحسابات مرة أخرى، فلا تعتمد النتائج إلا إذا وصل عدد المسجلين إلى عدد كبير أو العدد الكامل.\n\n📊 جميع الإحصائيات هي للاستئناس فقط، لا يمكن توقع النتائج بدقة كاملة لوجود العديد من المتغيرات التي لا يمكن التوقع بها.\n\n⚠️ رجاءً: لا تعدل ترتيب رغباتك بناءً على نتائج هذا الموقع، لا تبني توقعاتك بناءً على هذه النتائج.\n\n📈 دقة هذه النتائج تعتمد على دقة إدخال البيانات وعدد المشاركين.\n\n🔐 رجاءً: تأكد من أن البيانات المدخلة دقيقة، ولا يستخدم أي أحد الرقم الجامعي لشخص آخر.\n\n📱 إذا كان هناك أي مشكلة، يرجى التواصل عبر تلغرام: @ALI15cha\n\n🌟 بالتوفيق للجميع`;
+    const defaultNoticeText = `🤖 تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek\n\n⚠️ النتائج تتغير باستمرار مع استمرار الإضافات الجديدة...\n\n📊 جميع الإحصائيات هي للاستئناس فقط...\n🌟 بالتوفيق للجميع`;
     const defaultAlertsText = "لا توجد تنبيهات حالياً";
     
-    // تحميل النصوص المحفوظة وتحديث العرض
     function loadNoticeText() {
         const saved = localStorage.getItem('adminNoticeText');
         if (saved) {
             document.getElementById('adminNoticeText').value = saved;
-            updatePublicNotice(saved);
-        } else {
-            document.getElementById('adminNoticeText').value = defaultNoticeText;
-            updatePublicNotice(defaultNoticeText);
+            document.getElementById('publicNoticeBox').innerHTML = `<div style="white-space: pre-line;">${saved}</div>`;
         }
     }
     
@@ -493,126 +482,50 @@
         const saved = localStorage.getItem('adminAlertsText');
         if (saved) {
             document.getElementById('adminAlertsText').value = saved;
-            updatePublicAlerts(saved);
+            document.getElementById('alertsContent').innerHTML = saved.replace(/\n/g, '<br>');
         } else {
-            document.getElementById('adminAlertsText').value = defaultAlertsText;
-            updatePublicAlerts(defaultAlertsText);
-        }
-    }
-    
-    function updatePublicNotice(text) {
-        const noticeBox = document.getElementById('publicNoticeBox');
-        if (noticeBox) {
-            noticeBox.innerHTML = `<div style="white-space: pre-line;">${text}</div>`;
-        }
-    }
-    
-    function updatePublicAlerts(text) {
-        const alertsDiv = document.getElementById('alertsContent');
-        if (alertsDiv) {
-            alertsDiv.innerHTML = text.replace(/\n/g, '<br>');
+            document.getElementById('alertsContent').innerHTML = defaultAlertsText;
         }
     }
     
     function saveAdminNotice() {
-        const newText = document.getElementById('adminNoticeText').value;
-        localStorage.setItem('adminNoticeText', newText);
-        updatePublicNotice(newText);
-        alert("تم حفظ الملاحظات بنجاح!");
+        const text = document.getElementById('adminNoticeText').value;
+        localStorage.setItem('adminNoticeText', text);
+        document.getElementById('publicNoticeBox').innerHTML = `<div style="white-space: pre-line;">${text}</div>`;
+        alert("تم حفظ الملاحظات!");
     }
     
     function resetAdminNotice() {
-        document.getElementById('adminNoticeText').value = defaultNoticeText;
         localStorage.setItem('adminNoticeText', defaultNoticeText);
-        updatePublicNotice(defaultNoticeText);
-        alert("تم استعادة النص الافتراضي!");
+        document.getElementById('adminNoticeText').value = defaultNoticeText;
+        document.getElementById('publicNoticeBox').innerHTML = `<div style="white-space: pre-line;">${defaultNoticeText}</div>`;
+        alert("تم الاستعادة!");
     }
     
     function saveAdminAlerts() {
-        const newText = document.getElementById('adminAlertsText').value;
-        localStorage.setItem('adminAlertsText', newText);
-        updatePublicAlerts(newText);
-        alert("تم حفظ التنبيهات بنجاح!");
+        const text = document.getElementById('adminAlertsText').value;
+        localStorage.setItem('adminAlertsText', text);
+        document.getElementById('alertsContent').innerHTML = text.replace(/\n/g, '<br>');
+        alert("تم حفظ التنبيهات!");
     }
     
     function clearAdminAlerts() {
-        document.getElementById('adminAlertsText').value = "";
         localStorage.setItem('adminAlertsText', "");
-        updatePublicAlerts("");
+        document.getElementById('adminAlertsText').value = "";
+        document.getElementById('alertsContent').innerHTML = "";
         alert("تم مسح التنبيهات!");
     }
     
-    // التحقق من الأرقام الجامعية
-    function validateStudentNumber(studentId, studentGpa) {
-        if (validStudentsMap.size === 0) return { valid: true, message: "" };
-        
-        if (validStudentsMap.has(studentId)) {
-            const expectedGpa = validStudentsMap.get(studentId);
-            if (expectedGpa !== null && Math.abs(expectedGpa - studentGpa) > 0.5) {
-                return { valid: true, warning: true, message: `⚠️ المعدل (${studentGpa}) يختلف عن المتوقع (${expectedGpa})` };
-            }
-            return { valid: true, message: "" };
-        }
-        
-        for (let [validId, expectedGpa] of validStudentsMap) {
-            if (studentId.includes(validId) || validId.includes(studentId) || 
-                Math.abs(studentId.length - validId.length) <= 2 && studentId.slice(-4) === validId.slice(-4)) {
-                return { valid: false, warning: true, message: `❓ الرقم "${studentId}" غير مطابق. هل تقصد "${validId}"؟` };
-            }
-        }
-        
-        return { valid: false, warning: true, message: `❌ الرقم "${studentId}" غير موجود في قائمة الأرقام الصحيحة` };
-    }
-    
-    // رفع ملف الأرقام الجامعية
-    function uploadStudentsData() {
-        const fileInput = document.getElementById('studentsDataFile');
-        const file = fileInput.files[0];
-        if (!file) {
-            alert("الرجاء اختيار ملف أولاً");
-            return;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const content = e.target.result;
-            const lines = content.split(/\r?\n/);
-            validStudentsMap.clear();
-            
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-                const parts = line.split(/,|;|\t/);
-                const studentId = parts[0]?.trim();
-                const studentGpa = parts[1] ? parseFloat(parts[1]) : null;
-                if (studentId) {
-                    validStudentsMap.set(studentId, studentGpa);
-                }
-            }
-            
-            const resultDiv = document.getElementById('validationResult');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `<strong>✅ تم تحميل ${validStudentsMap.size} رقم جامعي</strong><br>
-                                   📌 سيتم التحقق من الأرقام المدخلة مقابل هذه القائمة.`;
-            
-            if (isAdmin) renderAdminTable();
-        };
-        reader.readAsText(file, "UTF-8");
-    }
-    
-    // تحميل بيانات الطلاب من Google Sheets
     async function loadStudentsData() {
-        if (!STUDENTS_SHEET_ID) return;
         try {
             const url = `https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET_ID}/gviz/tq?tqx=out:csv`;
             const resp = await fetch(url, { cache: "no-store" });
             const csv = await resp.text();
             parseStudentsCSV(csv);
             updateTimeDisplay();
-            // بعد تحديث البيانات، أعد تطبيق النصوص المحفوظة (لأنها قد تُفقد)
-            loadAlertsText();   // لضمان بقاء التنبيهات
-            loadNoticeText();   // لضمان بقاء الملاحظات
-        } catch(e) { console.error("خطأ بتحميل الطلاب", e); }
+            loadAlertsText();
+            loadNoticeText();
+        } catch(e) { console.error("خطأ", e); }
     }
     
     function parseStudentsCSV(csv) {
@@ -623,7 +536,7 @@
         for (let i=0; i<headers.length; i++) {
             let h = headers[i].trim().toLowerCase();
             if (h.includes('الرقم') || h.includes('امتحاني') || h.includes('id')) idIdx = i;
-            if (h.includes('معدل') || h.includes('gpa')) gpaIdx = i;
+            if (h.includes('معدل')) gpaIdx = i;
             if (h.includes('رغبة')) prefIdx.push(i);
         }
         if (idIdx === -1 || gpaIdx === -1) return;
@@ -695,12 +608,7 @@
                     break;
                 }
             }
-            results.push({
-                id: st.id,
-                gpa: st.gpa,
-                preferences: st.preferences,
-                assignedSpecialty: assigned || 'لم يحصل على مقعد'
-            });
+            results.push({ id: st.id, gpa: st.gpa, preferences: st.preferences, assignedSpecialty: assigned || 'لم يحصل على مقعد' });
         }
         processedStudents = results;
         updateUI(accepted, seats);
@@ -709,61 +617,25 @@
     function updateUI(acceptedData, seatsAvailable) {
         currentAcceptedData = acceptedData;
         currentSeatsAvailable = seatsAvailable;
-        document.getElementById('totalCount').innerText = allStudents.length;
+        document.getElementById('totalCount').innerText = allStudents.length || "0";
         renderStats(acceptedData, seatsAvailable);
         renderStudentsTable();
-        if (isAdmin) {
-            renderAdminSpecialties();
-            renderAdminTable();
-        }
+        if (isAdmin) renderAdminTable();
     }
     
     function renderStats(acceptedData, seatsAvailable) {
         const container = document.getElementById('publicStats');
         const searchTerm = document.getElementById('specialtySearchInput')?.value.trim() || "";
-        
         if (!container) return;
-        if (specialties.length === 0) { container.innerHTML = '<div>لا توجد اختصاصات</div>'; return; }
-        
-        if (searchTerm !== "") {
-            const filtered = specialties.filter(spec => 
-                spec.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="specialty-card" style="text-align:center;">❌ لا توجد اختصاصات تطابق "${searchTerm}"</div>`;
-                document.getElementById('loadMoreStatsBtn').style.display = 'none';
-                return;
-            }
-            
-            const demand = computeDemand();
-            let html = '';
-            for (let spec of filtered) {
-                const acc = acceptedData?.[spec.name] || [];
-                const minScore = acc.length ? Math.min(...acc.map(a=>a.gpa)).toFixed(2) : 'لا يوجد';
-                html += `<div class="specialty-card">
-                            <h3>📌 ${spec.name}</h3>
-                            <div class="stats-row">
-                                <span class="badge">🎓 المقاعد: ${spec.seats}</span>
-                                <span class="badge">✅ المقبولون: ${acc.length}</span>
-                                <span class="badge">👥 المتقدمون: ${demand[spec.name] || 0}</span>
-                            </div>
-                            <p>📊 الحد الأدنى: <strong>${minScore}</strong></p>`;
-                if (acc.length) {
-                    html += `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${acc.map(a=>`<li>${a.id} - ${a.gpa}</li>`).join('')}</ul></details>`;
-                }
-                html += `</div>`;
-            }
-            container.innerHTML = html;
-            document.getElementById('loadMoreStatsBtn').style.display = 'none';
-            return;
-        }
         
         const demand = computeDemand();
         let html = '';
-        const displayCount = Math.min(displayedSpecialtiesCount, specialties.length);
-        for (let i = 0; i < displayCount; i++) {
-            const spec = specialties[i];
+        let displaySpecs = specialties;
+        if (searchTerm) displaySpecs = specialties.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+        const displayCount = Math.min(displayedSpecialtiesCount, displaySpecs.length);
+        for (let i=0; i<displayCount; i++) {
+            const spec = displaySpecs[i];
             const acc = acceptedData?.[spec.name] || [];
             const minScore = acc.length ? Math.min(...acc.map(a=>a.gpa)).toFixed(2) : 'لا يوجد';
             html += `<div class="specialty-card">
@@ -781,17 +653,12 @@
         }
         container.innerHTML = html;
         
-        const loadMoreBtn = document.getElementById('loadMoreStatsBtn');
-        if (loadMoreBtn) {
-            if (displayedSpecialtiesCount < specialties.length) {
-                loadMoreBtn.style.display = 'block';
-                loadMoreBtn.onclick = () => {
-                    displayedSpecialtiesCount += 30;
-                    renderStats(currentAcceptedData, currentSeatsAvailable);
-                };
-            } else {
-                loadMoreBtn.style.display = 'none';
-            }
+        const btn = document.getElementById('loadMoreStatsBtn');
+        if (btn) {
+            if (displayCount < displaySpecs.length) {
+                btn.style.display = 'block';
+                btn.onclick = () => { displayedSpecialtiesCount += 30; renderStats(currentAcceptedData, currentSeatsAvailable); };
+            } else btn.style.display = 'none';
         }
     }
     
@@ -803,12 +670,7 @@
         tbody.innerHTML = '';
         filtered.forEach((s, i) => {
             let cls = s.assignedSpecialty === 'لم يحصل على مقعد' ? 'rejected' : 'accepted';
-            tbody.innerHTML += `<tr>
-                        <td style="font-weight:bold;">${i+1}</td>
-                        <td>${s.id}</td>
-                        <td>${s.gpa}</td>
-                        <td class="${cls}">${s.assignedSpecialty}</td>
-                    </tr>`;
+            tbody.innerHTML += `<tr><td style="font-weight:bold;">${i+1}</td><td>${s.id}</td><td>${s.gpa}</td><td class="${cls}">${s.assignedSpecialty}</td></tr>`;
         });
         if (filtered.length === 0) tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>';
     }
@@ -817,9 +679,8 @@
         document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
     }
     
-    // ===================== واجهة المشرف =====================
     function showAdminLogin() {
-        const pwd = prompt("🔐 أدخل كلمة السر للمشرف:");
+        const pwd = prompt("🔐 كلمة السر:");
         if (pwd === ADMIN_PW) {
             isAdmin = true;
             document.getElementById('publicContainer').style.display = 'none';
@@ -828,7 +689,7 @@
             renderAdminTable();
             loadNoticeText();
             loadAlertsText();
-        } else if (pwd) alert("كلمة سر غير صحيحة");
+        }
     }
     
     function closeAdminPanel() {
@@ -842,35 +703,32 @@
         if (!container) return;
         let html = '';
         specialties.forEach((spec, idx) => {
-            html += `<div style="background:#f8fafc; border-radius:20px; padding:10px; margin-bottom:10px; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-                        <input type="text" value="${spec.name.replace(/"/g, '&quot;')}" id="specName${idx}" style="flex:3; padding:8px; border-radius:40px; border:1px solid #cbd5e1;">
-                        <input type="number" value="${spec.seats}" id="specSeats${idx}" style="flex:1; padding:8px; border-radius:40px; border:1px solid #cbd5e1;">
-                        <button onclick="updateSpecialty(${idx})" style="background:#28a745; border:none; padding:6px 12px; border-radius:40px; color:white;">💾</button>
-                        <button onclick="deleteSpecialty(${idx})" style="background:#dc3545; border:none; padding:6px 12px; border-radius:40px; color:white;">🗑️</button>
+            html += `<div style="background:#f8fafc; border-radius:20px; padding:12px; margin-bottom:12px; display:flex; flex-wrap:wrap; gap:10px;">
+                        <input type="text" value="${spec.name}" id="specName${idx}" style="flex:3; padding:10px; border-radius:50px; border:1px solid #cbd5e1;">
+                        <input type="number" value="${spec.seats}" id="specSeats${idx}" style="flex:1; padding:10px; border-radius:50px;">
+                        <button onclick="updateSpecialty(${idx})" style="background:#28a745; border:none; padding:8px 16px; border-radius:50px; color:white;">💾</button>
+                        <button onclick="deleteSpecialty(${idx})" style="background:#dc3545; border:none; padding:8px 16px; border-radius:50px; color:white;">🗑️</button>
                     </div>`;
         });
         container.innerHTML = html;
-        
         specialties.forEach((_, idx) => {
-            const nameInput = document.getElementById(`specName${idx}`);
-            const seatsInput = document.getElementById(`specSeats${idx}`);
-            if (nameInput) nameInput.onblur = () => updateSpecialty(idx);
-            if (seatsInput) seatsInput.onblur = () => updateSpecialty(idx);
+            document.getElementById(`specName${idx}`).onblur = () => updateSpecialty(idx);
+            document.getElementById(`specSeats${idx}`).onblur = () => updateSpecialty(idx);
         });
     }
     
     function updateSpecialty(idx) {
-        const newName = document.getElementById(`specName${idx}`).value;
-        const newSeats = parseInt(document.getElementById(`specSeats${idx}`).value);
-        if (newName && !isNaN(newSeats)) {
-            specialties[idx] = { name: newName, seats: newSeats };
+        const name = document.getElementById(`specName${idx}`).value;
+        const seats = parseInt(document.getElementById(`specSeats${idx}`).value);
+        if (name && !isNaN(seats)) {
+            specialties[idx] = { name, seats };
             renderAdminSpecialties();
             runMatching();
         }
     }
     
     function deleteSpecialty(idx) {
-        if (confirm("حذف هذا الاختصاص؟")) {
+        if (confirm("حذف؟")) {
             specialties.splice(idx, 1);
             renderAdminSpecialties();
             runMatching();
@@ -883,58 +741,50 @@
         const sorted = [...processedStudents].sort((a,b) => b.gpa - a.gpa);
         tbody.innerHTML = '';
         sorted.forEach((s, i) => {
-            const validation = validateStudentNumber(s.id, s.gpa);
-            const warningHtml = validation.warning ? `<span class="warning-badge" title="${validation.message}">⚠️</span>` : '';
             const row = tbody.insertRow();
-            row.insertCell(0).innerText = i + 1;
-            row.insertCell(1).innerHTML = `${s.id} ${warningHtml}`;
+            row.insertCell(0).innerText = i+1;
+            row.insertCell(1).innerText = s.id;
             row.insertCell(2).innerText = s.gpa;
             row.insertCell(3).innerText = s.assignedSpecialty;
-            row.insertCell(4).innerText = s.preferences.slice(0,5).join(' → ') + (s.preferences.length > 5 ? ' ...' : '');
-            row.insertCell(5).innerHTML = validation.message ? `<span style="font-size:11px; color:#dc3545;">${validation.message}</span>` : '✓';
+            row.insertCell(4).innerText = s.preferences.slice(0,5).join(' → ');
+            row.insertCell(5).innerText = '✓';
         });
     }
     
-    function manualRefresh() {
-        loadStudentsData();
-    }
+    function manualRefresh() { loadStudentsData(); }
     
     function exportCSV() {
-        let csv = "الرقم الجامعي,المعدل,الاختصاص المقبول,الرغبات,حالة التحقق\n";
-        processedStudents.forEach(s => {
-            const validation = validateStudentNumber(s.id, s.gpa);
-            csv += `"${s.id}",${s.gpa},"${s.assignedSpecialty}","${s.preferences.join(' | ')}","${validation.message || 'صحيح'}"\n`;
-        });
-        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8' });
+        let csv = "الرقم الجامعي,المعدل,الاختصاص المقبول,الرغبات\n";
+        processedStudents.forEach(s => csv += `"${s.id}",${s.gpa},"${s.assignedSpecialty}","${s.preferences.join(' | ')}"\n`);
+        const blob = new Blob(["\uFEFF" + csv], {type:'text/csv'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `نتائج_${new Date().toISOString().slice(0,19)}.csv`;
+        a.download = `نتائج_${Date.now()}.csv`;
         a.click();
-        URL.revokeObjectURL(a.href);
+    }
+    
+    function uploadStudentsData() {
+        alert("يمكنك رفع ملف CSV يحتوي على الأرقام الصحيحة. حالياً هذه الميزة قيد التطوير.");
     }
     
     function startAutoRefresh() {
         if (refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(() => {
-            loadStudentsData();
-        }, 20000);
+        refreshTimer = setInterval(() => loadStudentsData(), 20000);
     }
     
     document.getElementById('specialtySearchInput')?.addEventListener('input', () => {
         displayedSpecialtiesCount = 30;
         renderStats(currentAcceptedData, currentSeatsAvailable);
     });
-    
-    document.getElementById('studentSearchInput')?.addEventListener('input', () => renderStudentsTable());
+    document.getElementById('studentSearchInput')?.addEventListener('input', renderStudentsTable);
     
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById(`tab${btn.getAttribute('data-tab') === 'stats' ? 'Stats' : 'Students'}`).classList.add('active');
-            if (btn.getAttribute('data-tab') === 'students') renderStudentsTable();
-            if (btn.getAttribute('data-tab') === 'stats') renderStats(currentAcceptedData, currentSeatsAvailable);
+            document.getElementById(`tab${btn.dataset.tab === 'stats' ? 'Stats' : 'Students'}`).classList.add('active');
+            if (btn.dataset.tab === 'students') renderStudentsTable();
         });
     });
     
