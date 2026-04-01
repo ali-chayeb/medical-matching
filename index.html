@@ -84,17 +84,23 @@
             margin-bottom: 20px;
             font-size: 13px;
             color: #92400e;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .notice-box p {
             margin: 8px 0;
         }
         .notice-box .ai-note {
-            font-size: 11px;
-            color: #b45309;
+            font-size: 12px;
+            color: #0056b3;
             margin-top: 8px;
             border-top: 1px dashed #fcd34d;
-            padding-top: 6px;
+            padding-top: 8px;
+            font-weight: 500;
+        }
+        .notice-box .contact {
+            font-size: 12px;
+            color: #28a745;
+            margin-top: 8px;
         }
         .update-info {
             display: flex;
@@ -148,6 +154,17 @@
         .tab-pane.active {
             display: block;
         }
+        .search-box {
+            margin-bottom: 16px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 48px;
+            font-size: 15px;
+            background: white;
+        }
         .specialties-grid {
             display: flex;
             flex-direction: column;
@@ -193,17 +210,6 @@
             padding: 6px 12px;
             border-radius: 40px;
             display: inline-block;
-        }
-        .search-box {
-            margin-bottom: 16px;
-        }
-        .search-box input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 48px;
-            font-size: 15px;
-            background: white;
         }
         .students-table-wrapper {
             overflow-x: auto;
@@ -270,10 +276,15 @@
         <div class="label">عدد الطلاب المسجلين</div>
     </div>
     
+    <!-- الملاحظات المهمة -->
     <div class="notice-box">
-        <p>⚠️ <strong>ملاحظة مهمة:</strong> النتائج تتغير باستمرار مع استمرار الإضافات الجديدة. لا تعتمد على النتائج إلا بعد اكتمال التسجيل.</p>
-        <p>📌 هذه الإحصائيات للاستئناس فقط، لا تغير ترتيب رغباتك بناءً عليها.</p>
-        <div class="ai-note">🤖 بالتوفيق للجميع</div>
+        <p>🤖 <strong>تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek</strong></p>
+        <p>📊 جميع الإحصائيات هي <strong>للاستئناس فقط</strong>، لا يمكن توقع النتائج بدقة كاملة لوجود العديد من المتغيرات التي لا يمكن التوقع بها.</p>
+        <p>⚠️ <strong>رجاءً:</strong> لا تعدل ترتيب رغباتك بناءً على نتائج هذا الموقع، لا تبني توقعاتك بناءً على هذه النتائج.</p>
+        <p>📈 دقة هذه النتائج تعتمد على دقة إدخال البيانات وعدد المشاركين.</p>
+        <p>🔐 <strong>رجاءً:</strong> تأكد من أن البيانات المدخلة دقيقة، ولا يستخدم أي أحد الرقم الجامعي لشخص آخر.</p>
+        <p class="contact">📱 إذا كان هناك أي مشكلة، يرجى التواصل عبر تلغرام: <strong>@ALI15cha</strong></p>
+        <div class="ai-note">🌟 بالتوفيق للجميع</div>
     </div>
 
     <div class="update-info">
@@ -287,6 +298,10 @@
     </div>
 
     <div id="tabStats" class="tab-pane active">
+        <!-- حقل البحث عن اختصاص -->
+        <div class="search-box">
+            <input type="text" id="specialtySearchInput" placeholder="🔍 ابحث عن اختصاص... (مثال: هضمية، قلبية، أطفال)">
+        </div>
         <div id="publicStats" class="specialties-grid">
             <div class="loading">جاري تحميل الإحصائيات...</div>
         </div>
@@ -314,7 +329,7 @@
         </div>
     </div>
 
-    <footer>البيانات تُحدَّث تلقائياً من نموذج Google</footer>
+    <footer>البيانات تُحدَّث تلقائياً من نموذج Google | للاستئناس فقط</footer>
 </div>
 
 <!-- لوحة المشرف -->
@@ -362,6 +377,8 @@
     let refreshTimer = null;
     let isAdmin = false;
     let displayedSpecialtiesCount = 30;
+    let currentAcceptedData = null;
+    let currentSeatsAvailable = null;
     const ADMIN_PW = "Alichayeb@23184";
     
     // تحميل بيانات الطلاب من Google Sheets
@@ -470,6 +487,8 @@
     }
     
     function updateUI(acceptedData, seatsAvailable) {
+        currentAcceptedData = acceptedData;
+        currentSeatsAvailable = seatsAvailable;
         document.getElementById('totalCount').innerText = allStudents.length;
         renderStats(acceptedData, seatsAvailable);
         renderStudentsTable();
@@ -479,15 +498,49 @@
         }
     }
     
-    let currentAcceptedData = null;
-    let currentSeatsAvailable = null;
-    
     function renderStats(acceptedData, seatsAvailable) {
-        currentAcceptedData = acceptedData;
-        currentSeatsAvailable = seatsAvailable;
         const container = document.getElementById('publicStats');
+        const searchTerm = document.getElementById('specialtySearchInput')?.value.trim() || "";
+        
         if (!container) return;
         if (specialties.length === 0) { container.innerHTML = '<div>لا توجد اختصاصات</div>'; return; }
+        
+        // إذا كان هناك بحث
+        if (searchTerm !== "") {
+            const filtered = specialties.filter(spec => 
+                spec.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="specialty-card" style="text-align:center;">❌ لا توجد اختصاصات تطابق "${searchTerm}"</div>`;
+                document.getElementById('loadMoreStatsBtn').style.display = 'none';
+                return;
+            }
+            
+            const demand = computeDemand();
+            let html = '';
+            for (let spec of filtered) {
+                const acc = acceptedData?.[spec.name] || [];
+                const minScore = acc.length ? Math.min(...acc.map(a=>a.gpa)).toFixed(2) : 'لا يوجد';
+                html += `<div class="specialty-card">
+                            <h3>📌 ${spec.name}</h3>
+                            <div class="stats-row">
+                                <span class="badge">🎓 المقاعد: ${spec.seats}</span>
+                                <span class="badge">✅ المقبولون: ${acc.length}</span>
+                                <span class="badge">👥 المتقدمون: ${demand[spec.name] || 0}</span>
+                            </div>
+                            <p>📊 الحد الأدنى: <strong>${minScore}</strong></p>`;
+                if (acc.length) {
+                    html += `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${acc.map(a=>`<li>${a.id} - ${a.gpa}</li>`).join('')}</ul></details>`;
+                }
+                html += `</div>`;
+            }
+            container.innerHTML = html;
+            document.getElementById('loadMoreStatsBtn').style.display = 'none';
+            return;
+        }
+        
+        // عرض عادي مع تحميل المزيد
         const demand = computeDemand();
         let html = '';
         const displayCount = Math.min(displayedSpecialtiesCount, specialties.length);
@@ -644,6 +697,14 @@
         }, 20000);
     }
     
+    // ربط أحداث البحث
+    document.getElementById('specialtySearchInput')?.addEventListener('input', () => {
+        displayedSpecialtiesCount = 30;
+        renderStats(currentAcceptedData, currentSeatsAvailable);
+    });
+    
+    document.getElementById('studentSearchInput')?.addEventListener('input', () => renderStudentsTable());
+    
     // التبويبات
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -652,9 +713,9 @@
             btn.classList.add('active');
             document.getElementById(`tab${btn.getAttribute('data-tab') === 'stats' ? 'Stats' : 'Students'}`).classList.add('active');
             if (btn.getAttribute('data-tab') === 'students') renderStudentsTable();
+            if (btn.getAttribute('data-tab') === 'stats') renderStats(currentAcceptedData, currentSeatsAvailable);
         });
     });
-    document.getElementById('studentSearchInput')?.addEventListener('input', () => renderStudentsTable());
     
     // التهيئة
     loadStudentsData();
