@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>المفاضلة الافتراضية - حلب (سريع)</title>
+    <title>المفاضلة الافتراضية - حلب (مع التحقق)</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -216,6 +212,21 @@
             padding-top: 12px;
             border-top: 1px solid #e2e8f0;
         }
+        .admin-section {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .admin-section h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin: 5px 0;
+        }
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
             .specialty-card h3 { font-size: 14px; }
@@ -233,17 +244,27 @@
         <div class="label">عدد الطلاب المسجلين</div>
     </div>
     
+    <!-- الملاحظات الثابتة -->
     <div class="notice-box">
-        🤖 تم تصميم هذا الموقع بالكامل عن طريق الذكاء الاصطناعي DeepSeek<br><br>
-        ⚠️ النتائج تتغير باستمرار مع كل إضافة جديدة، فلا تعتمد على النتائج إلا بعد اكتمال التسجيل.<br><br>
-        📊 الإحصائيات للاستئناس فقط، لا تعدل ترتيب رغباتك بناءً عليها.<br><br>
-        📱 للتواصل: @ALI15cha<br><br>
-        🌟 بالتوفيق للجميع
+        <div style="white-space: pre-line;">🤖 هذا الموقع تم تصميمه وإنشاؤه بالكامل بواسطة الذكاء الاصطناعي DeepSeek
+
+🔄 النتائج تتحدث باستمرار، كل 20 ثانية يعيد الموقع الحسابات، مع كل إدخال جديد تتعدل النتائج والإحصائيات. لذا لا تعتمد عليها إلا بعد أن يكون قد سجل عدد كبير من الطلاب أو أن يكون العدد كاملاً.
+
+⚠️ رجاء خاص: أن تكون البيانات المدخلة دقيقة وأن تكون من الأشخاص الذين حقاً سوف يفاضلون في حلب.
+
+📊 رجاء آخر: جميع ما في هذا الموقع للاستئناس فقط، لا تدع أي من الإحصائيات أو النتائج تجعلك تغير ترتيب رغباتك أو تبني توقعاتك بناءً عليها.
+
+📈 دقة النتائج تعتمد على دقة الإدخال وعدد المشاركين. لا يمكن الوصول إلى نتائج دقيقة تماماً لوجود العديد من المتغيرات التي لا يمكن التحكم أو التنبؤ بها.
+
+📱 للتواصل تلغرام على المعرف @@ALI15cha
+
+🌟 بالتوفيق جميعاً</div>
     </div>
     
-    <div class="alerts-box">
+    <!-- صندوق التنبيهات (سيتم ملؤه من التحقق) -->
+    <div class="alerts-box" id="alertsBox">
         <h4>⚠️ تنبيهات</h4>
-        <div id="alertsContent">جاري التحميل...</div>
+        <div id="alertsContent">جاري التحقق...</div>
     </div>
 
     <div class="update-info">
@@ -270,55 +291,162 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table"><thead><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص</th></thead>
-            <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr></tbody> </table>
+            <tbody id="studentsList">`<td colspan="4">جاري التحميل...`</tbody>   `
         </div>
     </div>
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
 </div>
 
+<!-- لوحة المشرف -->
 <div id="adminPanel" style="display:none;" class="container">
     <div class="header"><h1>🔐 لوحة المشرف</h1><button class="admin-btn" onclick="closeAdmin()" style="background:#dc3545;">🚪 إغلاق</button></div>
     <div style="background:#dc3545; color:white; padding:4px 12px; border-radius:30px; display:inline-block; margin-bottom:15px;">وضع المشرف</div>
-    <div style="display:flex; justify-content:space-between; margin:15px 0;"><h3>📋 إعدادات</h3><button onclick="manualRefresh()" style="background:#0056b3; border:none; padding:6px 15px; border-radius:30px; color:white;">🔄 تحديث</button></div>
+    
+    <!-- إعدادات جدول التحقق -->
+    <div class="admin-section">
+        <h3>📊 إعدادات جدول الأرقام الصحيحة (Google Sheet)</h3>
+        <p style="font-size:12px; margin-bottom:8px;">أدخل معرف جدول Google Sheets الذي يحتوي على ثلاثة أعمدة:<br>
+        <strong>A</strong>: الأرقام الجامعية الصحيحة<br>
+        <strong>B</strong>: المعدلات التفاضلية المتوقعة<br>
+        <strong>C</strong>: الأرقام الجامعية المراد تجاهلها (اختياري)</p>
+        <input type="text" id="refSheetIdInput" placeholder="معرف جدول الأرقام الصحيحة" style="width:100%; padding:10px; border-radius:40px; border:1px solid #ccc; margin-bottom:8px;">
+        <button onclick="saveRefSheetId()" style="background:#6c757d;">💾 حفظ المعرف</button>
+        <button onclick="validateFromSheet()" style="background:#28a745; margin-top:8px;">✅ تحقق من البيانات</button>
+        <div id="validationStatus" style="font-size:12px; margin-top:8px;"></div>
+    </div>
+    
+    <div style="display:flex; justify-content:space-between; margin:15px 0;">
+        <h3>📋 إعدادات Google Sheets (الطلاب)</h3>
+        <button onclick="manualRefresh()" style="background:#0056b3; border:none; padding:6px 15px; border-radius:30px; color:white;">🔄 تحديث يدوي</button>
+    </div>
+    
     <div id="adminSpecialties" style="max-height:400px; overflow-y:auto;"></div>
+    
     <div style="margin:15px 0;"><button onclick="exportCSV()" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
-    <div style="overflow-x:auto;"><table class="students-table"><thead><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></thead><tbody id="adminStudentsList"></tbody></table></div>
+    <div style="overflow-x:auto;"><table class="students-table"><thead><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></thead><tbody id="adminStudentsList"></tbody> </div>
 </div>
 
 <script>
-    // بيانات الاختصاصات (مختصرة للعرض - نفس البيانات السابقة)
+    // ===================== بيانات الاختصاصات (ثابتة) =====================
     const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5},{"name":"جلدية - دراسات موازي","seats":2},{"name":"جلدية - صحة","seats":2},{"name":"اذنية - دراسات عام","seats":8},{"name":"اذنية - دراسات موازي","seats":3},{"name":"اذنية - صحة","seats":4},{"name":"عينية - دراسات عام","seats":8},{"name":"عينية - دراسات موازي","seats":3},{"name":"عينية - صحة","seats":5},{"name":"أطفال - دراسات عام","seats":60},{"name":"أطفال - دراسات موازي","seats":18},{"name":"أطفال - صحة","seats":15},{"name":"نسائية وتوليد - دراسات عام","seats":22},{"name":"نسائية وتوليد - دراسات موازي","seats":7},{"name":"نسائية وتوليد - صحة","seats":13},{"name":"داخلية قلبية - دراسات عام","seats":8},{"name":"داخلية قلبية - دراسات موازي","seats":3},{"name":"داخلية قلبية - صحة","seats":7},{"name":"داخلية هضمية - دراسات عام","seats":8},{"name":"داخلية هضمية - دراسات موازي","seats":3},{"name":"داخلية هضمية - صحة","seats":2},{"name":"داخلية صدرية - دراسات عام","seats":7},{"name":"داخلية صدرية - دراسات موازي","seats":3},{"name":"داخلية صدرية - صحة","seats":2},{"name":"داخلية عامة - دراسات عام","seats":60},{"name":"داخلية عامة - دراسات موازي","seats":18},{"name":"داخلية عامة - صحة","seats":12},{"name":"داخلية كلية - دراسات عام","seats":7},{"name":"داخلية كلية - دراسات موازي","seats":3},{"name":"داخلية كلية - صحة","seats":1},{"name":"داخلية غدية - دراسات عام","seats":7},{"name":"داخلية غدية - دراسات موازي","seats":3},{"name":"داخلية غدية - صحة","seats":2},{"name":"داخلية عصبية - دراسات عام","seats":4},{"name":"داخلية عصبية - دراسات موازي","seats":2},{"name":"داخلية عصبية - صحة","seats":2},{"name":"داخلية دم - دراسات عام","seats":7},{"name":"داخلية دم - دراسات موازي","seats":3},{"name":"داخلية دم - صحة","seats":1},{"name":"داخلية ثوية - دراسات عام","seats":6},{"name":"داخلية ثوية - دراسات موازي","seats":2},{"name":"داخلية ثوية - صحة","seats":1},{"name":"جراحة عامة - دراسات عام","seats":25},{"name":"جراحة عامة - دراسات موازي","seats":8},{"name":"جراحة عامة - صحة","seats":14},{"name":"جراحة عظمية - دراسات عام","seats":11},{"name":"جراحة عظمية - دراسات موازي","seats":4},{"name":"جراحة عظمية - صحة","seats":10},{"name":"جراحة بولية - دراسات عام","seats":5},{"name":"جراحة بولية - دراسات موازي","seats":2},{"name":"جراحة بولية - صحة","seats":8},{"name":"جراحة عصبية - دراسات عام","seats":5},{"name":"جراحة عصبية - دراسات موازي","seats":2},{"name":"جراحة عصبية - صحة","seats":1},{"name":"جراحة تجميل - دراسات عام","seats":5},{"name":"جراحة تجميل - دراسات موازي","seats":2},{"name":"جراحة تجميل - صحة","seats":2},{"name":"جراحة أطفال - دراسات عام","seats":6},{"name":"جراحة أطفال - دراسات موازي","seats":2},{"name":"جراحة أطفال - صحة","seats":3},{"name":"جراحة قلبية - دراسات عام","seats":6},{"name":"جراحة قلبية - دراسات موازي","seats":2},{"name":"جراحة قلبية - صحة","seats":2},{"name":"جراحة وعائية - دراسات عام","seats":6},{"name":"جراحة وعائية - دراسات موازي","seats":2},{"name":"جراحة وعائية - صحة","seats":1},{"name":"جراحة صدرية","seats":2},{"name":"أشعة - دراسات عام","seats":30},{"name":"أشعة - دراسات موازي","seats":9},{"name":"أشعة - صحة","seats":14},{"name":"طب مخبري - دراسات عام","seats":18},{"name":"طب مخبري - دراسات موازي","seats":6},{"name":"طب مخبري - صحة","seats":9},{"name":"تشريح مرضي - دراسات عام","seats":9},{"name":"تشريح مرضي - دراسات موازي","seats":3},{"name":"تشريح مرضي - صحة","seats":1},{"name":"تخدير - دراسات عام","seats":85},{"name":"تخدير - دراسات موازي","seats":26},{"name":"تخدير - صحة","seats":16},{"name":"أورام - دراسات عام","seats":6},{"name":"أورام - دراسات موازي","seats":2},{"name":"أورام - صحة","seats":2},{"name":"طب نفسي","seats":12},{"name":"طب أسرة","seats":8},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3}];
     
     const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
-    const ALERTS_SHEET = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
     
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
     let refreshTimer, isAdmin = false;
     let displayLimit = 30, currentData = null;
+    let referenceSheetId = "";
     const ADMIN_PW = "Alichayeb@23184";
+    const GRADE_TOLERANCE = 0.5;
     
-    async function loadAlerts() {
-        try {
-            const res = await fetch(`https://docs.google.com/spreadsheets/d/${ALERTS_SHEET}/gviz/tq?tqx=out:csv`, {cache:"no-store"});
-            const text = await res.text();
-            let alertText = text.split(/\r?\n/)[0]?.replace(/^"|"$/g, '').trim() || "لا توجد تنبيهات";
-            document.getElementById('alertsContent').innerHTML = alertText.replace(/\n/g, '<br>');
-        } catch(e) { document.getElementById('alertsContent').innerHTML = "تعذر تحميل التنبيهات"; }
+    // تحميل وحفظ معرف الجدول المرجعي
+    function loadRefSheetId() {
+        const saved = localStorage.getItem('refSheetId');
+        if (saved) {
+            referenceSheetId = saved;
+            document.getElementById('refSheetIdInput').value = saved;
+        }
+    }
+    function saveRefSheetId() {
+        const id = document.getElementById('refSheetIdInput').value.trim();
+        if (id) {
+            referenceSheetId = id;
+            localStorage.setItem('refSheetId', id);
+            document.getElementById('validationStatus').innerHTML = "✅ تم حفظ المعرف";
+            validateFromSheet(); // اختياري: التحقق فوراً
+        } else {
+            alert("أدخل معرف الجدول أولاً");
+        }
     }
     
+    // التحقق من البيانات باستخدام جدول المرجع
+    async function validateFromSheet() {
+        if (!referenceSheetId) {
+            document.getElementById('alertsContent').innerHTML = "⚠️ لم يتم تعيين معرف جدول الأرقام الصحيحة بعد. الرجاء إدخاله في لوحة المشرف.";
+            return;
+        }
+        document.getElementById('validationStatus').innerHTML = "🔄 جاري التحقق...";
+        try {
+            const url = `https://docs.google.com/spreadsheets/d/${referenceSheetId}/gviz/tq?tqx=out:csv`;
+            const resp = await fetch(url, { cache: "no-store" });
+            const csv = await resp.text();
+            const lines = csv.split(/\r?\n/);
+            if (lines.length < 2) {
+                throw new Error("الجدول فارغ أو لا يحتوي على بيانات");
+            }
+            // تحليل الأعمدة: A (index 0), B (1), C (2)
+            const validMap = new Map();     // id -> expectedGrade
+            const ignoreSet = new Set();
+            for (let i = 1; i < lines.length; i++) {
+                const cols = parseCSVLine(lines[i]);
+                if (cols.length < 1) continue;
+                const id = cols[0]?.trim();
+                if (!id) continue;
+                const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
+                if (!isNaN(grade)) {
+                    validMap.set(id, grade);
+                }
+                if (cols.length > 2 && cols[2]?.trim()) {
+                    ignoreSet.add(cols[2].trim());
+                }
+            }
+            // التحقق من الطلاب
+            const missingIds = [];
+            const mismatchIds = [];
+            for (let student of allStudents) {
+                const id = student.id;
+                if (ignoreSet.has(id)) continue;
+                if (validMap.has(id)) {
+                    const expected = validMap.get(id);
+                    if (Math.abs(student.gpa - expected) > GRADE_TOLERANCE) {
+                        mismatchIds.push({ id, actual: student.gpa, expected });
+                    }
+                } else {
+                    missingIds.push(id);
+                }
+            }
+            // بناء نص التنبيهات
+            let alertHtml = `<div style="white-space: pre-line;">@ALI15cha  يرجى من أصحاب الأرقام الجامعية التالية التواصل مع معرف التلغرام 
+لأنه لم يتم العثور عليها ضمن قوائم الدفعة 53 
+للتأكد من أنها ليست أرقاماً وهمية، للحفاظ على دقة النتائج قدر الإمكان.
+يرجى التواصل بالسرعة الممكنة وشكراً</div>`;
+            
+            if (missingIds.length > 0) {
+                alertHtml += `<div style="margin-top:12px;"><strong>🔍 الأرقام غير الموجودة في القائمة:</strong><br>${missingIds.join(' - ')}</div>`;
+            }
+            if (mismatchIds.length > 0) {
+                alertHtml += `<div style="margin-top:12px;"><strong>⚠️ الأرقام التي بها اختلاف في المعدل (المدخل ≠ المتوقع):</strong><br>`;
+                mismatchIds.forEach(item => {
+                    alertHtml += `${item.id} : المدخل ${item.actual} ≠ المتوقع ${item.expected}<br>`;
+                });
+                alertHtml += `</div>`;
+            }
+            if (missingIds.length === 0 && mismatchIds.length === 0) {
+                alertHtml += `<div style="margin-top:12px;">✅ جميع الأرقام مطابقة للقائمة ولا توجد فروق كبيرة في المعدلات.</div>`;
+            }
+            document.getElementById('alertsContent').innerHTML = alertHtml;
+            document.getElementById('validationStatus').innerHTML = "✅ تم التحقق بنجاح";
+        } catch(e) {
+            console.error(e);
+            document.getElementById('alertsContent').innerHTML = "❌ فشل التحقق. تأكد من أن جدول الأرقام الصحيحة منشور للعامة.";
+            document.getElementById('validationStatus').innerHTML = "❌ خطأ في التحميل";
+        }
+    }
+    
+    // دوال تحميل بيانات الطلاب من الورقة الأساسية (نفس الكود السابق)
     async function loadStudents() {
         try {
             const res = await fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, {cache:"no-store"});
             const csv = await res.text();
-            parseCSV(csv);
+            parseStudentsCSV(csv);
         } catch(e) { console.error(e); document.getElementById('totalCount').innerText = "!خطأ"; }
     }
     
-    function parseCSV(csv) {
+    function parseStudentsCSV(csv) {
         const lines = csv.split(/\r?\n/);
         if(lines.length<2) return;
-        const headers = parseLine(lines[0]);
+        const headers = parseCSVLine(lines[0]);
         let idIdx=-1, gpaIdx=-1, prefIdx=[];
         for(let i=0;i<headers.length;i++){
             let h = headers[i].toLowerCase();
@@ -329,7 +457,7 @@
         if(idIdx===-1||gpaIdx===-1) return;
         let students = [];
         for(let i=1;i<lines.length;i++){
-            let cols = parseLine(lines[i]);
+            let cols = parseCSVLine(lines[i]);
             if(cols.length<=idIdx||cols.length<=gpaIdx) continue;
             let id = cols[idIdx]?.trim();
             let gpa = parseFloat(cols[gpaIdx]);
@@ -343,9 +471,11 @@
         }
         allStudents = students;
         runMatch();
+        // بعد تحميل الطلاب، نقوم بالتحقق إذا كان المعرف المرجعي موجوداً
+        if (referenceSheetId) validateFromSheet();
     }
     
-    function parseLine(line){
+    function parseCSVLine(line){
         let res=[], cur='', inQ=false;
         for(let ch of line){
             if(ch==='"') inQ=!inQ;
@@ -441,12 +571,12 @@
         let html = '';
         filtered.forEach((s,i)=>{
             let cls = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            html += `<tr><td>${i+1}</td><td>${s.id}</td><td>${s.gpa}</td><td class="${cls}">${s.assigned}</td></tr>`;
+            html += `<tr><td style="font-weight:bold;">${i+1}</td><td>${s.id}</td><td>${s.gpa}</td><td class="${cls}">${s.assigned}</td></tr>`;
         });
         tbody.innerHTML = html;
     }
     
-    // Admin
+    // Admin functions
     function showAdminLogin(){
         let pwd = prompt("كلمة السر:");
         if(pwd===ADMIN_PW){
@@ -506,7 +636,7 @@
             row.insertCell(4).innerText=s.prefs.slice(0,4).join(' → ');
         });
     }
-    function manualRefresh(){ loadStudents(); loadAlerts(); }
+    function manualRefresh(){ loadStudents(); }
     function exportCSV(){
         let csv = "الرقم,المعدل,الاختصاص,الرغبات\n";
         processed.forEach(s=>csv+=`"${s.id}",${s.gpa},"${s.assigned}","${s.prefs.join(' | ')}"\n`);
@@ -519,7 +649,7 @@
     
     function startRefresh(){
         if(refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(()=>{ loadStudents(); loadAlerts(); }, 20000);
+        refreshTimer = setInterval(()=>{ loadStudents(); }, 20000);
     }
     
     document.getElementById('searchSpecialty')?.addEventListener('input', ()=>{ displayLimit=30; renderStats(); });
@@ -534,7 +664,7 @@
         });
     });
     
-    loadAlerts();
+    loadRefSheetId();
     loadStudents();
     startRefresh();
     
@@ -544,6 +674,8 @@
     window.delSpec = delSpec;
     window.manualRefresh = manualRefresh;
     window.exportCSV = exportCSV;
+    window.saveRefSheetId = saveRefSheetId;
+    window.validateFromSheet = validateFromSheet;
 </script>
 </body>
 </html>
