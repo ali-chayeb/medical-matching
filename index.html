@@ -45,8 +45,9 @@
             font-weight: 600;
             color: white;
             cursor: pointer;
+            transition: 0.2s;
         }
-        .admin-btn:hover { opacity: 0.9; transform: scale(0.98); }
+        .admin-btn:active { transform: scale(0.96); }
         .big-number {
             background: linear-gradient(135deg, #0056b3, #28a745);
             border-radius: 28px;
@@ -226,10 +227,11 @@
     </style>
 </head>
 <body>
-<div class="container" id="publicContainer">
+<!-- الواجهة العامة -->
+<div id="publicContainer" class="container">
     <div class="header">
         <h1>🎓 المفاضلة الافتراضية - حلب</h1>
-        <button class="admin-btn" id="showAdminBtn">🔐 Admin</button>
+        <button id="showAdminBtn" class="admin-btn">🔐 Admin</button>
     </div>
     <div class="big-number">
         <div class="number" id="totalCount">--</div>
@@ -252,7 +254,7 @@
 🌟 بالتوفيق جميعاً</div>
     </div>
     
-    <div class="alerts-box" id="alertsBox">
+    <div class="alerts-box">
         <h4>⚠️ تنبيهات</h4>
         <div id="alertsContent">لا توجد تنبيهات حالياً</div>
     </div>
@@ -281,19 +283,19 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
-                <tbody id="studentsList"> <td colspan="4">جاري التحميل... </tbody>
-               —
+                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
+                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr></tbody>
+            </table>
         </div>
     </div>
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
 </div>
 
 <!-- لوحة المشرف -->
-<div id="adminPanel" style="display:none;" class="container">
+<div id="adminPanel" class="container" style="display: none;">
     <div class="header">
         <h1>🔐 لوحة المشرف</h1>
-        <button class="admin-btn" id="closeAdminBtn" style="background:#dc3545;">🚪 إغلاق</button>
+        <button id="closeAdminBtn" class="admin-btn" style="background:#dc3545;">🚪 إغلاق</button>
     </div>
     <div style="background:#dc3545; color:white; padding:4px 12px; border-radius:30px; display:inline-block; margin-bottom:15px;">وضع المشرف</div>
     
@@ -320,9 +322,9 @@
     <div style="margin:15px 0;"><button id="exportCSVBtn" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead> <th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th> </thead>
+            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
             <tbody id="adminStudentsList"></tbody>
-         —
+        </table>
     </div>
 </div>
 
@@ -384,7 +386,6 @@
             if(prefs.length) students.push({id, gpa, prefs});
         }
         allStudents = students;
-        console.log("تم تحميل الطلاب:", allStudents.length);
         runMatch();
     }
     
@@ -410,7 +411,6 @@
             const validMap = new Map();
             const ignoreSet = new Set();
             const columnD = [];
-            
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
                 if (cols.length < 1) continue;
@@ -460,10 +460,7 @@
             else missing.push(id);
         }
         lastMissingNumbers = missing;
-        let debugHtml = `<div class="debug-info">
-            📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>
-            ✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}
-        </div>`;
+        let debugHtml = `<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>`;
         if (missing.length === 0) {
             resultDiv.innerHTML = debugHtml + '<br>✅ جميع الأرقام موجودة.';
         } else {
@@ -497,7 +494,7 @@
             resultDiv.innerHTML = '✅ جميع المعدلات مطابقة.';
         } else {
             let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
-            <table style="width:100%; border-collapse:collapse;"><thead><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></thead><tbody>`;
+            <table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
             mismatches.forEach(m => {
                 html += `<tr><td>${m.id}</td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
             });
@@ -601,18 +598,18 @@
     function showAdminLogin(){
         let pwd = prompt("كلمة السر:");
         if(pwd===ADMIN_PW){
-            isAdmin=true;
-            document.getElementById('publicContainer').style.display='none';
-            document.getElementById('adminPanel').style.display='block';
+            isAdmin = true;
+            document.getElementById('publicContainer').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
             renderAdminSpecialties();
             renderAdminTable();
-        } else if(pwd) alert("خطأ");
+        } else if(pwd) alert("كلمة سر غير صحيحة");
     }
     
     function closeAdmin(){
-        isAdmin=false;
-        document.getElementById('adminPanel').style.display='none';
-        document.getElementById('publicContainer').style.display='block';
+        isAdmin = false;
+        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('publicContainer').style.display = 'block';
     }
     
     function renderAdminSpecialties(){
@@ -645,21 +642,25 @@
     }
     
     function delSpec(i){
-        if(confirm("حذف؟")){ specialties.splice(i,1); renderAdminSpecialties(); runMatch(); }
+        if(confirm("حذف هذا الاختصاص؟")){ 
+            specialties.splice(i,1); 
+            renderAdminSpecialties(); 
+            runMatch(); 
+        }
     }
     
     function renderAdminTable(){
         let tbody = document.getElementById('adminStudentsList');
         if(!tbody) return;
         let sorted = [...processed].sort((a,b)=>b.gpa-a.gpa);
-        tbody.innerHTML='';
+        tbody.innerHTML = '';
         sorted.forEach((s,i)=>{
             let row = tbody.insertRow();
-            row.insertCell(0).innerText=i+1;
-            row.insertCell(1).innerText=s.id;
-            row.insertCell(2).innerText=s.gpa;
-            row.insertCell(3).innerText=s.assigned;
-            row.insertCell(4).innerText=s.prefs.slice(0,4).join(' → ');
+            row.insertCell(0).innerText = i+1;
+            row.insertCell(1).innerText = s.id;
+            row.insertCell(2).innerText = s.gpa;
+            row.insertCell(3).innerText = s.assigned;
+            row.insertCell(4).innerText = s.prefs.slice(0,4).join(' → ') + (s.prefs.length > 4 ? ' ...' : '');
         });
     }
     
