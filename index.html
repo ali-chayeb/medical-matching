@@ -283,9 +283,9 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
-                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr></tbody>
-            </table>
+                <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
+                <tbody id="studentsList"> <td colspan="4">جاري التحميل... </tbody>
+              —
         </div>
     </div>
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
@@ -303,7 +303,6 @@
         <h3>🔍 التحقق من الأرقام الجامعية</h3>
         <button id="findMissingBtn" style="background:#0056b3;" class="btn-sm">🔎 البحث عن الأرقام غير الموجودة</button>
         <div id="missingNumbersResult" class="result-box" style="display:none;"></div>
-        <button id="publishAlertsBtn" style="background:#28a745; margin-top:10px;" class="btn-sm">📢 نشر التنبيهات</button>
     </div>
     
     <div class="admin-section">
@@ -322,9 +321,9 @@
     <div style="margin:15px 0;"><button id="exportCSVBtn" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
+            <thead> <th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th> </thead>
             <tbody id="adminStudentsList"></tbody>
-        </table>
+         —
     </div>
 </div>
 
@@ -339,9 +338,7 @@
     let allStudents = [], processed = [];
     let refreshTimer, isAdmin = false;
     let displayLimit = 30, currentData = null;
-    let lastMissingNumbers = [];
     let referenceDataCache = null;
-    let columnDData = [];
     const ADMIN_PW = "Alichayeb@23184";
     const GRADE_TOLERANCE = 0.5;
     
@@ -423,7 +420,6 @@
                 if (cols.length > 3 && cols[3]?.trim()) columnD.push(cols[3].trim());
             }
             referenceDataCache = { validMap, ignoreSet, columnD };
-            columnDData = columnD;
             return referenceDataCache;
         } catch(e) {
             console.error("فشل تحميل المرجع", e);
@@ -431,17 +427,13 @@
         }
     }
     
-    async function updateAlertsBox() {
-        const { columnD } = await loadReferenceData();
+    async function updateAlertsBox(columnDData) {
         let alertText = `@ALI15cha  يرجى من أصحاب الأرقام الجامعية التالية التواصل مع معرف التلغرام 
 لأنه لم يتم العثور عليها ضمن قوائم الدفعة 53 
 للتأكد من أنها ليست أرقاماً وهمية، للحفاظ على دقة النتائج قدر الإمكان.
 يرجى التواصل بالسرعة الممكنة وشكراً`;
-        if (columnD.length > 0) {
-            alertText += `<br><br><strong>📢 تنبيهات إضافية:</strong><br>${columnD.join('<br>')}`;
-        }
-        if (lastMissingNumbers.length > 0) {
-            alertText += `<br><br><strong>🔍 الأرقام غير الموجودة:</strong><br>${lastMissingNumbers.join(' - ')}`;
+        if (columnDData && columnDData.length > 0) {
+            alertText += `<br><br><strong>📢 تنبيهات إضافية:</strong><br>${columnDData.join('<br>')}`;
         }
         document.getElementById('alertsContent').innerHTML = alertText.replace(/\n/g, '<br>');
     }
@@ -450,7 +442,7 @@
         const resultDiv = document.getElementById('missingNumbersResult');
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = '🔄 جاري البحث...';
-        const { validMap, ignoreSet } = await loadReferenceData(true);
+        const { validMap, ignoreSet, columnD } = await loadReferenceData(true);
         const missing = [];
         const found = [];
         for (let student of allStudents) {
@@ -459,19 +451,14 @@
             if (validMap.has(id)) found.push(id);
             else missing.push(id);
         }
-        lastMissingNumbers = missing;
         let debugHtml = `<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>`;
         if (missing.length === 0) {
             resultDiv.innerHTML = debugHtml + '<br>✅ جميع الأرقام موجودة.';
         } else {
             resultDiv.innerHTML = debugHtml + `<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`;
         }
-        await updateAlertsBox();
-    }
-    
-    async function publishAlerts() {
-        await updateAlertsBox();
-        alert("تم تحديث التنبيهات!");
+        // تحديث مربع التنبيهات مع محتويات العمود D
+        await updateAlertsBox(columnD);
     }
     
     async function checkGrades() {
@@ -494,11 +481,11 @@
             resultDiv.innerHTML = '✅ جميع المعدلات مطابقة.';
         } else {
             let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
-            <table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
+            <table style="width:100%; border-collapse:collapse;"><thead><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></thead><tbody>`;
             mismatches.forEach(m => {
-                html += `<tr><td>${m.id}</td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
+                html += `bac<td style="font-weight:bold;">${m.id}${m.actual}${m.expected}${Math.abs(m.actual - m.expected).toFixed(2)}`;
             });
-            html += `</tbody></table>`;
+            html += `</tbody>`;
             resultDiv.innerHTML = html;
         }
     }
@@ -684,7 +671,6 @@
     document.getElementById('showAdminBtn').onclick = showAdminLogin;
     document.getElementById('closeAdminBtn').onclick = closeAdmin;
     document.getElementById('findMissingBtn').onclick = findMissingNumbers;
-    document.getElementById('publishAlertsBtn').onclick = publishAlerts;
     document.getElementById('checkGradesBtn').onclick = checkGrades;
     document.getElementById('manualRefreshBtn').onclick = manualRefresh;
     document.getElementById('exportCSVBtn').onclick = exportCSV;
