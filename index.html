@@ -20,6 +20,7 @@
             border-radius: 32px;
             padding: 20px 16px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
         .header {
             display: flex;
@@ -34,6 +35,7 @@
             background: linear-gradient(135deg, #0056b3, #28a745);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 800;
         }
         .admin-btn {
@@ -45,8 +47,9 @@
             font-weight: 600;
             color: white;
             cursor: pointer;
-            transition: 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
+        .admin-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .admin-btn:active { transform: scale(0.96); }
         .big-number {
             background: linear-gradient(135deg, #0056b3, #28a745);
@@ -55,7 +58,9 @@
             text-align: center;
             color: white;
             margin-bottom: 20px;
+            transition: transform 0.2s;
         }
+        .big-number:hover { transform: scale(1.02); }
         .big-number .number { font-size: 56px; font-weight: 800; }
         .notice-box, .alerts-box {
             border-radius: 20px;
@@ -63,6 +68,7 @@
             margin-bottom: 16px;
             font-size: 13px;
             line-height: 1.6;
+            transition: all 0.2s;
         }
         .notice-box {
             background: #fff8e7;
@@ -106,10 +112,12 @@
             cursor: pointer;
             flex: 1;
             text-align: center;
+            transition: all 0.2s;
         }
         .tab-btn.active {
             background: #0056b3;
             color: white;
+            box-shadow: 0 2px 8px rgba(0,86,179,0.3);
         }
         .tab-pane { display: none; }
         .tab-pane.active { display: block; }
@@ -120,6 +128,12 @@
             border: 1px solid #cbd5e1;
             border-radius: 40px;
             font-size: 14px;
+            transition: all 0.2s;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 0 2px rgba(0,86,179,0.2);
         }
         .specialties-grid {
             display: flex;
@@ -133,6 +147,12 @@
             border-radius: 20px;
             padding: 12px;
             border-right: 4px solid #0056b3;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .specialty-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
         .specialty-card h3 { font-size: 15px; margin-bottom: 8px; color: #0056b3; }
         .stats-row {
@@ -161,18 +181,24 @@
             overflow-x: auto;
             max-height: 500px;
             overflow-y: auto;
+            border-radius: 16px;
         }
         .students-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 12px;
+            background: white;
         }
         .students-table th, .students-table td {
             border: 1px solid #e2e8f0;
             padding: 8px 4px;
             text-align: center;
         }
-        .students-table th { background: #eef2ff; }
+        .students-table th {
+            background: #eef2ff;
+            position: sticky;
+            top: 0;
+        }
         .load-more {
             background: #e2e8f0;
             border: none;
@@ -183,7 +209,9 @@
             cursor: pointer;
             font-size: 13px;
             font-weight: 500;
+            transition: 0.2s;
         }
+        .load-more:hover { background: #cbd5e1; }
         .accepted { color: #28a745; font-weight: bold; }
         .rejected { color: #dc3545; }
         .loading { text-align: center; padding: 20px; color: #666; }
@@ -202,7 +230,8 @@
             margin-bottom: 20px;
         }
         .admin-section h3 { margin-bottom: 10px; font-size: 16px; }
-        .btn-sm { padding: 8px 16px; font-size: 13px; margin: 5px 0; border-radius: 30px; border: none; cursor: pointer; }
+        .btn-sm { padding: 8px 16px; font-size: 13px; margin: 5px 0; border-radius: 30px; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-sm:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .result-box {
             background: #f8fafc;
             border-radius: 16px;
@@ -223,6 +252,7 @@
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
             .specialty-card h3 { font-size: 14px; }
+            .students-table th, .students-table td { padding: 4px 2px; }
         }
     </style>
 </head>
@@ -283,9 +313,9 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
-                <tbody id="studentsList"> <td colspan="4">جاري التحميل... </tbody>
-               —
+                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
+                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr></tbody>
+            </table>
         </div>
     </div>
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
@@ -321,9 +351,9 @@
     <div style="margin:15px 0;"><button id="exportCSVBtn" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead> <th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th> </thead>
+            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
             <tbody id="adminStudentsList"></tbody>
-         —
+        </table>
     </div>
 </div>
 
@@ -427,7 +457,7 @@
         }
     }
     
-    // تحديث مربع التنبيهات من العمود D فقط (يُستدعى عند تحميل الصفحة)
+    // تحديث مربع التنبيهات من العمود D فقط
     async function updateAlertsFromColumnD() {
         const { columnD } = await loadReferenceData();
         if (columnD.length > 0) {
@@ -442,7 +472,7 @@
         }
     }
     
-    // البحث عن الأرقام غير الموجودة (يؤثر فقط على مربع النتائج)
+    // البحث عن الأرقام غير الموجودة
     async function findMissingNumbers() {
         const resultDiv = document.getElementById('missingNumbersResult');
         resultDiv.style.display = 'block';
@@ -486,11 +516,11 @@
         } else {
             let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
             <table style="width:100%; border-collapse:collapse;">
-                <thead><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></thead><tbody>`;
+                <thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
             mismatches.forEach(m => {
-                html += `bac<td style="font-weight:bold;">${m.id}${m.actual}${m.expected}${Math.abs(m.actual - m.expected).toFixed(2)}`;
+                html += `<tr><td>${m.id}</td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
             });
-            html += `</tbody>`;
+            html += `</tbody></table>`;
             resultDiv.innerHTML = html;
         }
     }
@@ -577,11 +607,16 @@
         if(!tbody) return;
         let search = document.getElementById('searchStudent')?.value.trim() || '';
         let filtered = processed.filter(s=>s.id.includes(search));
-        if(!filtered.length){ tbody.innerHTML='bac<td colspan="4">لا توجد بيانات'; return; }
+        if(!filtered.length){ tbody.innerHTML='<tr><td colspan="4">لا توجد بيانات</td></tr>'; return; }
         let html = '';
         filtered.forEach((s,i)=>{
             let cls = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            html += `bac<td style="font-weight:bold;">${i+1}${s.id}${s.gpa}<td class="${cls}">${s.assigned}`;
+            html += `<tr>
+                        <td style="font-weight:bold;">${i+1}</td>
+                        <td>${s.id}</td>
+                        <td>${s.gpa}</td>
+                        <td class="${cls}">${s.assigned}</td>
+                     </tr>`;
         });
         tbody.innerHTML = html;
     }
@@ -692,10 +727,9 @@
         });
     });
     
-    // تحميل البيانات الأولية
     loadStudents();
     startRefresh();
-    updateAlertsFromColumnD(); // تحديث التنبيهات من العمود D عند بدء التشغيل
+    updateAlertsFromColumnD();
     
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
