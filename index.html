@@ -212,6 +212,16 @@
             border-radius: 30px;
             display: inline-block;
         }
+        details ul {
+            margin-right: 20px;
+            margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        details li {
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
         .students-table-wrapper {
             overflow-x: auto;
             max-height: 500px;
@@ -234,7 +244,6 @@
             position: sticky;
             top: 0;
         }
-        /* تلوين الطلاب الموجودين في قائمة التنبيهات */
         .student-alert-row {
             background-color: #ffe5e5 !important;
         }
@@ -372,7 +381,7 @@
             <table class="students-table">
                 <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
                 <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr>
-             </table>
+            </table>
         </div>
     </div>
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
@@ -411,7 +420,7 @@
         <table class="students-table">
             <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
             <tbody id="adminStudentsList"></tbody>
-         </table>
+        </table>
     </div>
 </div>
 
@@ -712,44 +721,72 @@
         document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
     }
     
-    function renderStats(){
+    // عرض الإحصائيات مع تلوين الأرقام التي في التنبيهات داخل قائمة المقبولين
+    async function renderStats() {
         const container = document.getElementById('statsList');
-        if(!container) return;
+        if (!container) return;
+        
+        const { alertsList } = await loadReferenceData();
+        const alertIds = new Set(alertsList.map(a => a.id));
+        
         let search = document.getElementById('searchSpecialty')?.value.trim().toLowerCase() || '';
-        let filtered = specialties.filter(s=>s.name.toLowerCase().includes(search));
+        let filtered = specialties.filter(s => s.name.toLowerCase().includes(search));
         let display = filtered.slice(0, displayLimit);
+        
         let demand = {};
-        specialties.forEach(s=>demand[s.name]=0);
-        for(let s of allStudents){
-            let seen=new Set();
-            for(let p of s.prefs){
-                if(p&&!seen.has(p)&&demand[p]!==undefined){ seen.add(p); demand[p]++; }
+        specialties.forEach(s => demand[s.name] = 0);
+        for (let s of allStudents) {
+            let seen = new Set();
+            for (let p of s.prefs) {
+                if (p && !seen.has(p) && demand[p] !== undefined) {
+                    seen.add(p);
+                    demand[p]++;
+                }
             }
         }
+        
         let html = '';
-        for(let spec of display){
-            let acc = currentData?.accepted[spec.name]||[];
-            let minS = acc.length ? Math.min(...acc.map(a=>a.gpa)).toFixed(2) : 'لا يوجد';
+        for (let spec of display) {
+            let acc = currentData?.accepted[spec.name] || [];
+            let minS = acc.length ? Math.min(...acc.map(a => a.gpa)).toFixed(2) : 'لا يوجد';
+            
+            let acceptedListHtml = '';
+            if (acc.length) {
+                let itemsHtml = '';
+                for (let a of acc) {
+                    const isAlert = alertIds.has(a.id);
+                    const colorStyle = isAlert ? 'color: #dc3545; font-weight: bold;' : '';
+                    const alertIcon = isAlert ? '⚠️ ' : '';
+                    itemsHtml += `<li style="${colorStyle}">${alertIcon}${escapeHtml(a.id)} - ${a.gpa}</li>`;
+                }
+                acceptedListHtml = `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${itemsHtml}</ul></details>`;
+            }
+            
             html += `<div class="specialty-card">
                         <h3>📌 ${escapeHtml(spec.name)}</h3>
                         <div class="stats-row">
                             <span class="badge">🎓 المقاعد: ${spec.seats}</span>
                             <span class="badge">✅ المقبولون: ${acc.length}</span>
-                            <span class="badge">👥 المتقدمون: ${demand[spec.name]||0}</span>
+                            <span class="badge">👥 المتقدمون: ${demand[spec.name] || 0}</span>
                         </div>
-                        <p>📊 الحد الأدنى: ${minS}</p>`;
-            if(acc.length){
-                html += `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${acc.map(a=>`<li>${escapeHtml(a.id)} - ${a.gpa}</li>`).join('')}</ul></details>`;
-            }
-            html += `</div>`;
+                        <p>📊 الحد الأدنى: ${minS}</p>
+                        ${acceptedListHtml}
+                    </div>`;
         }
+        
         container.innerHTML = html;
+        
         let btn = document.getElementById('loadMoreBtn');
-        if(btn){
-            if(filtered.length > displayLimit){
+        if (btn) {
+            if (filtered.length > displayLimit) {
                 btn.style.display = 'block';
-                btn.onclick = () => { displayLimit += 30; renderStats(); };
-            } else btn.style.display = 'none';
+                btn.onclick = () => {
+                    displayLimit += 30;
+                    renderStats();
+                };
+            } else {
+                btn.style.display = 'none';
+            }
         }
     }
     
@@ -875,6 +912,7 @@
             await loadStudents();
             await updateAlertsFromColumnD();
             await updateSuspendedFromColumnsFG();
+            await renderStats();
             await renderStudentsTable();
         }, 20000);
     }
@@ -896,6 +934,7 @@
             btn.classList.add('active');
             document.getElementById(`tab${btn.dataset.tab==='stats'?'Stats':'Students'}`).classList.add('active');
             if(btn.dataset.tab==='students') renderStudentsTable();
+            if(btn.dataset.tab==='stats') renderStats();
         });
     });
     
