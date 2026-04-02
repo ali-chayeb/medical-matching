@@ -313,9 +313,9 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
-                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr></tbody>
-            </table>
+                <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
+                <tbody id="studentsList"> <td colspan="4">جاري التحميل... </tbody>
+               —
         </div>
     </div>
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
@@ -351,9 +351,9 @@
     <div style="margin:15px 0;"><button id="exportCSVBtn" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
+            <thead> <th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th> </thead>
             <tbody id="adminStudentsList"></tbody>
-        </table>
+         —
     </div>
 </div>
 
@@ -377,7 +377,6 @@
         return id.toString().trim();
     }
     
-    // تحميل بيانات الطلاب
     async function loadStudents() {
         try {
             const res = await fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, {cache:"no-store"});
@@ -427,7 +426,6 @@
         return res;
     }
     
-    // تحميل البيانات المرجعية
     async function loadReferenceData(forceReload = false) {
         if (referenceDataCache && !forceReload) return referenceDataCache;
         try {
@@ -457,22 +455,24 @@
         }
     }
     
-    // تحديث مربع التنبيهات من العمود D فقط
+    // تحديث مربع التنبيهات: النص الثابت + كل سطر من العمود D
     async function updateAlertsFromColumnD() {
         const { columnD } = await loadReferenceData();
-        if (columnD.length > 0) {
-            let alertText = `@ALI15cha  يرجى من أصحاب الأرقام الجامعية التالية التواصل مع معرف التلغرام 
+        const fixedText = `@ALI15cha  يرجى من أصحاب الأرقام الجامعية التالية التواصل مع معرف التلغرام 
 لأنه لم يتم العثور عليها ضمن قوائم الدفعة 53 
 للتأكد من أنها ليست أرقاماً وهمية، للحفاظ على دقة النتائج قدر الإمكان.
-يرجى التواصل بالسرعة الممكنة وشكراً
-<br><br><strong>📢 تنبيهات إضافية:</strong><br>${columnD.join('<br>')}`;
-            document.getElementById('alertsContent').innerHTML = alertText.replace(/\n/g, '<br>');
+يرجى التواصل بالسرعة الممكنة وشكراً`;
+        
+        if (columnD.length > 0) {
+            // عرض كل سطر من العمود D كسطر منفصل
+            const additionalLines = columnD.map(line => `📌 ${line}`).join('<br>');
+            const fullText = `${fixedText}<br><br><strong>📢 تنبيهات إضافية:</strong><br>${additionalLines}`;
+            document.getElementById('alertsContent').innerHTML = fullText.replace(/\n/g, '<br>');
         } else {
             document.getElementById('alertsContent').innerHTML = "لا توجد تنبيهات حالياً";
         }
     }
     
-    // البحث عن الأرقام غير الموجودة
     async function findMissingNumbers() {
         const resultDiv = document.getElementById('missingNumbersResult');
         resultDiv.style.display = 'block';
@@ -494,7 +494,6 @@
         }
     }
     
-    // التحقق من المعدلات
     async function checkGrades() {
         const resultDiv = document.getElementById('gradeMismatchResult');
         resultDiv.style.display = 'block';
@@ -516,16 +515,15 @@
         } else {
             let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
             <table style="width:100%; border-collapse:collapse;">
-                <thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
+                <thead><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></thead><tbody>`;
             mismatches.forEach(m => {
-                html += `<tr><td>${m.id}</td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
+                html += `<tr><td style="font-weight:bold;">${m.id}${m.actual}${m.expected}${Math.abs(m.actual - m.expected).toFixed(2)}`;
             });
-            html += `</tbody></table>`;
+            html += `</tbody>`;
             resultDiv.innerHTML = html;
         }
     }
     
-    // دوال المفاضلة
     function runMatch(){
         if(!allStudents.length){ processed=[]; updateUI(); return; }
         let copy = allStudents.map(s=>({...s, prefs:[...s.prefs]}));
@@ -607,21 +605,15 @@
         if(!tbody) return;
         let search = document.getElementById('searchStudent')?.value.trim() || '';
         let filtered = processed.filter(s=>s.id.includes(search));
-        if(!filtered.length){ tbody.innerHTML='<tr><td colspan="4">لا توجد بيانات</td></tr>'; return; }
+        if(!filtered.length){ tbody.innerHTML='bac<td colspan="4">لا توجد بيانات'; return; }
         let html = '';
         filtered.forEach((s,i)=>{
             let cls = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            html += `<tr>
-                        <td style="font-weight:bold;">${i+1}</td>
-                        <td>${s.id}</td>
-                        <td>${s.gpa}</td>
-                        <td class="${cls}">${s.assigned}</td>
-                     </tr>`;
+            html += `bac<td style="font-weight:bold;">${i+1}${s.id}${s.gpa}<td class="${cls}">${s.assigned}`;
         });
         tbody.innerHTML = html;
     }
     
-    // واجهة المشرف
     function showAdminLogin(){
         let pwd = prompt("كلمة السر:");
         if(pwd===ADMIN_PW){
@@ -707,7 +699,6 @@
         refreshTimer = setInterval(()=>{ loadStudents(); }, 20000);
     }
     
-    // ربط الأحداث
     document.getElementById('showAdminBtn').onclick = showAdminLogin;
     document.getElementById('closeAdminBtn').onclick = closeAdmin;
     document.getElementById('findMissingBtn').onclick = findMissingNumbers;
@@ -729,7 +720,7 @@
     
     loadStudents();
     startRefresh();
-    updateAlertsFromColumnD();
+    updateAlertsFromColumnD();  // تحديث التنبيهات من العمود D عند بدء التشغيل
     
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
