@@ -46,6 +46,7 @@
             color: white;
             cursor: pointer;
         }
+        .admin-btn:hover { opacity: 0.9; transform: scale(0.98); }
         .big-number {
             background: linear-gradient(135deg, #0056b3, #28a745);
             border-radius: 28px;
@@ -228,7 +229,7 @@
 <div class="container" id="publicContainer">
     <div class="header">
         <h1>🎓 المفاضلة الافتراضية - حلب</h1>
-        <button class="admin-btn" onclick="showAdminLogin()">🔐 Admin</button>
+        <button class="admin-btn" id="showAdminBtn">🔐 Admin</button>
     </div>
     <div class="big-number">
         <div class="number" id="totalCount">--</div>
@@ -292,31 +293,31 @@
 <div id="adminPanel" style="display:none;" class="container">
     <div class="header">
         <h1>🔐 لوحة المشرف</h1>
-        <button class="admin-btn" onclick="closeAdmin()" style="background:#dc3545;">🚪 إغلاق</button>
+        <button class="admin-btn" id="closeAdminBtn" style="background:#dc3545;">🚪 إغلاق</button>
     </div>
     <div style="background:#dc3545; color:white; padding:4px 12px; border-radius:30px; display:inline-block; margin-bottom:15px;">وضع المشرف</div>
     
     <div class="admin-section">
         <h3>🔍 التحقق من الأرقام الجامعية</h3>
-        <button onclick="findMissingNumbers()" style="background:#0056b3;" class="btn-sm">🔎 البحث عن الأرقام غير الموجودة</button>
+        <button id="findMissingBtn" style="background:#0056b3;" class="btn-sm">🔎 البحث عن الأرقام غير الموجودة</button>
         <div id="missingNumbersResult" class="result-box" style="display:none;"></div>
-        <button onclick="publishAlerts()" style="background:#28a745; margin-top:10px;" class="btn-sm">📢 نشر التنبيهات</button>
+        <button id="publishAlertsBtn" style="background:#28a745; margin-top:10px;" class="btn-sm">📢 نشر التنبيهات</button>
     </div>
     
     <div class="admin-section">
         <h3>📊 التحقق من المعدلات التفاضلية</h3>
-        <button onclick="checkGrades()" style="background:#dc3545;" class="btn-sm">⚖️ التحقق من المعدلات</button>
+        <button id="checkGradesBtn" style="background:#dc3545;" class="btn-sm">⚖️ التحقق من المعدلات</button>
         <div id="gradeMismatchResult" class="result-box" style="display:none;"></div>
     </div>
     
     <div style="display:flex; justify-content:space-between; margin:15px 0;">
         <h3>📋 تحديث البيانات</h3>
-        <button onclick="manualRefresh()" style="background:#0056b3; border:none; padding:6px 15px; border-radius:30px; color:white;">🔄 تحديث يدوي</button>
+        <button id="manualRefreshBtn" style="background:#0056b3; border:none; padding:6px 15px; border-radius:30px; color:white;">🔄 تحديث يدوي</button>
     </div>
     
     <div id="adminSpecialties" style="max-height:400px; overflow-y:auto;"></div>
     
-    <div style="margin:15px 0;"><button onclick="exportCSV()" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
+    <div style="margin:15px 0;"><button id="exportCSVBtn" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
     <div style="overflow-x:auto;">
         <table class="students-table">
             <thead> <th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th> </thead>
@@ -338,7 +339,7 @@
     let displayLimit = 30, currentData = null;
     let lastMissingNumbers = [];
     let referenceDataCache = null;
-    let columnDData = []; // لتخزين محتويات العمود D
+    let columnDData = [];
     const ADMIN_PW = "Alichayeb@23184";
     const GRADE_TOLERANCE = 0.5;
     
@@ -383,7 +384,7 @@
             if(prefs.length) students.push({id, gpa, prefs});
         }
         allStudents = students;
-        console.log("تم تحميل الطلاب:", allStudents.length, "طالب");
+        console.log("تم تحميل الطلاب:", allStudents.length);
         runMatch();
     }
     
@@ -398,178 +399,114 @@
         return res;
     }
     
-    // تحميل البيانات المرجعية (الأعمدة A, B, C, D)
+    // تحميل البيانات المرجعية
     async function loadReferenceData(forceReload = false) {
         if (referenceDataCache && !forceReload) return referenceDataCache;
-        
         try {
             const url = `https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`;
             const resp = await fetch(url, { cache: "no-store" });
             const csv = await resp.text();
             const lines = csv.split(/\r?\n/);
-            const validMap = new Map();      // id -> grade
-            const ignoreSet = new Set();      // ids to ignore (column C)
-            const columnD = [];               // محتويات العمود D
-            
-            console.log("عدد الصفوف في الجدول المرجعي:", lines.length);
+            const validMap = new Map();
+            const ignoreSet = new Set();
+            const columnD = [];
             
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
                 if (cols.length < 1) continue;
                 const id = cleanId(cols[0]);
                 if (!id) continue;
-                
-                // العمود A: الرقم الجامعي
                 validMap.set(id, true);
-                
-                // العمود B: المعدل (إن وجد)
                 const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
-                if (!isNaN(grade)) {
-                    validMap.set(id, grade);
-                } else {
-                    validMap.set(id, true);
-                }
-                
-                // العمود C: الأرقام المتجاهلة
-                if (cols.length > 2 && cols[2]?.trim()) {
-                    const ignoreId = cleanId(cols[2]);
-                    if (ignoreId) ignoreSet.add(ignoreId);
-                }
-                
-                // العمود D: محتويات للتنبيهات
-                if (cols.length > 3 && cols[3]?.trim()) {
-                    columnD.push(cols[3].trim());
-                }
+                if (!isNaN(grade)) validMap.set(id, grade);
+                if (cols.length > 2 && cols[2]?.trim()) ignoreSet.add(cleanId(cols[2]));
+                if (cols.length > 3 && cols[3]?.trim()) columnD.push(cols[3].trim());
             }
-            
-            console.log("عدد الأرقام في الجدول المرجعي:", validMap.size);
-            console.log("عدد الأرقام المتجاهلة:", ignoreSet.size);
-            console.log("عدد الصفوف في العمود D:", columnD.length);
-            
             referenceDataCache = { validMap, ignoreSet, columnD };
             columnDData = columnD;
             return referenceDataCache;
         } catch(e) {
-            console.error("فشل تحميل البيانات المرجعية", e);
+            console.error("فشل تحميل المرجع", e);
             return { validMap: new Map(), ignoreSet: new Set(), columnD: [] };
         }
     }
     
-    // تحديث مربع التنبيهات (النص الثابت + العمود D)
     async function updateAlertsBox() {
         const { columnD } = await loadReferenceData();
-        
         let alertText = `@ALI15cha  يرجى من أصحاب الأرقام الجامعية التالية التواصل مع معرف التلغرام 
 لأنه لم يتم العثور عليها ضمن قوائم الدفعة 53 
 للتأكد من أنها ليست أرقاماً وهمية، للحفاظ على دقة النتائج قدر الإمكان.
 يرجى التواصل بالسرعة الممكنة وشكراً`;
-        
         if (columnD.length > 0) {
             alertText += `<br><br><strong>📢 تنبيهات إضافية:</strong><br>${columnD.join('<br>')}`;
         }
-        
         if (lastMissingNumbers.length > 0) {
             alertText += `<br><br><strong>🔍 الأرقام غير الموجودة:</strong><br>${lastMissingNumbers.join(' - ')}`;
         }
-        
         document.getElementById('alertsContent').innerHTML = alertText.replace(/\n/g, '<br>');
     }
     
-    // البحث عن الأرقام غير الموجودة
     async function findMissingNumbers() {
         const resultDiv = document.getElementById('missingNumbersResult');
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = '🔄 جاري البحث...';
-        
         const { validMap, ignoreSet } = await loadReferenceData(true);
         const missing = [];
         const found = [];
-        
-        for (let student of allStudents) {
-            const id = student.id;
-            if (ignoreSet.has(id)) {
-                console.log(`تم تجاهل: ${id}`);
-                continue;
-            }
-            if (validMap.has(id)) {
-                found.push(id);
-            } else {
-                missing.push(id);
-            }
-        }
-        
-        console.log("الأرقام الموجودة:", found.length);
-        console.log("الأرقام المفقودة:", missing);
-        
-        lastMissingNumbers = missing;
-        
-        let debugHtml = `<div class="debug-info">
-            <strong>🔍 معلومات التحقق:</strong><br>
-            عدد الطلاب المسجلين: ${allStudents.length}<br>
-            عدد الأرقام في الجدول المرجعي: ${validMap.size}<br>
-            الأرقام الموجودة: ${found.length}<br>
-            الأرقام المفقودة: ${missing.length}<br>
-            ${found.length > 0 ? `عينة من الأرقام الموجودة: ${found.slice(0, 5).join(', ')}` : ''}
-        </div>`;
-        
-        if (missing.length === 0) {
-            resultDiv.innerHTML = debugHtml + '<br>✅ جميع الأرقام الجامعية موجودة في القائمة أو ضمن الأرقام المتجاهلة.';
-        } else {
-            resultDiv.innerHTML = debugHtml + `<br><strong>🔍 الأرقام غير الموجودة (${missing.length}):</strong><br>${missing.join(' - ')}<br><br>
-            <span style="font-size:11px; color:#666;">يمكنك نشر هذه الأرقام في مربع التنبيهات بالضغط على "نشر التنبيهات".</span>`;
-        }
-        
-        // تحديث مربع التنبيهات مع الأرقام المفقودة الجديدة
-        await updateAlertsBox();
-    }
-    
-    // نشر التنبيهات (تحديث مربع التنبيهات بالأرقام المفقودة والعمود D)
-    async function publishAlerts() {
-        await updateAlertsBox();
-        alert("تم تحديث التنبيهات بنجاح!");
-    }
-    
-    // التحقق من المعدلات
-    async function checkGrades() {
-        const resultDiv = document.getElementById('gradeMismatchResult');
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = '🔄 جاري التحقق من المعدلات...';
-        
-        const { validMap, ignoreSet } = await loadReferenceData(true);
-        const mismatches = [];
-        
         for (let student of allStudents) {
             const id = student.id;
             if (ignoreSet.has(id)) continue;
-            
+            if (validMap.has(id)) found.push(id);
+            else missing.push(id);
+        }
+        lastMissingNumbers = missing;
+        let debugHtml = `<div class="debug-info">
+            📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>
+            ✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}
+        </div>`;
+        if (missing.length === 0) {
+            resultDiv.innerHTML = debugHtml + '<br>✅ جميع الأرقام موجودة.';
+        } else {
+            resultDiv.innerHTML = debugHtml + `<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`;
+        }
+        await updateAlertsBox();
+    }
+    
+    async function publishAlerts() {
+        await updateAlertsBox();
+        alert("تم تحديث التنبيهات!");
+    }
+    
+    async function checkGrades() {
+        const resultDiv = document.getElementById('gradeMismatchResult');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '🔄 جاري التحقق...';
+        const { validMap, ignoreSet } = await loadReferenceData(true);
+        const mismatches = [];
+        for (let student of allStudents) {
+            const id = student.id;
+            if (ignoreSet.has(id)) continue;
             const refValue = validMap.get(id);
             if (typeof refValue === 'number') {
                 if (Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) {
-                    mismatches.push({
-                        id: id,
-                        actual: student.gpa,
-                        expected: refValue
-                    });
+                    mismatches.push({ id, actual: student.gpa, expected: refValue });
                 }
             }
         }
-        
         if (mismatches.length === 0) {
-            resultDiv.innerHTML = '✅ جميع المعدلات مطابقة للقيم المتوقعة (ضمن الفرق المسموح 0.5).';
+            resultDiv.innerHTML = '✅ جميع المعدلات مطابقة.';
         } else {
-            let html = `<strong>⚠️ الأرقام التي بها اختلاف في المعدل (${mismatches.length}):</strong><br><br>
-            <table style="width:100%; border-collapse:collapse; font-size:12px;">
-                <thead><th>الرقم الجامعي</th><th>المعدل المدخل</th><th>المعدل المتوقع</th><th>الفرق</th></thead><tbody>`;
+            let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
+            <table style="width:100%; border-collapse:collapse;"><thead><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></thead><tbody>`;
             mismatches.forEach(m => {
-                const diff = Math.abs(m.actual - m.expected).toFixed(2);
-                html += `<tr><td style="font-weight:bold;">${m.id}</td><td>${m.actual}</td><td>${m.expected}</td><td>${diff}</td>`;
+                html += `<tr><td>${m.id}</td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
             });
-            html += `</tbody> </table><br><span style="font-size:11px; color:#666;">يمكنك تعديل هذه الأرقام يدوياً في نموذج Google.</span>`;
+            html += `</tbody></table>`;
             resultDiv.innerHTML = html;
         }
     }
     
-    // دوال المفاضلة وعرض البيانات
+    // دوال المفاضلة
     function runMatch(){
         if(!allStudents.length){ processed=[]; updateUI(); return; }
         let copy = allStudents.map(s=>({...s, prefs:[...s.prefs]}));
@@ -655,12 +592,7 @@
         let html = '';
         filtered.forEach((s,i)=>{
             let cls = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            html += `<tr>
-                        <td style="font-weight:bold;">${i+1}</td>
-                        <td>${s.id}</td>
-                        <td>${s.gpa}</td>
-                        <td class="${cls}">${s.assigned}</td>
-                     </tr>`;
+            html += `<tr><td style="font-weight:bold;">${i+1}</td><td>${s.id}</td><td>${s.gpa}</td><td class="${cls}">${s.assigned}</td></tr>`;
         });
         tbody.innerHTML = html;
     }
@@ -676,11 +608,13 @@
             renderAdminTable();
         } else if(pwd) alert("خطأ");
     }
+    
     function closeAdmin(){
         isAdmin=false;
         document.getElementById('adminPanel').style.display='none';
         document.getElementById('publicContainer').style.display='block';
     }
+    
     function renderAdminSpecialties(){
         let cont = document.getElementById('adminSpecialties');
         if(!cont) return;
@@ -699,6 +633,7 @@
             document.getElementById(`spSeats${i}`).onblur = ()=>updateSpec(i);
         });
     }
+    
     function updateSpec(i){
         let name = document.getElementById(`spName${i}`).value;
         let seats = parseInt(document.getElementById(`spSeats${i}`).value);
@@ -708,9 +643,11 @@
             runMatch();
         }
     }
+    
     function delSpec(i){
         if(confirm("حذف؟")){ specialties.splice(i,1); renderAdminSpecialties(); runMatch(); }
     }
+    
     function renderAdminTable(){
         let tbody = document.getElementById('adminStudentsList');
         if(!tbody) return;
@@ -725,6 +662,7 @@
             row.insertCell(4).innerText=s.prefs.slice(0,4).join(' → ');
         });
     }
+    
     function manualRefresh(){ loadStudents(); }
     function exportCSV(){
         let csv = "الرقم,المعدل,الاختصاص,الرغبات\n";
@@ -741,6 +679,15 @@
         refreshTimer = setInterval(()=>{ loadStudents(); }, 20000);
     }
     
+    // ربط الأحداث
+    document.getElementById('showAdminBtn').onclick = showAdminLogin;
+    document.getElementById('closeAdminBtn').onclick = closeAdmin;
+    document.getElementById('findMissingBtn').onclick = findMissingNumbers;
+    document.getElementById('publishAlertsBtn').onclick = publishAlerts;
+    document.getElementById('checkGradesBtn').onclick = checkGrades;
+    document.getElementById('manualRefreshBtn').onclick = manualRefresh;
+    document.getElementById('exportCSVBtn').onclick = exportCSV;
+    
     document.getElementById('searchSpecialty')?.addEventListener('input', ()=>{ displayLimit=30; renderStats(); });
     document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
     document.querySelectorAll('.tab-btn').forEach(btn=>{
@@ -756,15 +703,8 @@
     loadStudents();
     startRefresh();
     
-    window.showAdminLogin = showAdminLogin;
-    window.closeAdmin = closeAdmin;
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
-    window.manualRefresh = manualRefresh;
-    window.exportCSV = exportCSV;
-    window.findMissingNumbers = findMissingNumbers;
-    window.publishAlerts = publishAlerts;
-    window.checkGrades = checkGrades;
 </script>
 </body>
 </html>
