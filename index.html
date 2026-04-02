@@ -62,7 +62,7 @@
         }
         .big-number:hover { transform: scale(1.02); }
         .big-number .number { font-size: 56px; font-weight: 800; }
-        .notice-box, .alerts-box {
+        .notice-box, .alerts-box, .suspended-box {
             border-radius: 20px;
             padding: 14px;
             margin-bottom: 16px;
@@ -80,7 +80,24 @@
             border-right: 4px solid #dc3545;
             color: #991b1b;
         }
-        .alerts-box h4 { font-size: 14px; margin-bottom: 8px; color: #dc3545; }
+        .suspended-box {
+            background: #fff3e0;
+            border-right: 4px solid #ff9800;
+            color: #9e5e00;
+        }
+        .alerts-box h4, .suspended-box h4 { font-size: 14px; margin-bottom: 8px; }
+        .alerts-box h4 { color: #dc3545; }
+        .suspended-box h4 { color: #ff9800; }
+        .two-columns {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .two-columns > div {
+            flex: 1;
+            min-width: 200px;
+        }
         .update-info {
             display: flex;
             justify-content: space-between;
@@ -253,6 +270,7 @@
             .big-number .number { font-size: 44px; }
             .specialty-card h3 { font-size: 14px; }
             .students-table th, .students-table td { padding: 4px 2px; }
+            .two-columns { flex-direction: column; }
         }
     </style>
 </head>
@@ -283,10 +301,17 @@
 
 🌟 بالتوفيق جميعاً</div>
     </div>
-    
-    <div class="alerts-box">
-        <h4>⚠️ تنبيهات</h4>
-        <div id="alertsContent">جاري تحميل التنبيهات...</div>
+
+    <!-- مربعان: التنبيهات (يمين) والأرقام الموقوفة (يسار) -->
+    <div class="two-columns">
+        <div class="alerts-box">
+            <h4>⚠️ تنبيهات</h4>
+            <div id="alertsContent">جاري تحميل التنبيهات...</div>
+        </div>
+        <div class="suspended-box">
+            <h4>⛔ أرقام تم إيقافها موقتاً</h4>
+            <div id="suspendedContent">جاري التحميل...</div>
+        </div>
     </div>
 
     <div class="update-info">
@@ -314,7 +339,7 @@
         <div class="students-table-wrapper">
             <table class="students-table">
                 <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
-                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr></tbody>
+                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr>
             </table>
         </div>
     </div>
@@ -331,8 +356,9 @@
     
     <div class="admin-section">
         <h3>🔍 التحقق من الأرقام الجامعية</h3>
-        <button id="findMissingBtn" style="background:#0056b3;" class="btn-sm">🔎 البحث عن الأرقام غير الموجودة</button>
+        <button id="findMissingBtn" style="background:#0056b3;" class="btn-sm">🔎 البحث عن الأرقام غير الموجودة والمكررة</button>
         <div id="missingNumbersResult" class="result-box" style="display:none;"></div>
+        <div id="duplicateNumbersResult" class="result-box" style="display:none; margin-top: 12px;"></div>
     </div>
     
     <div class="admin-section">
@@ -427,7 +453,7 @@
         return res;
     }
     
-    // تحميل البيانات المرجعية
+    // تحميل البيانات المرجعية (الأعمدة A,B,C,D,E,F,G)
     async function loadReferenceData(forceReload = false) {
         if (referenceDataCache && !forceReload) return referenceDataCache;
         try {
@@ -435,48 +461,84 @@
             const resp = await fetch(url, { cache: "no-store" });
             const csv = await resp.text();
             const lines = csv.split(/\r?\n/);
-            const validMap = new Map();
-            const ignoreSet = new Set();
-            const columnD = [];
+            const validMap = new Map();      // A: id -> B: grade (or true)
+            const ignoreSet = new Set();     // C: ids to ignore
+            const alertsList = [];            // D + E: { id, description }
+            const suspendedList = [];          // F + G: { id, description }
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
                 if (cols.length < 1) continue;
-                const id = cleanId(cols[0]);
-                if (!id) continue;
-                validMap.set(id, true);
+                // العمود A: الرقم المرجعي
+                const refId = cleanId(cols[0]);
+                if (!refId) continue;
+                // العمود B: المعدل المتوقع (اختياري)
                 const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
-                if (!isNaN(grade)) validMap.set(id, grade);
+                if (!isNaN(grade)) validMap.set(refId, grade);
+                else if (!validMap.has(refId)) validMap.set(refId, true);
+                // العمود C: أرقام للتجاهل
                 if (cols.length > 2 && cols[2]?.trim()) ignoreSet.add(cleanId(cols[2]));
-                if (cols.length > 3 && cols[3]?.trim()) columnD.push(cols[3].trim());
+                // العمود D + E: تنبيهات
+                if (cols.length > 3 && cols[3]?.trim()) {
+                    const alertId = cleanId(cols[3]);
+                    const alertDesc = (cols.length > 4 && cols[4]?.trim()) ? cols[4].trim() : "لا يوجد شرح";
+                    alertsList.push({ id: alertId, description: alertDesc });
+                }
+                // العمود F + G: أرقام موقوفة مؤقتاً
+                if (cols.length > 5 && cols[5]?.trim()) {
+                    const suspendedId = cleanId(cols[5]);
+                    const suspendedDesc = (cols.length > 6 && cols[6]?.trim()) ? cols[6].trim() : "تم إيقاف هذا الرقم مؤقتاً";
+                    suspendedList.push({ id: suspendedId, description: suspendedDesc });
+                }
             }
-            referenceDataCache = { validMap, ignoreSet, columnD };
+            referenceDataCache = { validMap, ignoreSet, alertsList, suspendedList };
             return referenceDataCache;
         } catch(e) {
             console.error("فشل تحميل المرجع", e);
-            return { validMap: new Map(), ignoreSet: new Set(), columnD: [] };
+            return { validMap: new Map(), ignoreSet: new Set(), alertsList: [], suspendedList: [] };
         }
     }
     
-    // تحديث مربع التنبيهات من العمود D فقط
+    // تحديث مربع التنبيهات (D&E) مع النص الثابت
     async function updateAlertsFromColumnD() {
-        const { columnD } = await loadReferenceData();
-        if (columnD.length > 0) {
-            let alertText = `@ALI15cha  يرجى من أصحاب الأرقام الجامعية التالية التواصل مع معرف التلغرام 
-لأنه لم يتم العثور عليها ضمن قوائم الدفعة 53 
-للتأكد من أنها ليست أرقاماً وهمية، للحفاظ على دقة النتائج قدر الإمكان.
-يرجى التواصل بالسرعة الممكنة وشكراً
-<br><br><strong>📢 تنبيهات إضافية:</strong><br>${columnD.join('<br>')}`;
-            document.getElementById('alertsContent').innerHTML = alertText.replace(/\n/g, '<br>');
+        const { alertsList } = await loadReferenceData();
+        let html = '<div style="margin-bottom:8px;">📢 يرجى التواصل مع معرف التلغرام: @ALI15cha</div>';
+        if (alertsList.length === 0) {
+            html += '<div>لا توجد تنبيهات حالياً</div>';
         } else {
-            document.getElementById('alertsContent').innerHTML = "لا توجد تنبيهات حالياً";
+            html += '<ul style="margin-right:20px;">';
+            for (let item of alertsList) {
+                html += `<li><strong>${item.id}</strong>: ${item.description}</li>`;
+            }
+            html += '</ul>';
         }
+        document.getElementById('alertsContent').innerHTML = html;
     }
     
-    // البحث عن الأرقام غير الموجودة
-    async function findMissingNumbers() {
-        const resultDiv = document.getElementById('missingNumbersResult');
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = '🔄 جاري البحث...';
+    // تحديث مربع الأرقام الموقوفة (F&G)
+    async function updateSuspendedFromColumnsFG() {
+        const { suspendedList } = await loadReferenceData();
+        let html = '';
+        if (suspendedList.length === 0) {
+            html = '<div>لا توجد أرقام موقوفة حالياً</div>';
+        } else {
+            html = '<ul style="margin-right:20px;">';
+            for (let item of suspendedList) {
+                html += `<li><strong>${item.id}</strong>: ${item.description}</li>`;
+            }
+            html += '</ul>';
+        }
+        document.getElementById('suspendedContent').innerHTML = html;
+    }
+    
+    // البحث عن الأرقام غير الموجودة والمكررة
+    async function findMissingAndDuplicates() {
+        const missingDiv = document.getElementById('missingNumbersResult');
+        const duplicateDiv = document.getElementById('duplicateNumbersResult');
+        missingDiv.style.display = 'block';
+        duplicateDiv.style.display = 'block';
+        missingDiv.innerHTML = '🔄 جاري البحث...';
+        duplicateDiv.innerHTML = '🔄 جاري البحث...';
+        
         const { validMap, ignoreSet } = await loadReferenceData(true);
         const missing = [];
         const found = [];
@@ -486,15 +548,40 @@
             if (validMap.has(id)) found.push(id);
             else missing.push(id);
         }
-        let debugHtml = `<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>`;
-        if (missing.length === 0) {
-            resultDiv.innerHTML = debugHtml + '<br>✅ جميع الأرقام موجودة.';
-        } else {
-            resultDiv.innerHTML = debugHtml + `<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`;
+        
+        // كشف التكرارات في allStudents
+        const idCount = new Map();
+        for (let student of allStudents) {
+            const id = student.id;
+            idCount.set(id, (idCount.get(id) || 0) + 1);
         }
+        const duplicates = [];
+        for (let [id, count] of idCount.entries()) {
+            if (count > 1) duplicates.push({ id, count });
+        }
+        
+        let missingHtml = `<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>`;
+        if (missing.length === 0) {
+            missingHtml += '<br>✅ جميع الأرقام موجودة.';
+        } else {
+            missingHtml += `<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`;
+        }
+        missingDiv.innerHTML = missingHtml;
+        
+        let duplicateHtml = `<div class="debug-info">📊 إجمالي الطلاب: ${allStudents.length}</div>`;
+        if (duplicates.length === 0) {
+            duplicateHtml += '<br>✅ لا توجد أرقام جامعية مكررة.';
+        } else {
+            duplicateHtml += `<br><strong>⚠️ الأرقام المكررة (ظهرت أكثر من مرة):</strong><br>`;
+            duplicates.forEach(d => {
+                duplicateHtml += `${d.id} (${d.count} مرات) - `;
+            });
+            duplicateHtml = duplicateHtml.slice(0, -2);
+        }
+        duplicateDiv.innerHTML = duplicateHtml;
     }
     
-    // التحقق من المعدلات
+    // التحقق من المعدلات (نفس الكود مع تعديل بسيط)
     async function checkGrades() {
         const resultDiv = document.getElementById('gradeMismatchResult');
         resultDiv.style.display = 'block';
@@ -525,7 +612,7 @@
         }
     }
     
-    // دوال المفاضلة
+    // دوال المفاضلة (بدون تغيير)
     function runMatch(){
         if(!allStudents.length){ processed=[]; updateUI(); return; }
         let copy = allStudents.map(s=>({...s, prefs:[...s.prefs]}));
@@ -616,12 +703,12 @@
                         <td>${s.id}</td>
                         <td>${s.gpa}</td>
                         <td class="${cls}">${s.assigned}</td>
-                     </tr>`;
+                      </tr>`;
         });
         tbody.innerHTML = html;
     }
     
-    // واجهة المشرف
+    // واجهة المشرف (نفسها مع تعديل اسم الزر)
     function showAdminLogin(){
         let pwd = prompt("كلمة السر:");
         if(pwd===ADMIN_PW){
@@ -704,13 +791,17 @@
     
     function startRefresh(){
         if(refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(()=>{ loadStudents(); }, 20000);
+        refreshTimer = setInterval(()=>{ 
+            loadStudents(); 
+            updateAlertsFromColumnD(); 
+            updateSuspendedFromColumnsFG();
+        }, 20000);
     }
     
     // ربط الأحداث
     document.getElementById('showAdminBtn').onclick = showAdminLogin;
     document.getElementById('closeAdminBtn').onclick = closeAdmin;
-    document.getElementById('findMissingBtn').onclick = findMissingNumbers;
+    document.getElementById('findMissingBtn').onclick = findMissingAndDuplicates;
     document.getElementById('checkGradesBtn').onclick = checkGrades;
     document.getElementById('manualRefreshBtn').onclick = manualRefresh;
     document.getElementById('exportCSVBtn').onclick = exportCSV;
@@ -730,6 +821,7 @@
     loadStudents();
     startRefresh();
     updateAlertsFromColumnD();
+    updateSuspendedFromColumnsFG();
     
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
