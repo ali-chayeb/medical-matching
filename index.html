@@ -234,6 +234,19 @@
             position: sticky;
             top: 0;
         }
+        /* تلوين الطلاب الموجودين في قائمة التنبيهات */
+        .student-alert-row {
+            background-color: #ffe5e5 !important;
+        }
+        .student-alert-id {
+            color: #dc3545 !important;
+            font-weight: bold;
+            background-color: #fff0f0;
+            border-radius: 20px;
+            padding: 4px 10px;
+            display: inline-block;
+            font-size: 12px;
+        }
         .load-more {
             background: #e2e8f0;
             border: none;
@@ -359,7 +372,7 @@
             <table class="students-table">
                 <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
                 <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr>
-            </table>
+             </table>
         </div>
     </div>
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
@@ -472,7 +485,7 @@
         return res;
     }
     
-    // تحميل البيانات المرجعية (الأعمدة A,B,C,D,E,F,G)
+    // تحميل البيانات المرجعية
     async function loadReferenceData(forceReload = false) {
         if (referenceDataCache && !forceReload) return referenceDataCache;
         try {
@@ -480,29 +493,24 @@
             const resp = await fetch(url, { cache: "no-store" });
             const csv = await resp.text();
             const lines = csv.split(/\r?\n/);
-            const validMap = new Map();      // A: id -> B: grade (or true)
-            const ignoreSet = new Set();     // C: ids to ignore
-            const alertsList = [];            // D + E: { id, description }
-            const suspendedList = [];          // F + G: { id, description }
+            const validMap = new Map();
+            const ignoreSet = new Set();
+            const alertsList = [];
+            const suspendedList = [];
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
                 if (cols.length < 1) continue;
-                // العمود A: الرقم المرجعي
                 const refId = cleanId(cols[0]);
                 if (!refId) continue;
-                // العمود B: المعدل المتوقع (اختياري)
                 const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
                 if (!isNaN(grade)) validMap.set(refId, grade);
                 else if (!validMap.has(refId)) validMap.set(refId, true);
-                // العمود C: أرقام للتجاهل
                 if (cols.length > 2 && cols[2]?.trim()) ignoreSet.add(cleanId(cols[2]));
-                // العمود D + E: تنبيهات
                 if (cols.length > 3 && cols[3]?.trim()) {
                     const alertId = cleanId(cols[3]);
                     const alertDesc = (cols.length > 4 && cols[4]?.trim()) ? cols[4].trim() : "لا يوجد شرح";
                     alertsList.push({ id: alertId, description: alertDesc });
                 }
-                // العمود F + G: أرقام موقوفة مؤقتاً
                 if (cols.length > 5 && cols[5]?.trim()) {
                     const suspendedId = cleanId(cols[5]);
                     const suspendedDesc = (cols.length > 6 && cols[6]?.trim()) ? cols[6].trim() : "تم إيقاف هذا الرقم مؤقتاً";
@@ -517,15 +525,13 @@
         }
     }
     
-    // تحديث مربع التنبيهات (D&E) مع النص الثابت وعدد التنبيهات والبحث
+    // تحديث التنبيهات
     async function updateAlertsFromColumnD() {
         const { alertsList } = await loadReferenceData();
-        window.allAlerts = alertsList; // لحفظها للبحث لاحقاً
-        
+        window.allAlerts = alertsList;
         const totalCount = alertsList.length;
         document.getElementById('alertsCount').innerText = totalCount;
         document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${totalCount})`;
-        
         renderAlertsList(alertsList);
     }
     
@@ -543,7 +549,6 @@
         document.getElementById('alertsContent').innerHTML = html;
     }
     
-    // دالة مساعدة لتأمين النص من XSS
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, function(m) {
@@ -554,7 +559,6 @@
         });
     }
     
-    // ربط مربع البحث بالتنبيهات
     function setupAlertsSearch() {
         const searchInput = document.getElementById('alertsSearchInput');
         if (!searchInput) return;
@@ -577,7 +581,6 @@
         });
     }
     
-    // تحديث مربع الأرقام الموقوفة (F&G)
     async function updateSuspendedFromColumnsFG() {
         const { suspendedList } = await loadReferenceData();
         let html = '';
@@ -612,7 +615,6 @@
             else missing.push(id);
         }
         
-        // كشف التكرارات في allStudents
         const idCount = new Map();
         for (let student of allStudents) {
             const id = student.id;
@@ -644,7 +646,6 @@
         duplicateDiv.innerHTML = duplicateHtml;
     }
     
-    // التحقق من المعدلات
     async function checkGrades() {
         const resultDiv = document.getElementById('gradeMismatchResult');
         resultDiv.style.display = 'block';
@@ -668,7 +669,7 @@
             <table style="width:100%; border-collapse:collapse;">
                 <thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
             mismatches.forEach(m => {
-                html += `<tr><td>${escapeHtml(m.id)}</td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td><th>`;
+                html += `<tr><td>${escapeHtml(m.id)}</td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
             });
             html += `</tbody></table>`;
             resultDiv.innerHTML = html;
@@ -752,20 +753,36 @@
         }
     }
     
-    function renderStudentsTable(){
+    // قائمة الطلاب مع تلوين الأرقام الموجودة في التنبيهات
+    async function renderStudentsTable() {
         let tbody = document.getElementById('studentsList');
-        if(!tbody) return;
+        if (!tbody) return;
+        
+        const { alertsList } = await loadReferenceData();
+        const alertIds = new Set(alertsList.map(a => a.id));
+        
         let search = document.getElementById('searchStudent')?.value.trim() || '';
-        let filtered = processed.filter(s=>s.id.includes(search));
-        if(!filtered.length){ tbody.innerHTML='<tr><td colspan="4">لا توجد بيانات</td></tr>'; return; }
+        let filtered = processed.filter(s => s.id.includes(search));
+        
+        if (!filtered.length) {
+            tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>';
+            return;
+        }
+        
         let html = '';
-        filtered.forEach((s,i)=>{
-            let cls = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            html += `<tr>
-                        <td style="font-weight:bold;">${i+1}</td>
-                        <td>${escapeHtml(s.id)}</td>
+        filtered.forEach((s, i) => {
+            const isAlert = alertIds.has(s.id);
+            const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
+            const idDisplay = isAlert 
+                ? `<span class="student-alert-id">⚠️ ${escapeHtml(s.id)}</span>` 
+                : escapeHtml(s.id);
+            const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
+            
+            html += `<tr style="${rowStyle}">
+                        <td style="font-weight:bold;">${i + 1}</td>
+                        <td>${idDisplay}</td>
                         <td>${s.gpa}</td>
-                        <td class="${cls}">${escapeHtml(s.assigned)}</td>
+                        <td class="${assignedClass}">${escapeHtml(s.assigned)}</td>
                       </tr>`;
         });
         tbody.innerHTML = html;
@@ -854,10 +871,11 @@
     
     function startRefresh(){
         if(refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(()=>{ 
-            loadStudents(); 
-            updateAlertsFromColumnD(); 
-            updateSuspendedFromColumnsFG();
+        refreshTimer = setInterval(async () => {
+            await loadStudents();
+            await updateAlertsFromColumnD();
+            await updateSuspendedFromColumnsFG();
+            await renderStudentsTable();
         }, 20000);
     }
     
