@@ -256,7 +256,7 @@
     
     <div class="alerts-box">
         <h4>⚠️ تنبيهات</h4>
-        <div id="alertsContent">لا توجد تنبيهات حالياً</div>
+        <div id="alertsContent">جاري تحميل التنبيهات...</div>
     </div>
 
     <div class="update-info">
@@ -285,7 +285,7 @@
             <table class="students-table">
                 <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
                 <tbody id="studentsList"> <td colspan="4">جاري التحميل... </tbody>
-              —
+               —
         </div>
     </div>
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
@@ -427,22 +427,27 @@
         }
     }
     
-    async function updateAlertsBox(columnDData) {
-        let alertText = `@ALI15cha  يرجى من أصحاب الأرقام الجامعية التالية التواصل مع معرف التلغرام 
+    // تحديث مربع التنبيهات من العمود D فقط (يُستدعى عند تحميل الصفحة)
+    async function updateAlertsFromColumnD() {
+        const { columnD } = await loadReferenceData();
+        if (columnD.length > 0) {
+            let alertText = `@ALI15cha  يرجى من أصحاب الأرقام الجامعية التالية التواصل مع معرف التلغرام 
 لأنه لم يتم العثور عليها ضمن قوائم الدفعة 53 
 للتأكد من أنها ليست أرقاماً وهمية، للحفاظ على دقة النتائج قدر الإمكان.
-يرجى التواصل بالسرعة الممكنة وشكراً`;
-        if (columnDData && columnDData.length > 0) {
-            alertText += `<br><br><strong>📢 تنبيهات إضافية:</strong><br>${columnDData.join('<br>')}`;
+يرجى التواصل بالسرعة الممكنة وشكراً
+<br><br><strong>📢 تنبيهات إضافية:</strong><br>${columnD.join('<br>')}`;
+            document.getElementById('alertsContent').innerHTML = alertText.replace(/\n/g, '<br>');
+        } else {
+            document.getElementById('alertsContent').innerHTML = "لا توجد تنبيهات حالياً";
         }
-        document.getElementById('alertsContent').innerHTML = alertText.replace(/\n/g, '<br>');
     }
     
+    // البحث عن الأرقام غير الموجودة (يؤثر فقط على مربع النتائج)
     async function findMissingNumbers() {
         const resultDiv = document.getElementById('missingNumbersResult');
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = '🔄 جاري البحث...';
-        const { validMap, ignoreSet, columnD } = await loadReferenceData(true);
+        const { validMap, ignoreSet } = await loadReferenceData(true);
         const missing = [];
         const found = [];
         for (let student of allStudents) {
@@ -457,10 +462,9 @@
         } else {
             resultDiv.innerHTML = debugHtml + `<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`;
         }
-        // تحديث مربع التنبيهات مع محتويات العمود D
-        await updateAlertsBox(columnD);
     }
     
+    // التحقق من المعدلات
     async function checkGrades() {
         const resultDiv = document.getElementById('gradeMismatchResult');
         resultDiv.style.display = 'block';
@@ -481,7 +485,8 @@
             resultDiv.innerHTML = '✅ جميع المعدلات مطابقة.';
         } else {
             let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
-            <table style="width:100%; border-collapse:collapse;"><thead><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></thead><tbody>`;
+            <table style="width:100%; border-collapse:collapse;">
+                <thead><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></thead><tbody>`;
             mismatches.forEach(m => {
                 html += `bac<td style="font-weight:bold;">${m.id}${m.actual}${m.expected}${Math.abs(m.actual - m.expected).toFixed(2)}`;
             });
@@ -572,11 +577,11 @@
         if(!tbody) return;
         let search = document.getElementById('searchStudent')?.value.trim() || '';
         let filtered = processed.filter(s=>s.id.includes(search));
-        if(!filtered.length){ tbody.innerHTML='<tr><td colspan="4">لا توجد بيانات</td></tr>'; return; }
+        if(!filtered.length){ tbody.innerHTML='bac<td colspan="4">لا توجد بيانات'; return; }
         let html = '';
         filtered.forEach((s,i)=>{
             let cls = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            html += `<tr><td style="font-weight:bold;">${i+1}</td><td>${s.id}</td><td>${s.gpa}</td><td class="${cls}">${s.assigned}</td></tr>`;
+            html += `bac<td style="font-weight:bold;">${i+1}${s.id}${s.gpa}<td class="${cls}">${s.assigned}`;
         });
         tbody.innerHTML = html;
     }
@@ -687,8 +692,10 @@
         });
     });
     
+    // تحميل البيانات الأولية
     loadStudents();
     startRefresh();
+    updateAlertsFromColumnD(); // تحديث التنبيهات من العمود D عند بدء التشغيل
     
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
