@@ -206,8 +206,16 @@
             padding: 12px;
             margin-top: 12px;
             font-size: 12px;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
+        }
+        .debug-info {
+            font-size: 11px;
+            color: #666;
+            background: #eef2ff;
+            padding: 8px;
+            border-radius: 12px;
+            margin-top: 8px;
         }
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
@@ -273,7 +281,7 @@
             <table class="students-table">
                 <thead> <th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th> </thead>
                 <tbody id="studentsList"> <td colspan="4">جاري التحميل... </tbody>
-             </table>
+              </table>
         </div>
     </div>
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
@@ -312,7 +320,7 @@
         <table class="students-table">
             <thead> <th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th> </thead>
             <tbody id="adminStudentsList"></tbody>
-        </table>
+         </table>
     </div>
 </div>
 
@@ -328,8 +336,19 @@
     let refreshTimer, isAdmin = false;
     let displayLimit = 30, currentData = null;
     let lastMissingNumbers = [];
+    let referenceDataCache = null;
     const ADMIN_PW = "Alichayeb@23184";
     const GRADE_TOLERANCE = 0.5;
+    
+    // دالة تنظيف الأرقام
+    function cleanId(id) {
+        if (!id) return "";
+        // إزالة المسافات الزائدة من البداية والنهاية
+        let cleaned = id.toString().trim();
+        // إزالة أي أحرف غير رقمية مع الاحتفاظ بالأرقام فقط (للمقارنة)
+        // لكن نحتفظ بالنص الأصلي للعرض
+        return cleaned;
+    }
     
     // تحميل بيانات الطلاب
     async function loadStudents() {
@@ -356,7 +375,7 @@
         for(let i=1;i<lines.length;i++){
             let cols = parseCSVLine(lines[i]);
             if(cols.length<=idIdx||cols.length<=gpaIdx) continue;
-            let id = cols[idIdx]?.trim();
+            let id = cleanId(cols[idIdx]);
             let gpa = parseFloat(cols[gpaIdx]);
             if(!id||isNaN(gpa)) continue;
             let prefs = [];
@@ -367,6 +386,7 @@
             if(prefs.length) students.push({id, gpa, prefs});
         }
         allStudents = students;
+        console.log("تم تحميل الطلاب:", allStudents.length, "طالب");
         runMatch();
     }
     
@@ -382,7 +402,9 @@
     }
     
     // تحميل البيانات المرجعية من Google Sheet
-    async function loadReferenceData() {
+    async function loadReferenceData(forceReload = false) {
+        if (referenceDataCache && !forceReload) return referenceDataCache;
+        
         try {
             const url = `https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`;
             const resp = await fetch(url, { cache: "no-store" });
@@ -390,16 +412,43 @@
             const lines = csv.split(/\r?\n/);
             const validMap = new Map();      // id -> grade
             const ignoreSet = new Set();      // ids to ignore (column C)
+            
+            console.log("عدد الصفوف في الجدول المرجعي:", lines.length);
+            
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
                 if (cols.length < 1) continue;
-                const id = cols[0]?.trim();
+                const id = cleanId(cols[0]);
                 if (!id) continue;
+                
+                // العمود A: الرقم الجامعي
+                validMap.set(id, true);
+                
+                // العمود B: المعدل (إن وجد)
                 const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
-                if (!isNaN(grade)) validMap.set(id, grade);
-                if (cols.length > 2 && cols[2]?.trim()) ignoreSet.add(cols[2].trim());
+                if (!isNaN(grade)) {
+                    validMap.set(id, grade);
+                } else {
+                    // إذا لم يوجد معدل، نخزن true كقيمة للمعدل
+                    validMap.set(id, true);
+                }
+                
+                // العمود C: الأرقام المتجاهلة
+                if (cols.length > 2 && cols[2]?.trim()) {
+                    const ignoreId = cleanId(cols[2]);
+                    if (ignoreId) ignoreSet.add(ignoreId);
+                }
             }
-            return { validMap, ignoreSet };
+            
+            console.log("عدد الأرقام في الجدول المرجعي:", validMap.size);
+            console.log("عدد الأرقام المتجاهلة:", ignoreSet.size);
+            
+            // طباعة أول 5 أرقام للتأكد
+            const sampleIds = Array.from(validMap.keys()).slice(0, 5);
+            console.log("عينة من الأرقام المرجعية:", sampleIds);
+            
+            referenceDataCache = { validMap, ignoreSet };
+            return referenceDataCache;
         } catch(e) {
             console.error("فشل تحميل البيانات المرجعية", e);
             return { validMap: new Map(), ignoreSet: new Set() };
@@ -412,19 +461,41 @@
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = '🔄 جاري البحث...';
         
-        const { validMap, ignoreSet } = await loadReferenceData();
+        const { validMap, ignoreSet } = await loadReferenceData(true); // force reload
         const missing = [];
+        const found = [];
+        
         for (let student of allStudents) {
             const id = student.id;
-            if (!validMap.has(id) && !ignoreSet.has(id)) {
+            if (ignoreSet.has(id)) {
+                console.log(`تم تجاهل: ${id}`);
+                continue;
+            }
+            if (validMap.has(id)) {
+                found.push(id);
+            } else {
                 missing.push(id);
             }
         }
+        
+        console.log("الأرقام الموجودة:", found.length);
+        console.log("الأرقام المفقودة:", missing);
+        
         lastMissingNumbers = missing;
+        
+        let debugHtml = `<div class="debug-info">
+            <strong>🔍 معلومات التحقق:</strong><br>
+            عدد الطلاب المسجلين: ${allStudents.length}<br>
+            عدد الأرقام في الجدول المرجعي: ${validMap.size}<br>
+            الأرقام الموجودة: ${found.length}<br>
+            الأرقام المفقودة: ${missing.length}<br>
+            ${found.length > 0 ? `عينة من الأرقام الموجودة: ${found.slice(0, 5).join(', ')}` : ''}
+        </div>`;
+        
         if (missing.length === 0) {
-            resultDiv.innerHTML = '✅ جميع الأرقام الجامعية موجودة في القائمة أو ضمن الأرقام المتجاهلة.';
+            resultDiv.innerHTML = debugHtml + '<br>✅ جميع الأرقام الجامعية موجودة في القائمة أو ضمن الأرقام المتجاهلة.';
         } else {
-            resultDiv.innerHTML = `<strong>🔍 الأرقام غير الموجودة (${missing.length}):</strong><br>${missing.join(' - ')}<br><br>
+            resultDiv.innerHTML = debugHtml + `<br><strong>🔍 الأرقام غير الموجودة (${missing.length}):</strong><br>${missing.join(' - ')}<br><br>
             <span style="font-size:11px; color:#666;">يمكنك نشر هذه الأرقام في مربع التنبيهات بالضغط على "نشر التنبيهات".</span>`;
         }
     }
@@ -453,18 +524,21 @@ ${lastMissingNumbers.join(' - ')}`;
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = '🔄 جاري التحقق من المعدلات...';
         
-        const { validMap, ignoreSet } = await loadReferenceData();
+        const { validMap, ignoreSet } = await loadReferenceData(true);
         const mismatches = [];
+        
         for (let student of allStudents) {
             const id = student.id;
             if (ignoreSet.has(id)) continue;
-            if (validMap.has(id)) {
-                const expected = validMap.get(id);
-                if (Math.abs(student.gpa - expected) > GRADE_TOLERANCE) {
+            
+            const refValue = validMap.get(id);
+            // إذا كانت القيمة المرجعية عبارة عن رقم (معدل)
+            if (typeof refValue === 'number') {
+                if (Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) {
                     mismatches.push({
                         id: id,
                         actual: student.gpa,
-                        expected: expected
+                        expected: refValue
                     });
                 }
             }
@@ -485,7 +559,7 @@ ${lastMissingNumbers.join(' - ')}`;
         }
     }
     
-    // دوال المفاضلة وعرض البيانات
+    // دوال المفاضلة وعرض البيانات (كما هي)
     function runMatch(){
         if(!allStudents.length){ processed=[]; updateUI(); return; }
         let copy = allStudents.map(s=>({...s, prefs:[...s.prefs]}));
