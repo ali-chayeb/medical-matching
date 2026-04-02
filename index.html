@@ -88,6 +88,24 @@
         .alerts-box h4, .suspended-box h4 { font-size: 14px; margin-bottom: 8px; }
         .alerts-box h4 { color: #dc3545; }
         .suspended-box h4 { color: #ff9800; }
+        .alerts-search {
+            width: 100%;
+            padding: 8px 12px;
+            margin: 8px 0 12px 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 30px;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        .alerts-search:focus {
+            outline: none;
+            border-color: #dc3545;
+            box-shadow: 0 0 0 2px rgba(220,53,69,0.2);
+        }
+        .alerts-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
         .two-columns {
             display: flex;
             gap: 16px;
@@ -305,8 +323,9 @@
     <!-- مربعان: التنبيهات (يمين) والأرقام الموقوفة (يسار) -->
     <div class="two-columns">
         <div class="alerts-box">
-            <h4>⚠️ تنبيهات</h4>
-            <div id="alertsContent">جاري تحميل التنبيهات...</div>
+            <h4 id="alertsTitle">⚠️ تنبيهات (<span id="alertsCount">0</span>)</h4>
+            <input type="text" id="alertsSearchInput" class="alerts-search" placeholder="🔍 ابحث ضمن التنبيهات (رقم أو شرح)...">
+            <div id="alertsContent" class="alerts-list">جاري تحميل التنبيهات...</div>
         </div>
         <div class="suspended-box">
             <h4>⛔ أرقام تم إيقافها موقتاً</h4>
@@ -379,7 +398,7 @@
         <table class="students-table">
             <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
             <tbody id="adminStudentsList"></tbody>
-        </table>
+         </table>
     </div>
 </div>
 
@@ -498,20 +517,64 @@
         }
     }
     
-    // تحديث مربع التنبيهات (D&E) مع النص الثابت
+    // تحديث مربع التنبيهات (D&E) مع النص الثابت وعدد التنبيهات والبحث
     async function updateAlertsFromColumnD() {
         const { alertsList } = await loadReferenceData();
+        window.allAlerts = alertsList; // لحفظها للبحث لاحقاً
+        
+        const totalCount = alertsList.length;
+        document.getElementById('alertsCount').innerText = totalCount;
+        document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${totalCount})`;
+        
+        renderAlertsList(alertsList);
+    }
+    
+    function renderAlertsList(alerts) {
         let html = '<div style="margin-bottom:8px;">📢 يرجى التواصل مع معرف التلغرام: @ALI15cha</div>';
-        if (alertsList.length === 0) {
+        if (alerts.length === 0) {
             html += '<div>لا توجد تنبيهات حالياً</div>';
         } else {
             html += '<ul style="margin-right:20px;">';
-            for (let item of alertsList) {
-                html += `<li><strong>${item.id}</strong>: ${item.description}</li>`;
+            for (let item of alerts) {
+                html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`;
             }
             html += '</ul>';
         }
         document.getElementById('alertsContent').innerHTML = html;
+    }
+    
+    // دالة مساعدة لتأمين النص من XSS
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // ربط مربع البحث بالتنبيهات
+    function setupAlertsSearch() {
+        const searchInput = document.getElementById('alertsSearchInput');
+        if (!searchInput) return;
+        searchInput.addEventListener('input', function(e) {
+            const keyword = e.target.value.trim().toLowerCase();
+            if (!window.allAlerts) return;
+            if (keyword === '') {
+                renderAlertsList(window.allAlerts);
+                document.getElementById('alertsCount').innerText = window.allAlerts.length;
+                document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${window.allAlerts.length})`;
+            } else {
+                const filtered = window.allAlerts.filter(item => 
+                    item.id.toLowerCase().includes(keyword) || 
+                    item.description.toLowerCase().includes(keyword)
+                );
+                renderAlertsList(filtered);
+                document.getElementById('alertsCount').innerText = filtered.length;
+                document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${filtered.length} من ${window.allAlerts.length})`;
+            }
+        });
     }
     
     // تحديث مربع الأرقام الموقوفة (F&G)
@@ -523,7 +586,7 @@
         } else {
             html = '<ul style="margin-right:20px;">';
             for (let item of suspendedList) {
-                html += `<li><strong>${item.id}</strong>: ${item.description}</li>`;
+                html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`;
             }
             html += '</ul>';
         }
@@ -581,7 +644,7 @@
         duplicateDiv.innerHTML = duplicateHtml;
     }
     
-    // التحقق من المعدلات (نفس الكود مع تعديل بسيط)
+    // التحقق من المعدلات
     async function checkGrades() {
         const resultDiv = document.getElementById('gradeMismatchResult');
         resultDiv.style.display = 'block';
@@ -605,14 +668,14 @@
             <table style="width:100%; border-collapse:collapse;">
                 <thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
             mismatches.forEach(m => {
-                html += `<tr><td>${m.id}</td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
+                html += `<tr><td>${escapeHtml(m.id)}</td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td><th>`;
             });
             html += `</tbody></table>`;
             resultDiv.innerHTML = html;
         }
     }
     
-    // دوال المفاضلة (بدون تغيير)
+    // دوال المفاضلة
     function runMatch(){
         if(!allStudents.length){ processed=[]; updateUI(); return; }
         let copy = allStudents.map(s=>({...s, prefs:[...s.prefs]}));
@@ -667,7 +730,7 @@
             let acc = currentData?.accepted[spec.name]||[];
             let minS = acc.length ? Math.min(...acc.map(a=>a.gpa)).toFixed(2) : 'لا يوجد';
             html += `<div class="specialty-card">
-                        <h3>📌 ${spec.name}</h3>
+                        <h3>📌 ${escapeHtml(spec.name)}</h3>
                         <div class="stats-row">
                             <span class="badge">🎓 المقاعد: ${spec.seats}</span>
                             <span class="badge">✅ المقبولون: ${acc.length}</span>
@@ -675,7 +738,7 @@
                         </div>
                         <p>📊 الحد الأدنى: ${minS}</p>`;
             if(acc.length){
-                html += `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${acc.map(a=>`<li>${a.id} - ${a.gpa}</li>`).join('')}</ul></details>`;
+                html += `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${acc.map(a=>`<li>${escapeHtml(a.id)} - ${a.gpa}</li>`).join('')}</ul></details>`;
             }
             html += `</div>`;
         }
@@ -700,15 +763,15 @@
             let cls = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
             html += `<tr>
                         <td style="font-weight:bold;">${i+1}</td>
-                        <td>${s.id}</td>
+                        <td>${escapeHtml(s.id)}</td>
                         <td>${s.gpa}</td>
-                        <td class="${cls}">${s.assigned}</td>
+                        <td class="${cls}">${escapeHtml(s.assigned)}</td>
                       </tr>`;
         });
         tbody.innerHTML = html;
     }
     
-    // واجهة المشرف (نفسها مع تعديل اسم الزر)
+    // واجهة المشرف
     function showAdminLogin(){
         let pwd = prompt("كلمة السر:");
         if(pwd===ADMIN_PW){
@@ -732,7 +795,7 @@
         let html='';
         specialties.forEach((s,i)=>{
             html+=`<div style="background:#f8fafc; border-radius:20px; padding:10px; margin-bottom:8px; display:flex; gap:8px; flex-wrap:wrap;">
-                        <input type="text" value="${s.name}" id="spName${i}" style="flex:2; padding:8px; border-radius:40px; border:1px solid #ccc;">
+                        <input type="text" value="${escapeHtml(s.name)}" id="spName${i}" style="flex:2; padding:8px; border-radius:40px; border:1px solid #ccc;">
                         <input type="number" value="${s.seats}" id="spSeats${i}" style="width:70px; padding:8px; border-radius:40px;">
                         <button onclick="updateSpec(${i})" style="background:#28a745; border:none; padding:5px 12px; border-radius:30px;">💾</button>
                         <button onclick="delSpec(${i})" style="background:#dc3545; border:none; padding:5px 12px; border-radius:30px;">🗑️</button>
@@ -822,6 +885,7 @@
     startRefresh();
     updateAlertsFromColumnD();
     updateSuspendedFromColumnsFG();
+    setupAlertsSearch();
     
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
