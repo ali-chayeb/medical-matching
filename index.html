@@ -343,7 +343,6 @@
             border-radius: 12px;
             margin-top: 8px;
         }
-        /* أنماط التبويب الجديد - إحصائيات التسجيل */
         .stats-daily-table {
             width: 100%;
             border-collapse: collapse;
@@ -446,7 +445,6 @@
     </style>
 </head>
 <body>
-<!-- الواجهة العامة -->
 <div id="publicContainer" class="container">
     <div class="header">
         <h1>🎓 المفاضلة الافتراضية - حلب</h1>
@@ -473,7 +471,6 @@
 🌟 بالتوفيق جميعاً</div>
     </div>
 
-    <!-- مربعان: التنبيهات (يمين) والأرقام الموقوفة (يسار) -->
     <div class="two-columns">
         <div class="alerts-box">
             <h4 id="alertsTitle">⚠️ تنبيهات (<span id="alertsCount">0</span>)</h4>
@@ -518,7 +515,6 @@
         </div>
     </div>
 
-    <!-- تبويب إحصائيات التسجيل -->
     <div id="tabRegistration" class="tab-pane">
         <div id="registrationStatsContent">
             <div class="loading">جاري تحميل الإحصائيات...</div>
@@ -528,7 +524,6 @@
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
 </div>
 
-<!-- لوحة المشرف -->
 <div id="adminPanel" class="container" style="display: none;">
     <div class="header">
         <h1>🔐 لوحة المشرف</h1>
@@ -566,12 +561,11 @@
 </div>
 
 <script>
-    // ===================== بيانات الاختصاصات =====================
     const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5,"group":"جلدية"},{"name":"جلدية - دراسات موازي","seats":2,"group":"جلدية"},{"name":"جلدية - صحة","seats":2,"group":"جلدية"},{"name":"اذنية - دراسات عام","seats":8,"group":"اذنية"},{"name":"اذنية - دراسات موازي","seats":3,"group":"اذنية"},{"name":"اذنية - صحة","seats":4,"group":"اذنية"},{"name":"عينية - دراسات عام","seats":8,"group":"عينية"},{"name":"عينية - دراسات موازي","seats":3,"group":"عينية"},{"name":"عينية - صحة","seats":5,"group":"عينية"},{"name":"أطفال - دراسات عام","seats":60,"group":"أطفال"},{"name":"أطفال - دراسات موازي","seats":18,"group":"أطفال"},{"name":"أطفال - صحة","seats":15,"group":"أطفال"},{"name":"نسائية وتوليد - دراسات عام","seats":22,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - دراسات موازي","seats":7,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - صحة","seats":13,"group":"نسائية وتوليد"},{"name":"داخلية قلبية - دراسات عام","seats":8,"group":"داخلية قلبية"},{"name":"داخلية قلبية - دراسات موازي","seats":3,"group":"داخلية قلبية"},{"name":"داخلية قلبية - صحة","seats":7,"group":"داخلية قلبية"},{"name":"داخلية هضمية - دراسات عام","seats":8,"group":"داخلية هضمية"},{"name":"داخلية هضمية - دراسات موازي","seats":3,"group":"داخلية هضمية"},{"name":"داخلية هضمية - صحة","seats":2,"group":"داخلية هضمية"},{"name":"داخلية صدرية - دراسات عام","seats":7,"group":"داخلية صدرية"},{"name":"داخلية صدرية - دراسات موازي","seats":3,"group":"داخلية صدرية"},{"name":"داخلية صدرية - صحة","seats":2,"group":"داخلية صدرية"},{"name":"داخلية عامة - دراسات عام","seats":60,"group":"داخلية عامة"},{"name":"داخلية عامة - دراسات موازي","seats":18,"group":"داخلية عامة"},{"name":"داخلية عامة - صحة","seats":12,"group":"داخلية عامة"},{"name":"داخلية كلية - دراسات عام","seats":7,"group":"داخلية كلية"},{"name":"داخلية كلية - دراسات موازي","seats":3,"group":"داخلية كلية"},{"name":"داخلية كلية - صحة","seats":1,"group":"داخلية كلية"},{"name":"داخلية غدية - دراسات عام","seats":7,"group":"داخلية غدية"},{"name":"داخلية غدية - دراسات موازي","seats":3,"group":"داخلية غدية"},{"name":"داخلية غدية - صحة","seats":2,"group":"داخلية غدية"},{"name":"داخلية عصبية - دراسات عام","seats":4,"group":"داخلية عصبية"},{"name":"داخلية عصبية - دراسات موازي","seats":2,"group":"داخلية عصبية"},{"name":"داخلية عصبية - صحة","seats":2,"group":"داخلية عصبية"},{"name":"داخلية دم - دراسات عام","seats":7,"group":"داخلية دم"},{"name":"داخلية دم - دراسات موازي","seats":3,"group":"داخلية دم"},{"name":"داخلية دم - صحة","seats":1,"group":"داخلية دم"},{"name":"داخلية ثوية - دراسات عام","seats":6,"group":"داخلية ثوية"},{"name":"داخلية ثوية - دراسات موازي","seats":2,"group":"داخلية ثوية"},{"name":"داخلية ثوية - صحة","seats":1,"group":"داخلية ثوية"},{"name":"جراحة عامة - دراسات عام","seats":25,"group":"جراحة عامة"},{"name":"جراحة عامة - دراسات موازي","seats":8,"group":"جراحة عامة"},{"name":"جراحة عامة - صحة","seats":14,"group":"جراحة عامة"},{"name":"جراحة عظمية - دراسات عام","seats":11,"group":"جراحة عظمية"},{"name":"جراحة عظمية - دراسات موازي","seats":4,"group":"جراحة عظمية"},{"name":"جراحة عظمية - صحة","seats":10,"group":"جراحة عظمية"},{"name":"جراحة بولية - دراسات عام","seats":5,"group":"جراحة بولية"},{"name":"جراحة بولية - دراسات موازي","seats":2,"group":"جراحة بولية"},{"name":"جراحة بولية - صحة","seats":8,"group":"جراحة بولية"},{"name":"جراحة عصبية - دراسات عام","seats":5,"group":"جراحة عصبية"},{"name":"جراحة عصبية - دراسات موازي","seats":2,"group":"جراحة عصبية"},{"name":"جراحة عصبية - صحة","seats":1,"group":"جراحة عصبية"},{"name":"جراحة تجميل - دراسات عام","seats":5,"group":"جراحة تجميل"},{"name":"جراحة تجميل - دراسات موازي","seats":2,"group":"جراحة تجميل"},{"name":"جراحة تجميل - صحة","seats":2,"group":"جراحة تجميل"},{"name":"جراحة أطفال - دراسات عام","seats":6,"group":"جراحة أطفال"},{"name":"جراحة أطفال - دراسات موازي","seats":2,"group":"جراحة أطفال"},{"name":"جراحة أطفال - صحة","seats":3,"group":"جراحة أطفال"},{"name":"جراحة قلبية - دراسات عام","seats":6,"group":"جراحة قلبية"},{"name":"جراحة قلبية - دراسات موازي","seats":2,"group":"جراحة قلبية"},{"name":"جراحة قلبية - صحة","seats":2,"group":"جراحة قلبية"},{"name":"جراحة وعائية - دراسات عام","seats":6,"group":"جراحة وعائية"},{"name":"جراحة وعائية - دراسات موازي","seats":2,"group":"جراحة وعائية"},{"name":"جراحة وعائية - صحة","seats":1,"group":"جراحة وعائية"},{"name":"جراحة صدرية","seats":2,"group":"جراحة صدرية"},{"name":"أشعة - دراسات عام","seats":30,"group":"أشعة"},{"name":"أشعة - دراسات موازي","seats":9,"group":"أشعة"},{"name":"أشعة - صحة","seats":14,"group":"أشعة"},{"name":"طب مخبري - دراسات عام","seats":18,"group":"طب مخبري"},{"name":"طب مخبري - دراسات موازي","seats":6,"group":"طب مخبري"},{"name":"طب مخبري - صحة","seats":9,"group":"طب مخبري"},{"name":"تشريح مرضي - دراسات عام","seats":9,"group":"تشريح مرضي"},{"name":"تشريح مرضي - دراسات موازي","seats":3,"group":"تشريح مرضي"},{"name":"تشريح مرضي - صحة","seats":1,"group":"تشريح مرضي"},{"name":"تخدير - دراسات عام","seats":85,"group":"تخدير"},{"name":"تخدير - دراسات موازي","seats":26,"group":"تخدير"},{"name":"تخدير - صحة","seats":16,"group":"تخدير"},{"name":"أورام - دراسات عام","seats":6,"group":"أورام"},{"name":"أورام - دراسات موازي","seats":2,"group":"أورام"},{"name":"أورام - صحة","seats":2,"group":"أورام"},{"name":"طب نفسي","seats":12,"group":"طب نفسي"},{"name":"طب أسرة","seats":8,"group":"طب أسرة"},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3,"group":"طب فيزيائي"}];
     
     const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
     const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzcQz50qz8dYMjQ_eqf0b50cH7QnW1erUyJRDP7Z207R5mwms95zdhiRa3ZXZV5fhdiQ/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDx5d4xEKIFdj25JOo38YrF8PWtl21hOsB0M7L_LCq-Zu-E1vSjc-YJzimPK8ZorZ_QA/exec";
     
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
@@ -581,16 +575,9 @@
     const ADMIN_PW = "Alichayeb@23184";
     const GRADE_TOLERANCE = 0.2;
     
-    // متغيرات للتحكم بعرض المزيد في إحصائيات التسجيل
     let rankLimits = {
-        individualFirst: 10,
-        individualSecond: 10,
-        individualThird: 10,
-        individualTotal: 10,
-        groupedFirst: 10,
-        groupedSecond: 10,
-        groupedThird: 10,
-        groupedTotal: 10
+        individualFirst: 10, individualSecond: 10, individualThird: 10, individualTotal: 10,
+        groupedFirst: 10, groupedSecond: 10, groupedThird: 10, groupedTotal: 10
     };
     
     function cleanId(id) {
@@ -598,50 +585,34 @@
         return id.toString().trim();
     }
     
-    // ===================== دوال Apps Script (التنبيهات التلقائية) =====================
     async function addGradeMismatchAlert(id, expectedGrade) {
         try {
-            const response = await fetch(APPS_SCRIPT_URL, {
+            await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'addGradeMismatch',
-                    id: id,
-                    expectedGrade: expectedGrade
-                })
+                body: JSON.stringify({ action: 'addGradeMismatch', id: id, expectedGrade: expectedGrade })
             });
-            console.log(`تم إضافة تنبيه للرقم ${id}`);
-        } catch(e) {
-            console.error("فشل إضافة التنبيه:", e);
-        }
+            console.log(`Added alert for ${id}`);
+        } catch(e) { console.error("Failed to add alert:", e); }
     }
     
     async function removeGradeMismatchAlert(id) {
         try {
-            const response = await fetch(APPS_SCRIPT_URL, {
+            await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'removeGradeMismatch',
-                    id: id
-                })
+                body: JSON.stringify({ action: 'removeGradeMismatch', id: id })
             });
-            console.log(`تم إزالة تنبيه الرقم ${id}`);
-        } catch(e) {
-            console.error("فشل إزالة التنبيه:", e);
-        }
+            console.log(`Removed alert for ${id}`);
+        } catch(e) { console.error("Failed to remove alert:", e); }
     }
     
-    // التحقق التلقائي من المعدلات وإدارة التنبيهات
     async function autoCheckAndUpdateAlerts() {
-        console.log("جاري التحقق التلقائي من المعدلات...");
+        console.log("Auto-checking grades...");
         const { validMap, ignoreSet } = await loadReferenceData(true);
-        
-        // قائمة الأرقام التي لديها مشكلة في المعدل حالياً
         const currentMismatches = [];
-        
         for (let student of allStudents) {
             const id = student.id;
             if (ignoreSet.has(id)) continue;
@@ -652,31 +623,22 @@
                 }
             }
         }
-        
-        // جلب التنبيهات الحالية من العمود F
         const { gradeMismatchAlerts } = await loadReferenceData(true);
         const existingAlertIds = new Set(gradeMismatchAlerts.map(a => a.id));
-        
-        // إضافة تنبيهات جديدة للأرقام التي أصبحت خاطئة
         for (let mismatch of currentMismatches) {
             if (!existingAlertIds.has(mismatch.id)) {
                 await addGradeMismatchAlert(mismatch.id, mismatch.expectedGrade);
             }
         }
-        
-        // إزالة تنبيهات الأرقام التي أصبحت صحيحة
         for (let alertId of existingAlertIds) {
             const stillMismatch = currentMismatches.some(m => m.id === alertId);
             if (!stillMismatch) {
                 await removeGradeMismatchAlert(alertId);
             }
         }
-        
-        // تحديث واجهة التنبيهات
         await updateAlertsFromColumnsDEFG();
     }
     
-    // تحميل بيانات الطلاب مع الطابع الزمني
     async function loadStudents() {
         try {
             const res = await fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, {cache:"no-store"});
@@ -728,7 +690,6 @@
         return res;
     }
     
-    // تحميل البيانات المرجعية (مع الأعمدة الجديدة)
     async function loadReferenceData(forceReload = false) {
         if (referenceDataCache && !forceReload) return referenceDataCache;
         try {
@@ -738,10 +699,9 @@
             const lines = csv.split(/\r?\n/);
             const validMap = new Map();
             const ignoreSet = new Set();
-            const generalAlerts = [];      // D + E
-            const gradeMismatchAlerts = []; // F + G
-            const suspendedList = [];       // H + I
-            
+            const generalAlerts = [];
+            const gradeMismatchAlerts = [];
+            const suspendedList = [];
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
                 if (cols.length < 1) continue;
@@ -751,22 +711,16 @@
                 if (!isNaN(grade)) validMap.set(refId, grade);
                 else if (!validMap.has(refId)) validMap.set(refId, true);
                 if (cols.length > 2 && cols[2]?.trim()) ignoreSet.add(cleanId(cols[2]));
-                
-                // العمود D + E: تنبيهات عامة
                 if (cols.length > 3 && cols[3]?.trim()) {
                     const alertId = cleanId(cols[3]);
                     const alertDesc = (cols.length > 4 && cols[4]?.trim()) ? cols[4].trim() : "تنبيه عام";
                     generalAlerts.push({ id: alertId, description: alertDesc });
                 }
-                
-                // العمود F + G: تنبيهات معدل خاطئ (تدار تلقائياً)
                 if (cols.length > 5 && cols[5]?.trim()) {
                     const alertId = cleanId(cols[5]);
                     const alertDesc = (cols.length > 6 && cols[6]?.trim()) ? cols[6].trim() : "معدل التفاضل ادخال خاطئ يرجى التصحيح";
                     gradeMismatchAlerts.push({ id: alertId, description: alertDesc });
                 }
-                
-                // العمود H + I: أرقام موقوفة
                 if (cols.length > 7 && cols[7]?.trim()) {
                     const suspendedId = cleanId(cols[7]);
                     const suspendedDesc = (cols.length > 8 && cols[8]?.trim()) ? cols[8].trim() : "تم إيقاف هذا الرقم مؤقتاً";
@@ -776,19 +730,17 @@
             referenceDataCache = { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList };
             return referenceDataCache;
         } catch(e) {
-            console.error("فشل تحميل المرجع", e);
+            console.error("Failed to load reference", e);
             return { validMap: new Map(), ignoreSet: new Set(), generalAlerts: [], gradeMismatchAlerts: [], suspendedList: [] };
         }
     }
     
-    // تحديث التنبيهات (دمج العام + أخطاء المعدل)
     async function updateAlertsFromColumnsDEFG() {
         const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
         const allAlerts = [...generalAlerts, ...gradeMismatchAlerts];
         window.allAlerts = allAlerts;
-        const totalCount = allAlerts.length;
-        document.getElementById('alertsCount').innerText = totalCount;
-        document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${totalCount})`;
+        document.getElementById('alertsCount').innerText = allAlerts.length;
+        document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${allAlerts.length})`;
         renderAlertsList(allAlerts);
     }
     
@@ -853,7 +805,6 @@
         document.getElementById('suspendedContent').innerHTML = html;
     }
     
-    // البحث عن الأرقام غير الموجودة والمكررة
     async function findMissingAndDuplicates() {
         const missingDiv = document.getElementById('missingNumbersResult');
         const duplicateDiv = document.getElementById('duplicateNumbersResult');
@@ -861,7 +812,6 @@
         duplicateDiv.style.display = 'block';
         missingDiv.innerHTML = '🔄 جاري البحث...';
         duplicateDiv.innerHTML = '🔄 جاري البحث...';
-        
         const { validMap, ignoreSet } = await loadReferenceData(true);
         const missing = [];
         const found = [];
@@ -871,7 +821,6 @@
             if (validMap.has(id)) found.push(id);
             else missing.push(id);
         }
-        
         const idCount = new Map();
         for (let student of allStudents) {
             const id = student.id;
@@ -881,7 +830,6 @@
         for (let [id, count] of idCount.entries()) {
             if (count > 1) duplicates.push({ id, count });
         }
-        
         let missingHtml = `<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>`;
         if (missing.length === 0) {
             missingHtml += '<br>✅ جميع الأرقام موجودة.';
@@ -889,7 +837,6 @@
             missingHtml += `<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`;
         }
         missingDiv.innerHTML = missingHtml;
-        
         let duplicateHtml = `<div class="debug-info">📊 إجمالي الطلاب: ${allStudents.length}</div>`;
         if (duplicates.length === 0) {
             duplicateHtml += '<br>✅ لا توجد أرقام جامعية مكررة.';
@@ -933,7 +880,6 @@
         }
     }
     
-    // دوال المفاضلة
     function runMatch(){
         if(!allStudents.length){ processed=[]; updateUI(); return; }
         let copy = allStudents.map(s=>({...s, prefs:[...s.prefs]}));
@@ -970,25 +916,20 @@
         document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
     }
     
-    // عرض الإحصائيات
     async function renderStats() {
         const container = document.getElementById('statsList');
         if (!container) return;
-        
         const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
         const alertIds = new Set([...generalAlerts.map(a => a.id), ...gradeMismatchAlerts.map(a => a.id)]);
-        
         let search = document.getElementById('searchSpecialty')?.value.trim().toLowerCase() || '';
         let filtered = specialties.filter(s => s.name.toLowerCase().includes(search));
         let display = filtered.slice(0, displayLimit);
-        
         let firstChoiceCount = {};
         let totalWishers = {};
         specialties.forEach(s => {
             firstChoiceCount[s.name] = 0;
             totalWishers[s.name] = 0;
         });
-        
         for (let student of allStudents) {
             let seen = new Set();
             for (let i = 0; i < student.prefs.length; i++) {
@@ -996,18 +937,14 @@
                 if (pref && totalWishers[pref] !== undefined && !seen.has(pref)) {
                     seen.add(pref);
                     totalWishers[pref]++;
-                    if (i === 0) {
-                        firstChoiceCount[pref]++;
-                    }
+                    if (i === 0) firstChoiceCount[pref]++;
                 }
             }
         }
-        
         let html = '';
         for (let spec of display) {
             let acc = currentData?.accepted[spec.name] || [];
             let minS = acc.length ? Math.min(...acc.map(a => a.gpa)).toFixed(2) : 'لا يوجد';
-            
             let acceptedListHtml = '';
             if (acc.length) {
                 let itemsHtml = '';
@@ -1019,7 +956,6 @@
                 }
                 acceptedListHtml = `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${itemsHtml}</ul></details>`;
             }
-            
             html += `<div class="specialty-card">
                         <h3>📌 ${escapeHtml(spec.name)}</h3>
                         <div class="stats-row">
@@ -1032,266 +968,118 @@
                         ${acceptedListHtml}
                     </div>`;
         }
-        
         container.innerHTML = html;
-        
         let btn = document.getElementById('loadMoreBtn');
         if (btn) {
             if (filtered.length > displayLimit) {
                 btn.style.display = 'block';
-                btn.onclick = () => {
-                    displayLimit += 30;
-                    renderStats();
-                };
-            } else {
-                btn.style.display = 'none';
-            }
+                btn.onclick = () => { displayLimit += 30; renderStats(); };
+            } else { btn.style.display = 'none'; }
         }
     }
     
-    // قائمة الطلاب مع تلوين الأرقام الموجودة في التنبيهات
     async function renderStudentsTable() {
         let tbody = document.getElementById('studentsList');
         if (!tbody) return;
-        
         const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
         const alertIds = new Set([...generalAlerts.map(a => a.id), ...gradeMismatchAlerts.map(a => a.id)]);
-        
         let search = document.getElementById('searchStudent')?.value.trim() || '';
         let filtered = processed.filter(s => s.id.includes(search));
-        
-        if (!filtered.length) {
-            tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>';
-            return;
-        }
-        
+        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>'; return; }
         let html = '';
         filtered.forEach((s, i) => {
             const isAlert = alertIds.has(s.id);
             const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
-            const idDisplay = isAlert 
-                ? `<span class="student-alert-id">⚠️ ${escapeHtml(s.id)}</span>` 
-                : escapeHtml(s.id);
+            const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(s.id)}</span>` : escapeHtml(s.id);
             const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            
-            html += `<tr style="${rowStyle}">
-                        <td style="font-weight:bold;">${i + 1}</td>
-                        <td>${idDisplay}</td>
-                        <td>${s.gpa}</td>
-                        <td class="${assignedClass}">${escapeHtml(s.assigned)}</td>
-                      </tr>`;
+            html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</td><td>${idDisplay}</td><td>${s.gpa}</td><td class="${assignedClass}">${escapeHtml(s.assigned)}</td></tr>`;
         });
         tbody.innerHTML = html;
     }
     
-    // ===================== إحصائيات التسجيل =====================
     async function renderRegistrationStats() {
         const container = document.getElementById('registrationStatsContent');
         if (!container) return;
-        
         const dailyStats = calculateDailyStats();
         const rankStats = calculateRankStats();
-        
         let html = `
             <div class="stats-section">
                 <h4>🗓️ التسجيل اليومي</h4>
-                <table class="stats-daily-table">
-                    <thead>
-                        <tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr>
-                    </thead>
-                    <tbody>
-        `;
-        
+                <table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
         let cumulative = 0;
-        for (let day of dailyStats) {
-            cumulative += day.count;
-            html += `<tr><td>${day.date}</td><td>${day.count}</td><td>${cumulative}</td></tr>`;
-        }
-        
-        if (dailyStats.length === 0) {
-            html += `<tr><td colspan="3">لا توجد بيانات كافية</td></tr>`;
-        }
-        
-        html += `
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="stats-section">
-                <h4>📊 تفصيلي (كل اختصاص بمفرده)</h4>
-                <div class="flex-grid">
-                    <div>
-                        <h5 style="margin-bottom:8px;">⭐ أكثر الرغبات أولى</h5>
-                        ${renderRankList(rankStats.individualFirst, 'individualFirst')}
-                        ${rankStats.individualFirst.length > rankLimits.individualFirst ? `<button class="show-more-btn" onclick="showMoreRank('individualFirst')">➕ عرض المزيد</button>` : ''}
-                    </div>
-                    <div>
-                        <h5 style="margin-bottom:8px;">⭐ أكثر الرغبات ثانية</h5>
-                        ${renderRankList(rankStats.individualSecond, 'individualSecond')}
-                        ${rankStats.individualSecond.length > rankLimits.individualSecond ? `<button class="show-more-btn" onclick="showMoreRank('individualSecond')">➕ عرض المزيد</button>` : ''}
-                    </div>
-                </div>
-                <div class="flex-grid">
-                    <div>
-                        <h5 style="margin-bottom:8px;">⭐ أكثر الرغبات ثالثة</h5>
-                        ${renderRankList(rankStats.individualThird, 'individualThird')}
-                        ${rankStats.individualThird.length > rankLimits.individualThird ? `<button class="show-more-btn" onclick="showMoreRank('individualThird')">➕ عرض المزيد</button>` : ''}
-                    </div>
-                    <div>
-                        <h5 style="margin-bottom:8px;">📋 أكثر إجمالي راغبين</h5>
-                        ${renderRankList(rankStats.individualTotal, 'individualTotal')}
-                        ${rankStats.individualTotal.length > rankLimits.individualTotal ? `<button class="show-more-btn" onclick="showMoreRank('individualTotal')">➕ عرض المزيد</button>` : ''}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="stats-section">
-                <h4>📊 تجميعي (دمج فروع التخصص)</h4>
-                <div class="flex-grid">
-                    <div>
-                        <h5 style="margin-bottom:8px;">⭐ أكثر الاختصاصات رغبة أولى</h5>
-                        ${renderRankList(rankStats.groupedFirst, 'groupedFirst')}
-                        ${rankStats.groupedFirst.length > rankLimits.groupedFirst ? `<button class="show-more-btn" onclick="showMoreRank('groupedFirst')">➕ عرض المزيد</button>` : ''}
-                    </div>
-                    <div>
-                        <h5 style="margin-bottom:8px;">⭐ أكثر الاختصاصات رغبة ثانية</h5>
-                        ${renderRankList(rankStats.groupedSecond, 'groupedSecond')}
-                        ${rankStats.groupedSecond.length > rankLimits.groupedSecond ? `<button class="show-more-btn" onclick="showMoreRank('groupedSecond')">➕ عرض المزيد</button>` : ''}
-                    </div>
-                </div>
-                <div class="flex-grid">
-                    <div>
-                        <h5 style="margin-bottom:8px;">⭐ أكثر الاختصاصات رغبة ثالثة</h5>
-                        ${renderRankList(rankStats.groupedThird, 'groupedThird')}
-                        ${rankStats.groupedThird.length > rankLimits.groupedThird ? `<button class="show-more-btn" onclick="showMoreRank('groupedThird')">➕ عرض المزيد</button>` : ''}
-                    </div>
-                    <div>
-                        <h5 style="margin-bottom:8px;">📋 أكثر الاختصاصات إجمالي راغبين</h5>
-                        ${renderRankList(rankStats.groupedTotal, 'groupedTotal')}
-                        ${rankStats.groupedTotal.length > rankLimits.groupedTotal ? `<button class="show-more-btn" onclick="showMoreRank('groupedTotal')">➕ عرض المزيد</button>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-        
+        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</td><td>${day.count}</td><td>${cumulative}</td></tr>`; }
+        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</td></tr>`;
+        html += `</tbody></table></div>
+            <div class="stats-section"><h4>📊 تفصيلي (كل اختصاص بمفرده)</h4>
+                <div class="flex-grid"><div><h5>⭐ أكثر الرغبات أولى</h5>${renderRankList(rankStats.individualFirst, 'individualFirst')}${rankStats.individualFirst.length > rankLimits.individualFirst ? `<button class="show-more-btn" onclick="showMoreRank('individualFirst')">➕ عرض المزيد</button>` : ''}</div>
+                <div><h5>⭐ أكثر الرغبات ثانية</h5>${renderRankList(rankStats.individualSecond, 'individualSecond')}${rankStats.individualSecond.length > rankLimits.individualSecond ? `<button class="show-more-btn" onclick="showMoreRank('individualSecond')">➕ عرض المزيد</button>` : ''}</div></div>
+                <div class="flex-grid"><div><h5>⭐ أكثر الرغبات ثالثة</h5>${renderRankList(rankStats.individualThird, 'individualThird')}${rankStats.individualThird.length > rankLimits.individualThird ? `<button class="show-more-btn" onclick="showMoreRank('individualThird')">➕ عرض المزيد</button>` : ''}</div>
+                <div><h5>📋 أكثر إجمالي راغبين</h5>${renderRankList(rankStats.individualTotal, 'individualTotal')}${rankStats.individualTotal.length > rankLimits.individualTotal ? `<button class="show-more-btn" onclick="showMoreRank('individualTotal')">➕ عرض المزيد</button>` : ''}</div></div></div>
+            <div class="stats-section"><h4>📊 تجميعي (دمج فروع التخصص)</h4>
+                <div class="flex-grid"><div><h5>⭐ أكثر الاختصاصات رغبة أولى</h5>${renderRankList(rankStats.groupedFirst, 'groupedFirst')}${rankStats.groupedFirst.length > rankLimits.groupedFirst ? `<button class="show-more-btn" onclick="showMoreRank('groupedFirst')">➕ عرض المزيد</button>` : ''}</div>
+                <div><h5>⭐ أكثر الاختصاصات رغبة ثانية</h5>${renderRankList(rankStats.groupedSecond, 'groupedSecond')}${rankStats.groupedSecond.length > rankLimits.groupedSecond ? `<button class="show-more-btn" onclick="showMoreRank('groupedSecond')">➕ عرض المزيد</button>` : ''}</div></div>
+                <div class="flex-grid"><div><h5>⭐ أكثر الاختصاصات رغبة ثالثة</h5>${renderRankList(rankStats.groupedThird, 'groupedThird')}${rankStats.groupedThird.length > rankLimits.groupedThird ? `<button class="show-more-btn" onclick="showMoreRank('groupedThird')">➕ عرض المزيد</button>` : ''}</div>
+                <div><h5>📋 أكثر الاختصاصات إجمالي راغبين</h5>${renderRankList(rankStats.groupedTotal, 'groupedTotal')}${rankStats.groupedTotal.length > rankLimits.groupedTotal ? `<button class="show-more-btn" onclick="showMoreRank('groupedTotal')">➕ عرض المزيد</button>` : ''}</div></div></div>`;
         container.innerHTML = html;
     }
     
     function calculateDailyStats() {
         const dailyMap = new Map();
-        
         for (let student of allStudents) {
             if (!student.timestamp) continue;
             let dateStr;
             try {
                 let date = new Date(student.timestamp);
-                if (isNaN(date.getTime())) {
-                    dateStr = student.timestamp.split(' ')[0];
-                } else {
-                    dateStr = date.toISOString().split('T')[0];
-                }
-            } catch(e) {
-                continue;
-            }
-            if (dateStr) {
-                dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1);
-            }
+                if (isNaN(date.getTime())) { dateStr = student.timestamp.split(' ')[0]; }
+                else { dateStr = date.toISOString().split('T')[0]; }
+            } catch(e) { continue; }
+            if (dateStr) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1);
         }
-        
-        const sorted = Array.from(dailyMap.entries())
-            .map(([date, count]) => ({ date, count }))
-            .sort((a, b) => a.date.localeCompare(b.date));
-        
-        return sorted;
+        return Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));
     }
     
     function calculateRankStats() {
-        const individualFirst = new Map();
-        const individualSecond = new Map();
-        const individualThird = new Map();
-        const individualTotal = new Map();
-        
-        const groupedFirst = new Map();
-        const groupedSecond = new Map();
-        const groupedThird = new Map();
-        const groupedTotal = new Map();
-        
+        const individualFirst = new Map(), individualSecond = new Map(), individualThird = new Map(), individualTotal = new Map();
+        const groupedFirst = new Map(), groupedSecond = new Map(), groupedThird = new Map(), groupedTotal = new Map();
         const specialtyToGroup = new Map();
-        for (let spec of specialties) {
-            specialtyToGroup.set(spec.name, spec.group);
-        }
-        
+        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
         for (let student of allStudents) {
             const prefs = student.prefs;
             const seenTotal = new Set();
             const seenGroupTotal = new Set();
-            
             for (let i = 0; i < prefs.length; i++) {
                 const pref = prefs[i];
                 if (!pref) continue;
-                
-                if (!seenTotal.has(pref)) {
-                    seenTotal.add(pref);
-                    individualTotal.set(pref, (individualTotal.get(pref) || 0) + 1);
-                }
-                
-                if (i === 0) {
-                    individualFirst.set(pref, (individualFirst.get(pref) || 0) + 1);
-                } else if (i === 1) {
-                    individualSecond.set(pref, (individualSecond.get(pref) || 0) + 1);
-                } else if (i === 2) {
-                    individualThird.set(pref, (individualThird.get(pref) || 0) + 1);
-                }
-                
+                if (!seenTotal.has(pref)) { seenTotal.add(pref); individualTotal.set(pref, (individualTotal.get(pref) || 0) + 1); }
+                if (i === 0) individualFirst.set(pref, (individualFirst.get(pref) || 0) + 1);
+                else if (i === 1) individualSecond.set(pref, (individualSecond.get(pref) || 0) + 1);
+                else if (i === 2) individualThird.set(pref, (individualThird.get(pref) || 0) + 1);
                 const group = specialtyToGroup.get(pref);
                 if (group) {
-                    if (i === 0) {
-                        groupedFirst.set(group, (groupedFirst.get(group) || 0) + 1);
-                    } else if (i === 1) {
-                        groupedSecond.set(group, (groupedSecond.get(group) || 0) + 1);
-                    } else if (i === 2) {
-                        groupedThird.set(group, (groupedThird.get(group) || 0) + 1);
-                    }
-                    if (!seenGroupTotal.has(group)) {
-                        seenGroupTotal.add(group);
-                        groupedTotal.set(group, (groupedTotal.get(group) || 0) + 1);
-                    }
+                    if (i === 0) groupedFirst.set(group, (groupedFirst.get(group) || 0) + 1);
+                    else if (i === 1) groupedSecond.set(group, (groupedSecond.get(group) || 0) + 1);
+                    else if (i === 2) groupedThird.set(group, (groupedThird.get(group) || 0) + 1);
+                    if (!seenGroupTotal.has(group)) { seenGroupTotal.add(group); groupedTotal.set(group, (groupedTotal.get(group) || 0) + 1); }
                 }
             }
         }
-        
-        const sortDesc = (map) => Array.from(map.entries())
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count);
-        
+        const sortDesc = (map) => Array.from(map.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
         return {
-            individualFirst: sortDesc(individualFirst),
-            individualSecond: sortDesc(individualSecond),
-            individualThird: sortDesc(individualThird),
-            individualTotal: sortDesc(individualTotal),
-            groupedFirst: sortDesc(groupedFirst),
-            groupedSecond: sortDesc(groupedSecond),
-            groupedThird: sortDesc(groupedThird),
-            groupedTotal: sortDesc(groupedTotal)
+            individualFirst: sortDesc(individualFirst), individualSecond: sortDesc(individualSecond),
+            individualThird: sortDesc(individualThird), individualTotal: sortDesc(individualTotal),
+            groupedFirst: sortDesc(groupedFirst), groupedSecond: sortDesc(groupedSecond),
+            groupedThird: sortDesc(groupedThird), groupedTotal: sortDesc(groupedTotal)
         };
     }
     
     function renderRankList(rankArray, type) {
         const limit = rankLimits[type] || 10;
         const displayItems = rankArray.slice(0, limit);
-        
-        if (displayItems.length === 0) {
-            return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-        }
-        
+        if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
         let html = '<ul class="rank-list">';
         for (let i = 0; i < displayItems.length; i++) {
             const item = displayItems[i];
-            html += `<li>
-                        <span class="rank-number">${i + 1}.</span>
-                        <span class="rank-name">${escapeHtml(item.name)}</span>
-                        <span class="rank-count">${item.count}</span>
-                     </li>`;
+            html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(item.name)}</span><span class="rank-count">${item.count}</span></li>`;
         }
         html += '</ul>';
         return html;
@@ -1311,7 +1099,6 @@
         renderRegistrationStats();
     }
     
-    // واجهة المشرف
     function showAdminLogin(){
         let pwd = prompt("كلمة السر:");
         if(pwd===ADMIN_PW){
@@ -1405,7 +1192,6 @@
         }, 20000);
     }
     
-    // ربط الأحداث
     document.getElementById('showAdminBtn').onclick = showAdminLogin;
     document.getElementById('closeAdminBtn').onclick = closeAdmin;
     document.getElementById('findMissingBtn').onclick = findMissingAndDuplicates;
@@ -1421,15 +1207,9 @@
             document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
             btn.classList.add('active');
             const tabName = btn.dataset.tab;
-            if (tabName === 'stats') {
-                document.getElementById('tabStats').classList.add('active');
-            } else if (tabName === 'students') {
-                document.getElementById('tabStudents').classList.add('active');
-                renderStudentsTable();
-            } else if (tabName === 'registration') {
-                document.getElementById('tabRegistration').classList.add('active');
-                renderRegistrationStats();
-            }
+            if (tabName === 'stats') document.getElementById('tabStats').classList.add('active');
+            else if (tabName === 'students') { document.getElementById('tabStudents').classList.add('active'); renderStudentsTable(); }
+            else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); renderRegistrationStats(); }
         });
     });
     
