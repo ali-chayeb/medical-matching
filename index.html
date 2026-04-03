@@ -565,13 +565,13 @@
     
     const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
     const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLSUwBcmu_MqpM27aSfm-3xatVtOOf4ypxKhjgIWdkNv6CuKUGS6IxiKmcbylaF946pA/exec";
     
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
     let refreshTimer, isAdmin = false;
     let displayLimit = 30, currentData = null;
     let referenceDataCache = null;
+    let hiddenStudentsMap = new Map(); // لتخزين الأرقام المخفية (الرقم الحقيقي -> الرقم المخفي)
     const ADMIN_PW = "Alichayeb@23184";
     const GRADE_TOLERANCE = 0.2;
     
@@ -585,68 +585,26 @@
         return id.toString().trim();
     }
     
-    async function addGradeMismatchAlert(id, expectedGrade) {
-        try {
-            const response = await fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'addGradeMismatch', id: id, expectedGrade: expectedGrade })
-            });
-            const result = await response.json();
-            console.log("✅ إضافة تنبيه:", result);
-            return result.success;
-        } catch(e) {
-            console.error("❌ فشل إضافة التنبيه:", e);
-            return false;
-        }
+    // دالة لإخفاء الرقم (2**84)
+    function hideIdNumber(id) {
+        if (!id || id.length < 4) return id;
+        const firstChar = id.charAt(0);
+        const lastTwo = id.slice(-2);
+        return `${firstChar}**${lastTwo}`;
     }
     
-    async function removeGradeMismatchAlert(id) {
-        try {
-            const response = await fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'removeGradeMismatch', id: id })
-            });
-            const result = await response.json();
-            console.log("🗑️ إزالة تنبيه:", result);
-            return result.success;
-        } catch(e) {
-            console.error("❌ فشل إزالة التنبيه:", e);
-            return false;
+    // دالة لعرض الرقم حسب السياق
+    function displayId(student, isAdminView = false) {
+        if (isAdminView) {
+            return student.realId; // المشفر يرى الرقم الحقيقي
         }
+        if (student.isHidden) {
+            return student.hiddenId;
+        }
+        return student.realId;
     }
     
-    async function autoCheckAndUpdateAlerts() {
-        console.log("🔄 جاري التحقق التلقائي من المعدلات...");
-        const { validMap, ignoreSet } = await loadReferenceData(true);
-        const currentMismatches = [];
-        for (let student of allStudents) {
-            const id = student.id;
-            if (ignoreSet.has(id)) continue;
-            const refValue = validMap.get(id);
-            if (typeof refValue === 'number') {
-                if (Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) {
-                    currentMismatches.push({ id, expectedGrade: refValue });
-                }
-            }
-        }
-        const { gradeMismatchAlerts } = await loadReferenceData(true);
-        const existingAlertIds = new Set(gradeMismatchAlerts.map(a => a.id));
-        for (let mismatch of currentMismatches) {
-            if (!existingAlertIds.has(mismatch.id)) {
-                await addGradeMismatchAlert(mismatch.id, mismatch.expectedGrade);
-            }
-        }
-        for (let alertId of existingAlertIds) {
-            const stillMismatch = currentMismatches.some(m => m.id === alertId);
-            if (!stillMismatch) {
-                await removeGradeMismatchAlert(alertId);
-            }
-        }
-        await updateAlertsFromColumnsDEFG();
-    }
-    
+    // تحميل بيانات الطلاب مع الطابع الزمني وحالة الإخفاء
     async function loadStudents() {
         try {
             const res = await fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, {cache:"no-store"});
@@ -659,12 +617,13 @@
         const lines = csv.split(/\r?\n/);
         if(lines.length<2) return;
         const headers = parseCSVLine(lines[0]);
-        let idIdx=-1, gpaIdx=-1, timestampIdx=-1, prefIdx=[];
+        let idIdx=-1, gpaIdx=-1, timestampIdx=-1, hiddenIdx=-1, prefIdx=[];
         for(let i=0;i<headers.length;i++){
             let h = headers[i].toLowerCase();
             if(h.includes('الرقم')||h.includes('امتحاني')) idIdx=i;
             if(h.includes('معدل')) gpaIdx=i;
             if(h.includes('طابع')||h.includes('timestamp')) timestampIdx=i;
+            if(h.includes('مخفي')||h.includes('إخفاء')||h.includes('hidden')) hiddenIdx=i;
             if(h.includes('رغبة')) prefIdx.push(i);
         }
         if(idIdx===-1||gpaIdx===-1) return;
@@ -676,12 +635,27 @@
             let gpa = parseFloat(cols[gpaIdx]);
             if(!id||isNaN(gpa)) continue;
             let timestamp = (timestampIdx !== -1 && cols.length > timestampIdx) ? cols[timestampIdx] : null;
+            let isHidden = false;
+            if (hiddenIdx !== -1 && cols.length > hiddenIdx) {
+                const hiddenValue = cols[hiddenIdx].toLowerCase();
+                isHidden = hiddenValue === 'مخفي' || hiddenValue === 'hidden' || hiddenValue === 'نعم';
+            }
             let prefs = [];
             for(let j=0;j<prefIdx.length&&j<100;j++){
                 let p = cols[prefIdx[j]]?.trim();
                 if(p) prefs.push(p);
             }
-            if(prefs.length) students.push({id, gpa, prefs, timestamp});
+            if(prefs.length) {
+                const hiddenId = isHidden ? hideIdNumber(id) : id;
+                students.push({
+                    realId: id,
+                    hiddenId: hiddenId,
+                    isHidden: isHidden,
+                    gpa: gpa,
+                    prefs: prefs,
+                    timestamp: timestamp
+                });
+            }
         }
         allStudents = students;
         runMatch();
@@ -698,6 +672,7 @@
         return res;
     }
     
+    // تحميل البيانات المرجعية (للتشغيل اليدوي فقط)
     async function loadReferenceData(forceReload = false) {
         if (referenceDataCache && !forceReload) return referenceDataCache;
         try {
@@ -726,11 +701,7 @@
                 }
                 if (cols.length > 5 && cols[5]?.trim()) {
                     const alertId = cleanId(cols[5]);
-                    let alertDesc = (cols.length > 6 && cols[6]?.trim()) ? cols[6].trim() : "معدل التفاضل ادخال خاطئ يرجى التصحيح";
-                    // التأكد من إزالة أي نص "المتوقع" من الشرح
-                    if (alertDesc.includes("المتوقع")) {
-                        alertDesc = "معدل التفاضل ادخال خاطئ يرجى التصحيح";
-                    }
+                    const alertDesc = (cols.length > 6 && cols[6]?.trim()) ? cols[6].trim() : "معدل التفاضل ادخال خاطئ يرجى التصحيح";
                     gradeMismatchAlerts.push({ id: alertId, description: alertDesc });
                 }
                 if (cols.length > 7 && cols[7]?.trim()) {
@@ -747,6 +718,7 @@
         }
     }
     
+    // تحديث التنبيهات (يدوي بالكامل)
     async function updateAlertsFromColumnsDEFG() {
         const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
         const allAlerts = [...generalAlerts, ...gradeMismatchAlerts];
@@ -817,6 +789,7 @@
         document.getElementById('suspendedContent').innerHTML = html;
     }
     
+    // البحث عن الأرقام غير الموجودة والمكررة
     async function findMissingAndDuplicates() {
         const missingDiv = document.getElementById('missingNumbersResult');
         const duplicateDiv = document.getElementById('duplicateNumbersResult');
@@ -828,14 +801,14 @@
         const missing = [];
         const found = [];
         for (let student of allStudents) {
-            const id = student.id;
+            const id = student.realId;
             if (ignoreSet.has(id)) continue;
             if (validMap.has(id)) found.push(id);
             else missing.push(id);
         }
         const idCount = new Map();
         for (let student of allStudents) {
-            const id = student.id;
+            const id = student.realId;
             idCount.set(id, (idCount.get(id) || 0) + 1);
         }
         const duplicates = [];
@@ -869,7 +842,7 @@
         const { validMap, ignoreSet } = await loadReferenceData(true);
         const mismatches = [];
         for (let student of allStudents) {
-            const id = student.id;
+            const id = student.realId;
             if (ignoreSet.has(id)) continue;
             const refValue = validMap.get(id);
             if (typeof refValue === 'number') {
@@ -883,7 +856,7 @@
         } else {
             let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
             <table style="width:100%; border-collapse:collapse;">
-                <thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
+                <thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th><tr></thead><tbody>`;
             mismatches.forEach(m => {
                 html += `<tr><td><strong>${escapeHtml(m.id)}</strong></td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
             });
@@ -892,9 +865,18 @@
         }
     }
     
+    // دوال المفاضلة
     function runMatch(){
         if(!allStudents.length){ processed=[]; updateUI(); return; }
-        let copy = allStudents.map(s=>({...s, prefs:[...s.prefs]}));
+        // استخدام الرقم الحقيقي للمفاضلة
+        let copy = allStudents.map(s=>({
+            realId: s.realId,
+            hiddenId: s.hiddenId,
+            isHidden: s.isHidden,
+            gpa: s.gpa,
+            prefs: [...s.prefs],
+            timestamp: s.timestamp
+        }));
         copy.sort((a,b)=>b.gpa-a.gpa);
         let seats = {};
         specialties.forEach(s=>seats[s.name]=s.seats);
@@ -908,11 +890,19 @@
                 if(seats[p]>0){
                     assigned=p;
                     seats[p]--;
-                    accepted[p].push({id:st.id, gpa:st.gpa});
+                    accepted[p].push({realId: st.realId, hiddenId: st.hiddenId, isHidden: st.isHidden, gpa: st.gpa});
                     break;
                 }
             }
-            results.push({id:st.id, gpa:st.gpa, prefs:st.prefs, assigned:assigned||'لم يحصل', timestamp:st.timestamp});
+            results.push({
+                realId: st.realId,
+                hiddenId: st.hiddenId,
+                isHidden: st.isHidden,
+                gpa: st.gpa,
+                prefs: st.prefs,
+                assigned: assigned||'لم يحصل',
+                timestamp: st.timestamp
+            });
         }
         processed = results;
         updateUI(accepted, seats);
@@ -961,10 +951,11 @@
             if (acc.length) {
                 let itemsHtml = '';
                 for (let a of acc) {
-                    const isAlert = alertIds.has(a.id);
+                    const isAlert = alertIds.has(a.realId);
                     const colorStyle = isAlert ? 'color: #dc3545; font-weight: bold;' : '';
                     const alertIcon = isAlert ? '⚠️ ' : '';
-                    itemsHtml += `<li style="${colorStyle}">${alertIcon}${escapeHtml(a.id)} - ${a.gpa}</li>`;
+                    const displayId = a.isHidden ? a.hiddenId : a.realId;
+                    itemsHtml += `<li style="${colorStyle}">${alertIcon}${escapeHtml(displayId)} - ${a.gpa}</li>`;
                 }
                 acceptedListHtml = `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${itemsHtml}</ul></details>`;
             }
@@ -996,15 +987,24 @@
         const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
         const alertIds = new Set([...generalAlerts.map(a => a.id), ...gradeMismatchAlerts.map(a => a.id)]);
         let search = document.getElementById('searchStudent')?.value.trim() || '';
-        let filtered = processed.filter(s => s.id.includes(search));
+        // البحث يمكن أن يكون بالرقم الحقيقي أو المخفي
+        let filtered = processed.filter(s => 
+            s.realId.includes(search) || s.hiddenId.includes(search)
+        );
         if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>'; return; }
         let html = '';
         filtered.forEach((s, i) => {
-            const isAlert = alertIds.has(s.id);
+            const isAlert = alertIds.has(s.realId);
             const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
-            const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(s.id)}</span>` : escapeHtml(s.id);
+            const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
+            const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
             const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</td><td>${idDisplay}</td><td>${s.gpa}</td><td class="${assignedClass}">${escapeHtml(s.assigned)}</td></tr>`;
+            html += `<tr style="${rowStyle}">
+                        <td style="font-weight:bold;">${i+1}</td>
+                        <td>${idDisplay}</td>
+                        <td>${s.gpa}</td>
+                        <td class="${assignedClass}">${escapeHtml(s.assigned)}</td>
+                     </tr>`;
         });
         tbody.innerHTML = html;
     }
@@ -1173,7 +1173,7 @@
         sorted.forEach((s,i)=>{
             let row = tbody.insertRow();
             row.insertCell(0).innerText = i+1;
-            row.insertCell(1).innerText = s.id;
+            row.insertCell(1).innerText = s.realId;  // الرقم الحقيقي للمشرف
             row.insertCell(2).innerText = s.gpa;
             row.insertCell(3).innerText = s.assigned;
             row.insertCell(4).innerText = s.prefs.slice(0,4).join(' → ') + (s.prefs.length > 4 ? ' ...' : '');
@@ -1183,7 +1183,7 @@
     function manualRefresh(){ loadStudents(); }
     function exportCSV(){
         let csv = "الرقم,المعدل,الاختصاص,الرغبات\n";
-        processed.forEach(s=>csv+=`"${s.id}",${s.gpa},"${s.assigned}","${s.prefs.join(' | ')}"\n`);
+        processed.forEach(s=>csv+=`"${s.realId}",${s.gpa},"${s.assigned}","${s.prefs.join(' | ')}"\n`);
         let blob = new Blob(["\uFEFF"+csv],{type:'text/csv'});
         let a=document.createElement('a');
         a.href=URL.createObjectURL(blob);
@@ -1195,7 +1195,6 @@
         if(refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(async () => {
             await loadStudents();
-            await autoCheckAndUpdateAlerts();
             await updateAlertsFromColumnsDEFG();
             await updateSuspendedFromColumnsHI();
             await renderStats();
