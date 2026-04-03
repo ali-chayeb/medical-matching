@@ -42,11 +42,6 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             font-weight: 800;
-            animation: slideInRight 0.5s ease;
-        }
-        @keyframes slideInRight {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
         }
         .admin-btn {
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -76,11 +71,7 @@
             50% { transform: scale(1.02); }
         }
         .big-number:hover { transform: scale(1.02); }
-        .big-number .number { font-size: 56px; font-weight: 800; animation: countUp 1s ease; }
-        @keyframes countUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .big-number .number { font-size: 56px; font-weight: 800; }
         .notice-box, .alerts-box, .suspended-box {
             border-radius: 20px;
             padding: 14px;
@@ -115,7 +106,6 @@
             border-radius: 30px;
             font-size: 12px;
             box-sizing: border-box;
-            transition: all 0.3s ease;
         }
         .alerts-search:focus {
             outline: none;
@@ -161,6 +151,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .tab-btn {
             background: #eef2ff;
@@ -173,6 +164,7 @@
             flex: 1;
             text-align: center;
             transition: all 0.3s ease;
+            min-width: 100px;
         }
         .tab-btn.active {
             background: #0056b3;
@@ -238,6 +230,7 @@
         .badge-primary { background: #0056b3; color: white; }
         .badge-success { background: #28a745; color: white; }
         .badge-info { background: #17a2b8; color: white; }
+        .badge-warning { background: #ff9800; color: white; }
         details summary {
             font-size: 11px;
             color: #0056b3;
@@ -350,11 +343,90 @@
             border-radius: 12px;
             margin-top: 8px;
         }
+        /* أنماط التبويب الجديد - إحصائيات التسجيل */
+        .stats-daily-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .stats-daily-table th, .stats-daily-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: center;
+        }
+        .stats-daily-table th {
+            background: #eef2ff;
+        }
+        .rank-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .rank-list li {
+            padding: 6px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .rank-list li:last-child { border-bottom: none; }
+        .rank-number {
+            font-weight: bold;
+            color: #0056b3;
+            margin-left: 8px;
+        }
+        .rank-name {
+            flex: 1;
+            text-align: right;
+        }
+        .rank-count {
+            font-weight: bold;
+            color: #28a745;
+        }
+        .stats-section {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        .stats-section h4 {
+            color: #0056b3;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border-right: 3px solid #0056b3;
+            padding-right: 8px;
+        }
+        .flex-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .flex-grid > div {
+            flex: 1;
+            min-width: 200px;
+        }
+        .show-more-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 8px;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        .show-more-btn:hover {
+            background: #cbd5e1;
+        }
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
             .specialty-card h3 { font-size: 14px; }
             .students-table th, .students-table td { padding: 4px 2px; }
             .two-columns { flex-direction: column; }
+            .tab-btn { min-width: 80px; font-size: 12px; }
         }
         ::-webkit-scrollbar {
             width: 8px;
@@ -422,6 +494,7 @@
     <div class="tab-buttons">
         <button class="tab-btn active" data-tab="stats">📊 الإحصائيات</button>
         <button class="tab-btn" data-tab="students">📋 قائمة الطلاب</button>
+        <button class="tab-btn" data-tab="registration">📈 إحصائيات التسجيل</button>
     </div>
 
     <div id="tabStats" class="tab-pane active">
@@ -444,6 +517,14 @@
             </table>
         </div>
     </div>
+
+    <!-- تبويب إحصائيات التسجيل -->
+    <div id="tabRegistration" class="tab-pane">
+        <div id="registrationStatsContent">
+            <div class="loading">جاري تحميل الإحصائيات...</div>
+        </div>
+    </div>
+
     <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
 </div>
 
@@ -486,10 +567,11 @@
 
 <script>
     // ===================== بيانات الاختصاصات =====================
-    const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5},{"name":"جلدية - دراسات موازي","seats":2},{"name":"جلدية - صحة","seats":2},{"name":"اذنية - دراسات عام","seats":8},{"name":"اذنية - دراسات موازي","seats":3},{"name":"اذنية - صحة","seats":4},{"name":"عينية - دراسات عام","seats":8},{"name":"عينية - دراسات موازي","seats":3},{"name":"عينية - صحة","seats":5},{"name":"أطفال - دراسات عام","seats":60},{"name":"أطفال - دراسات موازي","seats":18},{"name":"أطفال - صحة","seats":15},{"name":"نسائية وتوليد - دراسات عام","seats":22},{"name":"نسائية وتوليد - دراسات موازي","seats":7},{"name":"نسائية وتوليد - صحة","seats":13},{"name":"داخلية قلبية - دراسات عام","seats":8},{"name":"داخلية قلبية - دراسات موازي","seats":3},{"name":"داخلية قلبية - صحة","seats":7},{"name":"داخلية هضمية - دراسات عام","seats":8},{"name":"داخلية هضمية - دراسات موازي","seats":3},{"name":"داخلية هضمية - صحة","seats":2},{"name":"داخلية صدرية - دراسات عام","seats":7},{"name":"داخلية صدرية - دراسات موازي","seats":3},{"name":"داخلية صدرية - صحة","seats":2},{"name":"داخلية عامة - دراسات عام","seats":60},{"name":"داخلية عامة - دراسات موازي","seats":18},{"name":"داخلية عامة - صحة","seats":12},{"name":"داخلية كلية - دراسات عام","seats":7},{"name":"داخلية كلية - دراسات موازي","seats":3},{"name":"داخلية كلية - صحة","seats":1},{"name":"داخلية غدية - دراسات عام","seats":7},{"name":"داخلية غدية - دراسات موازي","seats":3},{"name":"داخلية غدية - صحة","seats":2},{"name":"داخلية عصبية - دراسات عام","seats":4},{"name":"داخلية عصبية - دراسات موازي","seats":2},{"name":"داخلية عصبية - صحة","seats":2},{"name":"داخلية دم - دراسات عام","seats":7},{"name":"داخلية دم - دراسات موازي","seats":3},{"name":"داخلية دم - صحة","seats":1},{"name":"داخلية ثوية - دراسات عام","seats":6},{"name":"داخلية ثوية - دراسات موازي","seats":2},{"name":"داخلية ثوية - صحة","seats":1},{"name":"جراحة عامة - دراسات عام","seats":25},{"name":"جراحة عامة - دراسات موازي","seats":8},{"name":"جراحة عامة - صحة","seats":14},{"name":"جراحة عظمية - دراسات عام","seats":11},{"name":"جراحة عظمية - دراسات موازي","seats":4},{"name":"جراحة عظمية - صحة","seats":10},{"name":"جراحة بولية - دراسات عام","seats":5},{"name":"جراحة بولية - دراسات موازي","seats":2},{"name":"جراحة بولية - صحة","seats":8},{"name":"جراحة عصبية - دراسات عام","seats":5},{"name":"جراحة عصبية - دراسات موازي","seats":2},{"name":"جراحة عصبية - صحة","seats":1},{"name":"جراحة تجميل - دراسات عام","seats":5},{"name":"جراحة تجميل - دراسات موازي","seats":2},{"name":"جراحة تجميل - صحة","seats":2},{"name":"جراحة أطفال - دراسات عام","seats":6},{"name":"جراحة أطفال - دراسات موازي","seats":2},{"name":"جراحة أطفال - صحة","seats":3},{"name":"جراحة قلبية - دراسات عام","seats":6},{"name":"جراحة قلبية - دراسات موازي","seats":2},{"name":"جراحة قلبية - صحة","seats":2},{"name":"جراحة وعائية - دراسات عام","seats":6},{"name":"جراحة وعائية - دراسات موازي","seats":2},{"name":"جراحة وعائية - صحة","seats":1},{"name":"جراحة صدرية","seats":2},{"name":"أشعة - دراسات عام","seats":30},{"name":"أشعة - دراسات موازي","seats":9},{"name":"أشعة - صحة","seats":14},{"name":"طب مخبري - دراسات عام","seats":18},{"name":"طب مخبري - دراسات موازي","seats":6},{"name":"طب مخبري - صحة","seats":9},{"name":"تشريح مرضي - دراسات عام","seats":9},{"name":"تشريح مرضي - دراسات موازي","seats":3},{"name":"تشريح مرضي - صحة","seats":1},{"name":"تخدير - دراسات عام","seats":85},{"name":"تخدير - دراسات موازي","seats":26},{"name":"تخدير - صحة","seats":16},{"name":"أورام - دراسات عام","seats":6},{"name":"أورام - دراسات موازي","seats":2},{"name":"أورام - صحة","seats":2},{"name":"طب نفسي","seats":12},{"name":"طب أسرة","seats":8},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3}];
+    const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5,"group":"جلدية"},{"name":"جلدية - دراسات موازي","seats":2,"group":"جلدية"},{"name":"جلدية - صحة","seats":2,"group":"جلدية"},{"name":"اذنية - دراسات عام","seats":8,"group":"اذنية"},{"name":"اذنية - دراسات موازي","seats":3,"group":"اذنية"},{"name":"اذنية - صحة","seats":4,"group":"اذنية"},{"name":"عينية - دراسات عام","seats":8,"group":"عينية"},{"name":"عينية - دراسات موازي","seats":3,"group":"عينية"},{"name":"عينية - صحة","seats":5,"group":"عينية"},{"name":"أطفال - دراسات عام","seats":60,"group":"أطفال"},{"name":"أطفال - دراسات موازي","seats":18,"group":"أطفال"},{"name":"أطفال - صحة","seats":15,"group":"أطفال"},{"name":"نسائية وتوليد - دراسات عام","seats":22,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - دراسات موازي","seats":7,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - صحة","seats":13,"group":"نسائية وتوليد"},{"name":"داخلية قلبية - دراسات عام","seats":8,"group":"داخلية قلبية"},{"name":"داخلية قلبية - دراسات موازي","seats":3,"group":"داخلية قلبية"},{"name":"داخلية قلبية - صحة","seats":7,"group":"داخلية قلبية"},{"name":"داخلية هضمية - دراسات عام","seats":8,"group":"داخلية هضمية"},{"name":"داخلية هضمية - دراسات موازي","seats":3,"group":"داخلية هضمية"},{"name":"داخلية هضمية - صحة","seats":2,"group":"داخلية هضمية"},{"name":"داخلية صدرية - دراسات عام","seats":7,"group":"داخلية صدرية"},{"name":"داخلية صدرية - دراسات موازي","seats":3,"group":"داخلية صدرية"},{"name":"داخلية صدرية - صحة","seats":2,"group":"داخلية صدرية"},{"name":"داخلية عامة - دراسات عام","seats":60,"group":"داخلية عامة"},{"name":"داخلية عامة - دراسات موازي","seats":18,"group":"داخلية عامة"},{"name":"داخلية عامة - صحة","seats":12,"group":"داخلية عامة"},{"name":"داخلية كلية - دراسات عام","seats":7,"group":"داخلية كلية"},{"name":"داخلية كلية - دراسات موازي","seats":3,"group":"داخلية كلية"},{"name":"داخلية كلية - صحة","seats":1,"group":"داخلية كلية"},{"name":"داخلية غدية - دراسات عام","seats":7,"group":"داخلية غدية"},{"name":"داخلية غدية - دراسات موازي","seats":3,"group":"داخلية غدية"},{"name":"داخلية غدية - صحة","seats":2,"group":"داخلية غدية"},{"name":"داخلية عصبية - دراسات عام","seats":4,"group":"داخلية عصبية"},{"name":"داخلية عصبية - دراسات موازي","seats":2,"group":"داخلية عصبية"},{"name":"داخلية عصبية - صحة","seats":2,"group":"داخلية عصبية"},{"name":"داخلية دم - دراسات عام","seats":7,"group":"داخلية دم"},{"name":"داخلية دم - دراسات موازي","seats":3,"group":"داخلية دم"},{"name":"داخلية دم - صحة","seats":1,"group":"داخلية دم"},{"name":"داخلية ثوية - دراسات عام","seats":6,"group":"داخلية ثوية"},{"name":"داخلية ثوية - دراسات موازي","seats":2,"group":"داخلية ثوية"},{"name":"داخلية ثوية - صحة","seats":1,"group":"داخلية ثوية"},{"name":"جراحة عامة - دراسات عام","seats":25,"group":"جراحة عامة"},{"name":"جراحة عامة - دراسات موازي","seats":8,"group":"جراحة عامة"},{"name":"جراحة عامة - صحة","seats":14,"group":"جراحة عامة"},{"name":"جراحة عظمية - دراسات عام","seats":11,"group":"جراحة عظمية"},{"name":"جراحة عظمية - دراسات موازي","seats":4,"group":"جراحة عظمية"},{"name":"جراحة عظمية - صحة","seats":10,"group":"جراحة عظمية"},{"name":"جراحة بولية - دراسات عام","seats":5,"group":"جراحة بولية"},{"name":"جراحة بولية - دراسات موازي","seats":2,"group":"جراحة بولية"},{"name":"جراحة بولية - صحة","seats":8,"group":"جراحة بولية"},{"name":"جراحة عصبية - دراسات عام","seats":5,"group":"جراحة عصبية"},{"name":"جراحة عصبية - دراسات موازي","seats":2,"group":"جراحة عصبية"},{"name":"جراحة عصبية - صحة","seats":1,"group":"جراحة عصبية"},{"name":"جراحة تجميل - دراسات عام","seats":5,"group":"جراحة تجميل"},{"name":"جراحة تجميل - دراسات موازي","seats":2,"group":"جراحة تجميل"},{"name":"جراحة تجميل - صحة","seats":2,"group":"جراحة تجميل"},{"name":"جراحة أطفال - دراسات عام","seats":6,"group":"جراحة أطفال"},{"name":"جراحة أطفال - دراسات موازي","seats":2,"group":"جراحة أطفال"},{"name":"جراحة أطفال - صحة","seats":3,"group":"جراحة أطفال"},{"name":"جراحة قلبية - دراسات عام","seats":6,"group":"جراحة قلبية"},{"name":"جراحة قلبية - دراسات موازي","seats":2,"group":"جراحة قلبية"},{"name":"جراحة قلبية - صحة","seats":2,"group":"جراحة قلبية"},{"name":"جراحة وعائية - دراسات عام","seats":6,"group":"جراحة وعائية"},{"name":"جراحة وعائية - دراسات موازي","seats":2,"group":"جراحة وعائية"},{"name":"جراحة وعائية - صحة","seats":1,"group":"جراحة وعائية"},{"name":"جراحة صدرية","seats":2,"group":"جراحة صدرية"},{"name":"أشعة - دراسات عام","seats":30,"group":"أشعة"},{"name":"أشعة - دراسات موازي","seats":9,"group":"أشعة"},{"name":"أشعة - صحة","seats":14,"group":"أشعة"},{"name":"طب مخبري - دراسات عام","seats":18,"group":"طب مخبري"},{"name":"طب مخبري - دراسات موازي","seats":6,"group":"طب مخبري"},{"name":"طب مخبري - صحة","seats":9,"group":"طب مخبري"},{"name":"تشريح مرضي - دراسات عام","seats":9,"group":"تشريح مرضي"},{"name":"تشريح مرضي - دراسات موازي","seats":3,"group":"تشريح مرضي"},{"name":"تشريح مرضي - صحة","seats":1,"group":"تشريح مرضي"},{"name":"تخدير - دراسات عام","seats":85,"group":"تخدير"},{"name":"تخدير - دراسات موازي","seats":26,"group":"تخدير"},{"name":"تخدير - صحة","seats":16,"group":"تخدير"},{"name":"أورام - دراسات عام","seats":6,"group":"أورام"},{"name":"أورام - دراسات موازي","seats":2,"group":"أورام"},{"name":"أورام - صحة","seats":2,"group":"أورام"},{"name":"طب نفسي","seats":12,"group":"طب نفسي"},{"name":"طب أسرة","seats":8,"group":"طب أسرة"},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3,"group":"طب فيزيائي"}];
     
     const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
     const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzcQz50qz8dYMjQ_eqf0b50cH7QnW1erUyJRDP7Z207R5mwms95zdhiRa3ZXZV5fhdiQ/exec";
     
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
@@ -499,12 +581,102 @@
     const ADMIN_PW = "Alichayeb@23184";
     const GRADE_TOLERANCE = 0.2;
     
+    // متغيرات للتحكم بعرض المزيد في إحصائيات التسجيل
+    let rankLimits = {
+        individualFirst: 10,
+        individualSecond: 10,
+        individualThird: 10,
+        individualTotal: 10,
+        groupedFirst: 10,
+        groupedSecond: 10,
+        groupedThird: 10,
+        groupedTotal: 10
+    };
+    
     function cleanId(id) {
         if (!id) return "";
         return id.toString().trim();
     }
     
-    // تحميل بيانات الطلاب
+    // ===================== دوال Apps Script (التنبيهات التلقائية) =====================
+    async function addGradeMismatchAlert(id, expectedGrade) {
+        try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'addGradeMismatch',
+                    id: id,
+                    expectedGrade: expectedGrade
+                })
+            });
+            console.log(`تم إضافة تنبيه للرقم ${id}`);
+        } catch(e) {
+            console.error("فشل إضافة التنبيه:", e);
+        }
+    }
+    
+    async function removeGradeMismatchAlert(id) {
+        try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'removeGradeMismatch',
+                    id: id
+                })
+            });
+            console.log(`تم إزالة تنبيه الرقم ${id}`);
+        } catch(e) {
+            console.error("فشل إزالة التنبيه:", e);
+        }
+    }
+    
+    // التحقق التلقائي من المعدلات وإدارة التنبيهات
+    async function autoCheckAndUpdateAlerts() {
+        console.log("جاري التحقق التلقائي من المعدلات...");
+        const { validMap, ignoreSet } = await loadReferenceData(true);
+        
+        // قائمة الأرقام التي لديها مشكلة في المعدل حالياً
+        const currentMismatches = [];
+        
+        for (let student of allStudents) {
+            const id = student.id;
+            if (ignoreSet.has(id)) continue;
+            const refValue = validMap.get(id);
+            if (typeof refValue === 'number') {
+                if (Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) {
+                    currentMismatches.push({ id, expectedGrade: refValue });
+                }
+            }
+        }
+        
+        // جلب التنبيهات الحالية من العمود F
+        const { gradeMismatchAlerts } = await loadReferenceData(true);
+        const existingAlertIds = new Set(gradeMismatchAlerts.map(a => a.id));
+        
+        // إضافة تنبيهات جديدة للأرقام التي أصبحت خاطئة
+        for (let mismatch of currentMismatches) {
+            if (!existingAlertIds.has(mismatch.id)) {
+                await addGradeMismatchAlert(mismatch.id, mismatch.expectedGrade);
+            }
+        }
+        
+        // إزالة تنبيهات الأرقام التي أصبحت صحيحة
+        for (let alertId of existingAlertIds) {
+            const stillMismatch = currentMismatches.some(m => m.id === alertId);
+            if (!stillMismatch) {
+                await removeGradeMismatchAlert(alertId);
+            }
+        }
+        
+        // تحديث واجهة التنبيهات
+        await updateAlertsFromColumnsDEFG();
+    }
+    
+    // تحميل بيانات الطلاب مع الطابع الزمني
     async function loadStudents() {
         try {
             const res = await fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, {cache:"no-store"});
@@ -517,11 +689,12 @@
         const lines = csv.split(/\r?\n/);
         if(lines.length<2) return;
         const headers = parseCSVLine(lines[0]);
-        let idIdx=-1, gpaIdx=-1, prefIdx=[];
+        let idIdx=-1, gpaIdx=-1, timestampIdx=-1, prefIdx=[];
         for(let i=0;i<headers.length;i++){
             let h = headers[i].toLowerCase();
             if(h.includes('الرقم')||h.includes('امتحاني')) idIdx=i;
             if(h.includes('معدل')) gpaIdx=i;
+            if(h.includes('طابع')||h.includes('timestamp')) timestampIdx=i;
             if(h.includes('رغبة')) prefIdx.push(i);
         }
         if(idIdx===-1||gpaIdx===-1) return;
@@ -532,12 +705,13 @@
             let id = cleanId(cols[idIdx]);
             let gpa = parseFloat(cols[gpaIdx]);
             if(!id||isNaN(gpa)) continue;
+            let timestamp = (timestampIdx !== -1 && cols.length > timestampIdx) ? cols[timestampIdx] : null;
             let prefs = [];
             for(let j=0;j<prefIdx.length&&j<100;j++){
                 let p = cols[prefIdx[j]]?.trim();
                 if(p) prefs.push(p);
             }
-            if(prefs.length) students.push({id, gpa, prefs});
+            if(prefs.length) students.push({id, gpa, prefs, timestamp});
         }
         allStudents = students;
         runMatch();
@@ -554,7 +728,7 @@
         return res;
     }
     
-    // تحميل البيانات المرجعية
+    // تحميل البيانات المرجعية (مع الأعمدة الجديدة)
     async function loadReferenceData(forceReload = false) {
         if (referenceDataCache && !forceReload) return referenceDataCache;
         try {
@@ -564,8 +738,10 @@
             const lines = csv.split(/\r?\n/);
             const validMap = new Map();
             const ignoreSet = new Set();
-            const alertsList = [];
-            const suspendedList = [];
+            const generalAlerts = [];      // D + E
+            const gradeMismatchAlerts = []; // F + G
+            const suspendedList = [];       // H + I
+            
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
                 if (cols.length < 1) continue;
@@ -575,33 +751,45 @@
                 if (!isNaN(grade)) validMap.set(refId, grade);
                 else if (!validMap.has(refId)) validMap.set(refId, true);
                 if (cols.length > 2 && cols[2]?.trim()) ignoreSet.add(cleanId(cols[2]));
+                
+                // العمود D + E: تنبيهات عامة
                 if (cols.length > 3 && cols[3]?.trim()) {
                     const alertId = cleanId(cols[3]);
-                    const alertDesc = (cols.length > 4 && cols[4]?.trim()) ? cols[4].trim() : "لا يوجد شرح";
-                    alertsList.push({ id: alertId, description: alertDesc });
+                    const alertDesc = (cols.length > 4 && cols[4]?.trim()) ? cols[4].trim() : "تنبيه عام";
+                    generalAlerts.push({ id: alertId, description: alertDesc });
                 }
+                
+                // العمود F + G: تنبيهات معدل خاطئ (تدار تلقائياً)
                 if (cols.length > 5 && cols[5]?.trim()) {
-                    const suspendedId = cleanId(cols[5]);
-                    const suspendedDesc = (cols.length > 6 && cols[6]?.trim()) ? cols[6].trim() : "تم إيقاف هذا الرقم مؤقتاً";
+                    const alertId = cleanId(cols[5]);
+                    const alertDesc = (cols.length > 6 && cols[6]?.trim()) ? cols[6].trim() : "معدل التفاضل ادخال خاطئ يرجى التصحيح";
+                    gradeMismatchAlerts.push({ id: alertId, description: alertDesc });
+                }
+                
+                // العمود H + I: أرقام موقوفة
+                if (cols.length > 7 && cols[7]?.trim()) {
+                    const suspendedId = cleanId(cols[7]);
+                    const suspendedDesc = (cols.length > 8 && cols[8]?.trim()) ? cols[8].trim() : "تم إيقاف هذا الرقم مؤقتاً";
                     suspendedList.push({ id: suspendedId, description: suspendedDesc });
                 }
             }
-            referenceDataCache = { validMap, ignoreSet, alertsList, suspendedList };
+            referenceDataCache = { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList };
             return referenceDataCache;
         } catch(e) {
             console.error("فشل تحميل المرجع", e);
-            return { validMap: new Map(), ignoreSet: new Set(), alertsList: [], suspendedList: [] };
+            return { validMap: new Map(), ignoreSet: new Set(), generalAlerts: [], gradeMismatchAlerts: [], suspendedList: [] };
         }
     }
     
-    // تحديث التنبيهات
-    async function updateAlertsFromColumnD() {
-        const { alertsList } = await loadReferenceData();
-        window.allAlerts = alertsList;
-        const totalCount = alertsList.length;
+    // تحديث التنبيهات (دمج العام + أخطاء المعدل)
+    async function updateAlertsFromColumnsDEFG() {
+        const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
+        const allAlerts = [...generalAlerts, ...gradeMismatchAlerts];
+        window.allAlerts = allAlerts;
+        const totalCount = allAlerts.length;
         document.getElementById('alertsCount').innerText = totalCount;
         document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${totalCount})`;
-        renderAlertsList(alertsList);
+        renderAlertsList(allAlerts);
     }
     
     function renderAlertsList(alerts) {
@@ -650,7 +838,7 @@
         });
     }
     
-    async function updateSuspendedFromColumnsFG() {
+    async function updateSuspendedFromColumnsHI() {
         const { suspendedList } = await loadReferenceData();
         let html = '';
         if (suspendedList.length === 0) {
@@ -766,7 +954,7 @@
                     break;
                 }
             }
-            results.push({id:st.id, gpa:st.gpa, prefs:st.prefs, assigned:assigned||'لم يحصل'});
+            results.push({id:st.id, gpa:st.gpa, prefs:st.prefs, assigned:assigned||'لم يحصل', timestamp:st.timestamp});
         }
         processed = results;
         updateUI(accepted, seats);
@@ -777,23 +965,23 @@
         document.getElementById('totalCount').innerText = allStudents.length;
         renderStats();
         renderStudentsTable();
+        renderRegistrationStats();
         if(isAdmin) renderAdminTable();
         document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
     }
     
-    // عرض الإحصائيات مع إضافة عدد الراغبين (كأولى وككل)
+    // عرض الإحصائيات
     async function renderStats() {
         const container = document.getElementById('statsList');
         if (!container) return;
         
-        const { alertsList } = await loadReferenceData();
-        const alertIds = new Set(alertsList.map(a => a.id));
+        const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
+        const alertIds = new Set([...generalAlerts.map(a => a.id), ...gradeMismatchAlerts.map(a => a.id)]);
         
         let search = document.getElementById('searchSpecialty')?.value.trim().toLowerCase() || '';
         let filtered = specialties.filter(s => s.name.toLowerCase().includes(search));
         let display = filtered.slice(0, displayLimit);
         
-        // حساب عدد الراغبين لكل اختصاص
         let firstChoiceCount = {};
         let totalWishers = {};
         specialties.forEach(s => {
@@ -866,8 +1054,8 @@
         let tbody = document.getElementById('studentsList');
         if (!tbody) return;
         
-        const { alertsList } = await loadReferenceData();
-        const alertIds = new Set(alertsList.map(a => a.id));
+        const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
+        const alertIds = new Set([...generalAlerts.map(a => a.id), ...gradeMismatchAlerts.map(a => a.id)]);
         
         let search = document.getElementById('searchStudent')?.value.trim() || '';
         let filtered = processed.filter(s => s.id.includes(search));
@@ -894,6 +1082,233 @@
                       </tr>`;
         });
         tbody.innerHTML = html;
+    }
+    
+    // ===================== إحصائيات التسجيل =====================
+    async function renderRegistrationStats() {
+        const container = document.getElementById('registrationStatsContent');
+        if (!container) return;
+        
+        const dailyStats = calculateDailyStats();
+        const rankStats = calculateRankStats();
+        
+        let html = `
+            <div class="stats-section">
+                <h4>🗓️ التسجيل اليومي</h4>
+                <table class="stats-daily-table">
+                    <thead>
+                        <tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        let cumulative = 0;
+        for (let day of dailyStats) {
+            cumulative += day.count;
+            html += `<tr><td>${day.date}</td><td>${day.count}</td><td>${cumulative}</td></tr>`;
+        }
+        
+        if (dailyStats.length === 0) {
+            html += `<tr><td colspan="3">لا توجد بيانات كافية</td></tr>`;
+        }
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="stats-section">
+                <h4>📊 تفصيلي (كل اختصاص بمفرده)</h4>
+                <div class="flex-grid">
+                    <div>
+                        <h5 style="margin-bottom:8px;">⭐ أكثر الرغبات أولى</h5>
+                        ${renderRankList(rankStats.individualFirst, 'individualFirst')}
+                        ${rankStats.individualFirst.length > rankLimits.individualFirst ? `<button class="show-more-btn" onclick="showMoreRank('individualFirst')">➕ عرض المزيد</button>` : ''}
+                    </div>
+                    <div>
+                        <h5 style="margin-bottom:8px;">⭐ أكثر الرغبات ثانية</h5>
+                        ${renderRankList(rankStats.individualSecond, 'individualSecond')}
+                        ${rankStats.individualSecond.length > rankLimits.individualSecond ? `<button class="show-more-btn" onclick="showMoreRank('individualSecond')">➕ عرض المزيد</button>` : ''}
+                    </div>
+                </div>
+                <div class="flex-grid">
+                    <div>
+                        <h5 style="margin-bottom:8px;">⭐ أكثر الرغبات ثالثة</h5>
+                        ${renderRankList(rankStats.individualThird, 'individualThird')}
+                        ${rankStats.individualThird.length > rankLimits.individualThird ? `<button class="show-more-btn" onclick="showMoreRank('individualThird')">➕ عرض المزيد</button>` : ''}
+                    </div>
+                    <div>
+                        <h5 style="margin-bottom:8px;">📋 أكثر إجمالي راغبين</h5>
+                        ${renderRankList(rankStats.individualTotal, 'individualTotal')}
+                        ${rankStats.individualTotal.length > rankLimits.individualTotal ? `<button class="show-more-btn" onclick="showMoreRank('individualTotal')">➕ عرض المزيد</button>` : ''}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-section">
+                <h4>📊 تجميعي (دمج فروع التخصص)</h4>
+                <div class="flex-grid">
+                    <div>
+                        <h5 style="margin-bottom:8px;">⭐ أكثر الاختصاصات رغبة أولى</h5>
+                        ${renderRankList(rankStats.groupedFirst, 'groupedFirst')}
+                        ${rankStats.groupedFirst.length > rankLimits.groupedFirst ? `<button class="show-more-btn" onclick="showMoreRank('groupedFirst')">➕ عرض المزيد</button>` : ''}
+                    </div>
+                    <div>
+                        <h5 style="margin-bottom:8px;">⭐ أكثر الاختصاصات رغبة ثانية</h5>
+                        ${renderRankList(rankStats.groupedSecond, 'groupedSecond')}
+                        ${rankStats.groupedSecond.length > rankLimits.groupedSecond ? `<button class="show-more-btn" onclick="showMoreRank('groupedSecond')">➕ عرض المزيد</button>` : ''}
+                    </div>
+                </div>
+                <div class="flex-grid">
+                    <div>
+                        <h5 style="margin-bottom:8px;">⭐ أكثر الاختصاصات رغبة ثالثة</h5>
+                        ${renderRankList(rankStats.groupedThird, 'groupedThird')}
+                        ${rankStats.groupedThird.length > rankLimits.groupedThird ? `<button class="show-more-btn" onclick="showMoreRank('groupedThird')">➕ عرض المزيد</button>` : ''}
+                    </div>
+                    <div>
+                        <h5 style="margin-bottom:8px;">📋 أكثر الاختصاصات إجمالي راغبين</h5>
+                        ${renderRankList(rankStats.groupedTotal, 'groupedTotal')}
+                        ${rankStats.groupedTotal.length > rankLimits.groupedTotal ? `<button class="show-more-btn" onclick="showMoreRank('groupedTotal')">➕ عرض المزيد</button>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+    
+    function calculateDailyStats() {
+        const dailyMap = new Map();
+        
+        for (let student of allStudents) {
+            if (!student.timestamp) continue;
+            let dateStr;
+            try {
+                let date = new Date(student.timestamp);
+                if (isNaN(date.getTime())) {
+                    dateStr = student.timestamp.split(' ')[0];
+                } else {
+                    dateStr = date.toISOString().split('T')[0];
+                }
+            } catch(e) {
+                continue;
+            }
+            if (dateStr) {
+                dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1);
+            }
+        }
+        
+        const sorted = Array.from(dailyMap.entries())
+            .map(([date, count]) => ({ date, count }))
+            .sort((a, b) => a.date.localeCompare(b.date));
+        
+        return sorted;
+    }
+    
+    function calculateRankStats() {
+        const individualFirst = new Map();
+        const individualSecond = new Map();
+        const individualThird = new Map();
+        const individualTotal = new Map();
+        
+        const groupedFirst = new Map();
+        const groupedSecond = new Map();
+        const groupedThird = new Map();
+        const groupedTotal = new Map();
+        
+        const specialtyToGroup = new Map();
+        for (let spec of specialties) {
+            specialtyToGroup.set(spec.name, spec.group);
+        }
+        
+        for (let student of allStudents) {
+            const prefs = student.prefs;
+            const seenTotal = new Set();
+            const seenGroupTotal = new Set();
+            
+            for (let i = 0; i < prefs.length; i++) {
+                const pref = prefs[i];
+                if (!pref) continue;
+                
+                if (!seenTotal.has(pref)) {
+                    seenTotal.add(pref);
+                    individualTotal.set(pref, (individualTotal.get(pref) || 0) + 1);
+                }
+                
+                if (i === 0) {
+                    individualFirst.set(pref, (individualFirst.get(pref) || 0) + 1);
+                } else if (i === 1) {
+                    individualSecond.set(pref, (individualSecond.get(pref) || 0) + 1);
+                } else if (i === 2) {
+                    individualThird.set(pref, (individualThird.get(pref) || 0) + 1);
+                }
+                
+                const group = specialtyToGroup.get(pref);
+                if (group) {
+                    if (i === 0) {
+                        groupedFirst.set(group, (groupedFirst.get(group) || 0) + 1);
+                    } else if (i === 1) {
+                        groupedSecond.set(group, (groupedSecond.get(group) || 0) + 1);
+                    } else if (i === 2) {
+                        groupedThird.set(group, (groupedThird.get(group) || 0) + 1);
+                    }
+                    if (!seenGroupTotal.has(group)) {
+                        seenGroupTotal.add(group);
+                        groupedTotal.set(group, (groupedTotal.get(group) || 0) + 1);
+                    }
+                }
+            }
+        }
+        
+        const sortDesc = (map) => Array.from(map.entries())
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+        
+        return {
+            individualFirst: sortDesc(individualFirst),
+            individualSecond: sortDesc(individualSecond),
+            individualThird: sortDesc(individualThird),
+            individualTotal: sortDesc(individualTotal),
+            groupedFirst: sortDesc(groupedFirst),
+            groupedSecond: sortDesc(groupedSecond),
+            groupedThird: sortDesc(groupedThird),
+            groupedTotal: sortDesc(groupedTotal)
+        };
+    }
+    
+    function renderRankList(rankArray, type) {
+        const limit = rankLimits[type] || 10;
+        const displayItems = rankArray.slice(0, limit);
+        
+        if (displayItems.length === 0) {
+            return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
+        }
+        
+        let html = '<ul class="rank-list">';
+        for (let i = 0; i < displayItems.length; i++) {
+            const item = displayItems[i];
+            html += `<li>
+                        <span class="rank-number">${i + 1}.</span>
+                        <span class="rank-name">${escapeHtml(item.name)}</span>
+                        <span class="rank-count">${item.count}</span>
+                     </li>`;
+        }
+        html += '</ul>';
+        return html;
+    }
+    
+    function showMoreRank(type) {
+        switch(type) {
+            case 'individualFirst': rankLimits.individualFirst += 10; break;
+            case 'individualSecond': rankLimits.individualSecond += 10; break;
+            case 'individualThird': rankLimits.individualThird += 10; break;
+            case 'individualTotal': rankLimits.individualTotal += 10; break;
+            case 'groupedFirst': rankLimits.groupedFirst += 10; break;
+            case 'groupedSecond': rankLimits.groupedSecond += 10; break;
+            case 'groupedThird': rankLimits.groupedThird += 10; break;
+            case 'groupedTotal': rankLimits.groupedTotal += 10; break;
+        }
+        renderRegistrationStats();
     }
     
     // واجهة المشرف
@@ -981,10 +1396,12 @@
         if(refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(async () => {
             await loadStudents();
-            await updateAlertsFromColumnD();
-            await updateSuspendedFromColumnsFG();
+            await autoCheckAndUpdateAlerts();
+            await updateAlertsFromColumnsDEFG();
+            await updateSuspendedFromColumnsHI();
             await renderStats();
             await renderStudentsTable();
+            await renderRegistrationStats();
         }, 20000);
     }
     
@@ -1003,20 +1420,28 @@
             document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById(`tab${btn.dataset.tab==='stats'?'Stats':'Students'}`).classList.add('active');
-            if(btn.dataset.tab==='students') renderStudentsTable();
-            if(btn.dataset.tab==='stats') renderStats();
+            const tabName = btn.dataset.tab;
+            if (tabName === 'stats') {
+                document.getElementById('tabStats').classList.add('active');
+            } else if (tabName === 'students') {
+                document.getElementById('tabStudents').classList.add('active');
+                renderStudentsTable();
+            } else if (tabName === 'registration') {
+                document.getElementById('tabRegistration').classList.add('active');
+                renderRegistrationStats();
+            }
         });
     });
     
     loadStudents();
     startRefresh();
-    updateAlertsFromColumnD();
-    updateSuspendedFromColumnsFG();
+    updateAlertsFromColumnsDEFG();
+    updateSuspendedFromColumnsHI();
     setupAlertsSearch();
     
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
+    window.showMoreRank = showMoreRank;
 </script>
 </body>
 </html>
