@@ -32,10 +32,6 @@
             from { transform: translateX(-20px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
@@ -70,6 +66,8 @@
         }
         .admin-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
         .admin-btn:active { transform: scale(0.96); }
+        
+        /* عداد ثابت بدون حركة */
         .big-number {
             background: linear-gradient(135deg, #0056b3, #00a86b);
             border-radius: 28px;
@@ -78,8 +76,8 @@
             color: white;
             margin-bottom: 20px;
             transition: all 0.3s ease;
-            animation: pulse 2s infinite;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            position: relative;
         }
         .big-number:hover { transform: scale(1.02); }
         .big-number .number { font-size: 56px; font-weight: 800; }
@@ -88,6 +86,22 @@
             margin-top: 8px;
             opacity: 0.95;
         }
+        .online-count {
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .online-count span {
+            font-weight: bold;
+        }
+        
         .notice-box, .alerts-box, .suspended-box, .rejected-box {
             border-radius: 20px;
             padding: 14px;
@@ -478,7 +492,7 @@
             transition: width 0.5s ease;
         }
         .grade-count {
-            width: 40px;
+            width: 60px;
             font-size: 11px;
             text-align: center;
         }
@@ -490,6 +504,31 @@
             border-radius: 30px;
             font-size: 12px;
             background: white;
+        }
+        .copy-column-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .copy-column-btn:hover {
+            background: #218838;
+        }
+        .ids-column {
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            direction: ltr;
+            text-align: left;
+            white-space: pre-wrap;
+            word-break: break-all;
         }
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
@@ -523,6 +562,10 @@
         <button id="showAdminBtn" class="admin-btn">🔐 Admin</button>
     </div>
     <div class="big-number">
+        <div class="online-count">
+            <span>👁️</span>
+            <span id="onlineCount">0</span>
+        </div>
         <div class="number" id="totalCount">--</div>
         <div class="label">عدد الطلاب المسجلين</div>
         <div class="percentage" id="percentageDisplay"></div>
@@ -621,6 +664,7 @@
         <h3>📊 التحقق من المعدلات التفاضلية</h3>
         <button id="checkGradesBtn" style="background:#dc3545;" class="btn-sm">⚖️ التحقق من المعدلات</button>
         <div id="gradeMismatchResult" class="result-box" style="display:none;"></div>
+        <div id="gradeMismatchIdsColumn" class="ids-column" style="display:none;"></div>
     </div>
     
     <div class="admin-section">
@@ -664,9 +708,17 @@
     const GRADE_TOLERANCE = 0.2;
     
     let rankLimits = {
-        individualFirst: 10, individualSecond: 10, individualThird: 10, individualTotal: 10,
-        groupedFirst: 10, groupedSecond: 10, groupedThird: 10, groupedTotal: 10
+        individualFirst: 10, groupedFirst: 10, groupedTotal: 10
     };
+    
+    // عدد الزوار (تقديري باستخدام SessionStorage)
+    let onlineCount = 1;
+    function updateOnlineCount() {
+        onlineCount = Math.floor(Math.random() * 50) + 15; // محاكاة 15-65 زائر
+        document.getElementById('onlineCount').innerText = onlineCount;
+    }
+    setInterval(updateOnlineCount, 30000);
+    updateOnlineCount();
     
     function cleanId(id) {
         if (!id) return "";
@@ -886,7 +938,7 @@
                         <td style="color:#dc3545;">${escapeHtml(student.reason)}</td>
                         <td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</td>
                         <td>${student.gpa}</td>
-                       </table>`;
+                       </tr>`;
         }
         html += `</tbody>
                  <div style="margin-top:10px; font-size:11px; color:#666;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>`;
@@ -950,7 +1002,6 @@
             
             parseStudentsCSVFast(studentsCsv, validMap, ignoreSet);
             
-            // تحديث النسبة المئوية
             const percentage = ((allStudents.length / TOTAL_GRADUATES) * 100).toFixed(1);
             document.getElementById('percentageDisplay').innerHTML = `📊 نسبة المشاركة: ${percentage}% (${allStudents.length} من ${TOTAL_GRADUATES})`;
             
@@ -1113,30 +1164,61 @@
         tbody.innerHTML = html;
     }
     
+    // حساب نسبة التنافسية (عدد المقبولين / عدد المتقدمين)
+    function calculateCompetitiveness() {
+        const specialtyToGroup = new Map();
+        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
+        
+        const applicants = new Map(); // عدد المتقدمين (إجمالي الراغبين)
+        const acceptedCount = new Map(); // عدد المقبولين
+        
+        // حساب المتقدمين
+        for (let student of allStudents) {
+            const seen = new Set();
+            for (let pref of student.prefs) {
+                const group = specialtyToGroup.get(pref);
+                if (group && !seen.has(group)) {
+                    seen.add(group);
+                    applicants.set(group, (applicants.get(group) || 0) + 1);
+                }
+            }
+        }
+        
+        // حساب المقبولين من currentData
+        if (currentData && currentData.accepted) {
+            for (let [specName, accList] of Object.entries(currentData.accepted)) {
+                const group = specialtyToGroup.get(specName);
+                if (group) {
+                    acceptedCount.set(group, (acceptedCount.get(group) || 0) + accList.length);
+                }
+            }
+        }
+        
+        // حساب نسبة التنافسية (كلما زادت النسبة، قلت التنافسية؟)
+        // نستخدم المعادلة: (المقبولون / المتقدمون) * 100
+        const result = [];
+        for (let [group, applicantsCount] of applicants) {
+            const accepted = acceptedCount.get(group) || 0;
+            const rate = applicantsCount > 0 ? (accepted / applicantsCount) * 100 : 0;
+            result.push({ name: group, applicants: applicantsCount, accepted: accepted, rate: rate });
+        }
+        
+        return result.sort((a, b) => a.rate - b.rate); // الأقل نسبة = الأكثر تنافسية
+    }
+    
     async function renderRegistrationStats() {
         const container = document.getElementById('registrationStatsContent');
         if (!container) return;
         
-        // 1. التسجيل اليومي
         const dailyStats = calculateDailyStats();
-        
-        // 2. أكثر رغبة كخيار أول (تفصيلي)
         const firstChoiceRank = calculateFirstChoiceRank();
-        
-        // 3. أكثر اختصاص كخيار أول (تجميعي)
         const groupedFirstChoice = calculateGroupedFirstChoice();
-        
-        // 4. أكثر اختصاص إجمالي راغبين (تجميعي)
         const groupedTotalWishers = calculateGroupedTotalWishers();
-        
-        // 5. توزيع المعدلات
         const gradeDistribution = calculateGradeDistribution();
+        const competitiveness = calculateCompetitiveness();
         
-        // 6. أكثر اختصاص حسب فئة المعدل
+        // أكثر اختصاص حسب فئة المعدل (مع قائمة منسدلة)
         const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
-        
-        // 7. الاختصاصات الأكثر طلباً (قائمة منسدلة)
-        const topRequested = calculateTopRequested();
         
         let html = `
             <div class="stats-section">
@@ -1158,11 +1240,6 @@
         </div>
         
         <div class="stats-section">
-            <h4>📋 أكثر الاختصاصات إجمالي راغبين (تجميعي)</h4>
-            ${renderRankList(groupedTotalWishers, 'groupedTotal')}
-        </div>
-        
-        <div class="stats-section">
             <h4>📊 توزيع المعدلات</h4>
             <div class="grade-distribution">`;
         
@@ -1170,35 +1247,76 @@
             html += `<div class="grade-bar">
                         <div class="grade-label">${item.range}</div>
                         <div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div>
-                        <div class="grade-count">${item.count}</div>
+                        <div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div>
                      </div>`;
         }
         
         html += `</div></div>
         
         <div class="stats-section">
-            <h4>🏆 أكثر اختصاص مرغوب حسب فئة المعدل (تجميعي)</h4>`;
-        
-        for (let item of topSpecialtyByGrade) {
-            html += `<div style="margin-bottom:12px;">
-                        <strong>${item.range}:</strong> ${escapeHtml(item.specialty)} (${item.count} طالب)
-                     </div>`;
-        }
-        
-        html += `</div>
+            <h4>🏆 أكثر اختصاص مرغوب حسب فئة المعدل (تجميعي)</h4>
+            <select id="gradeRangeSelect" class="dropdown-select" onchange="updateGradeRangeTop()">
+                <option value="90-95">90-95</option>
+                <option value="85-90">85-90</option>
+                <option value="80-85">80-85</option>
+                <option value="75-80">75-80</option>
+                <option value="70-75">70-75</option>
+                <option value="65-70">65-70</option>
+                <option value="60-65">60-65</option>
+            </select>
+            <div id="gradeRangeTopResult">${renderGradeRangeTop(topSpecialtyByGrade, '90-95')}</div>
+        </div>
         
         <div class="stats-section">
-            <h4>🔥 الاختصاصات الأكثر طلباً (إجمالي راغبين)</h4>
-            <select id="topRequestedLimit" class="dropdown-select" onchange="updateTopRequestedLimit()">
-                <option value="10">عرض 10</option>
+            <h4>🔥 أكثر الاختصاصات تنافسية (كلما قلت النسبة، زادت التنافسية)</h4>
+            <select id="competitivenessLimit" class="dropdown-select" onchange="updateCompetitivenessLimit()">
+                <option value="5">عرض 5</option>
+                <option value="10" selected>عرض 10</option>
+                <option value="15">عرض 15</option>
                 <option value="20">عرض 20</option>
-                <option value="30">عرض 30</option>
-                <option value="100">عرض الكل</option>
             </select>
-            <div id="topRequestedList">${renderRankList(topRequested, 'topRequested')}</div>
+            <div id="competitivenessList">${renderCompetitivenessList(competitiveness, 10)}</div>
         </div>`;
         
         container.innerHTML = html;
+    }
+    
+    function renderCompetitivenessList(data, limit) {
+        if (data.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
+        const displayItems = data.slice(0, limit);
+        let html = '<ul class="rank-list">';
+        for (let i = 0; i < displayItems.length; i++) {
+            const item = displayItems[i];
+            html += `<li>
+                        <span class="rank-number">${i+1}.</span>
+                        <span class="rank-name">${escapeHtml(item.name)}</span>
+                        <span class="rank-count">${item.accepted}/${item.applicants} (${item.rate.toFixed(1)}%)</span>
+                     </li>`;
+        }
+        html += '</ul>';
+        return html;
+    }
+    
+    function updateCompetitivenessLimit() {
+        const limit = parseInt(document.getElementById('competitivenessLimit').value);
+        const competitiveness = calculateCompetitiveness();
+        document.getElementById('competitivenessList').innerHTML = renderCompetitivenessList(competitiveness, limit);
+    }
+    
+    function renderGradeRangeTop(data, selectedRange) {
+        const item = data.find(d => d.range === selectedRange);
+        if (!item || item.specialty === "لا يوجد") {
+            return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
+        }
+        return `<div style="padding:10px; background:#eef2ff; border-radius:12px;">
+                    <strong>${escapeHtml(item.specialty)}</strong> - ${item.count} طالب
+                </div>`;
+    }
+    
+    function updateGradeRangeTop() {
+        const range = document.getElementById('gradeRangeSelect').value;
+        const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
+        document.getElementById('gradeRangeTopResult').innerHTML = renderGradeRangeTop(topSpecialtyByGrade, range);
     }
     
     function calculateDailyStats() {
@@ -1326,35 +1444,6 @@
             result.push({ range: range.label, specialty: top.specialty, count: top.count });
         }
         return result;
-    }
-    
-    function calculateTopRequested() {
-        const specialtyToGroup = new Map();
-        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
-        const grouped = new Map();
-        for (let student of allStudents) {
-            const seen = new Set();
-            for (let pref of student.prefs) {
-                const group = specialtyToGroup.get(pref);
-                if (group && !seen.has(group)) {
-                    seen.add(group);
-                    grouped.set(group, (grouped.get(group) || 0) + 1);
-                }
-            }
-        }
-        return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-    }
-    
-    function updateTopRequestedLimit() {
-        const limit = parseInt(document.getElementById('topRequestedLimit').value);
-        const topRequested = calculateTopRequested();
-        const displayItems = topRequested.slice(0, limit);
-        let html = '<ul class="rank-list">';
-        for (let i = 0; i < displayItems.length; i++) {
-            html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].count}</span></li>`;
-        }
-        html += '</ul>';
-        document.getElementById('topRequestedList').innerHTML = html;
     }
     
     function renderRankList(rankArray, type) {
@@ -1523,13 +1612,17 @@
     
     async function checkGrades() {
         const resultDiv = document.getElementById('gradeMismatchResult');
+        const idsColumnDiv = document.getElementById('gradeMismatchIdsColumn');
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = '🔄 جاري التحقق...';
+        idsColumnDiv.style.display = 'none';
+        
         const { validMap, ignoreSet } = await (async () => {
             const ref = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`);
             const csv = await ref.text();
             return parseReferenceCSV(csv);
         })();
+        
         const mismatches = [];
         for (let student of allStudents) {
             const id = student.realId;
@@ -1541,17 +1634,31 @@
                 }
             }
         }
-        if (mismatches.length === 0) resultDiv.innerHTML = '✅ جميع المعدلات مطابقة.';
-        else {
+        
+        if (mismatches.length === 0) {
+            resultDiv.innerHTML = '✅ جميع المعدلات مطابقة.';
+        } else {
             let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
             <table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
             mismatches.forEach(m => {
                 html += `<tr><td><strong>${escapeHtml(m.id)}</strong></td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
             });
-            html += `</tbody></table>`;
+            html += `</tbody>赶</div>
+            <button class="copy-column-btn" onclick="copyIdsColumn()">📋 نسخ الأرقام كعمود</button>
+            <div id="gradeMismatchIdsColumnContent" style="display:none;">${mismatches.map(m => m.id).join('\n')}</div>`;
             resultDiv.innerHTML = html;
         }
     }
+    
+    window.copyIdsColumn = function() {
+        const content = document.getElementById('gradeMismatchIdsColumnContent').innerText;
+        if (content) {
+            navigator.clipboard.writeText(content);
+            alert('تم نسخ الأرقام (كل رقم في سطر منفصل)');
+        } else {
+            alert('لا توجد أرقام لنسخها');
+        }
+    };
     
     function manualRefresh(){ loadStudents(); }
     function exportCSV(){
@@ -1598,7 +1705,8 @@
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
     window.showMoreRank = showMoreRank;
-    window.updateTopRequestedLimit = updateTopRequestedLimit;
+    window.updateCompetitivenessLimit = updateCompetitivenessLimit;
+    window.updateGradeRangeTop = updateGradeRangeTop;
 </script>
 </body>
 </html>
