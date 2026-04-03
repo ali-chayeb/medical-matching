@@ -508,7 +508,7 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><tr></thead>
+                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
                 <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr>
                 </tbody>
             </table>
@@ -565,7 +565,7 @@
     
     const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
     const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHvlW2DaoX6IilfXecA6eOJDLLB4WYl0R85wcTMyuk2P2QA4cgfxe91iww1jL9OBYrMg/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLSUwBcmu_MqpM27aSfm-3xatVtOOf4ypxKhjgIWdkNv6CuKUGS6IxiKmcbylaF946pA/exec";
     
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
@@ -726,7 +726,11 @@
                 }
                 if (cols.length > 5 && cols[5]?.trim()) {
                     const alertId = cleanId(cols[5]);
-                    const alertDesc = (cols.length > 6 && cols[6]?.trim()) ? cols[6].trim() : "معدل التفاضل ادخال خاطئ يرجى التصحيح";
+                    let alertDesc = (cols.length > 6 && cols[6]?.trim()) ? cols[6].trim() : "معدل التفاضل ادخال خاطئ يرجى التصحيح";
+                    // التأكد من إزالة أي نص "المتوقع" من الشرح
+                    if (alertDesc.includes("المتوقع")) {
+                        alertDesc = "معدل التفاضل ادخال خاطئ يرجى التصحيح";
+                    }
                     gradeMismatchAlerts.push({ id: alertId, description: alertDesc });
                 }
                 if (cols.length > 7 && cols[7]?.trim()) {
@@ -993,7 +997,7 @@
         const alertIds = new Set([...generalAlerts.map(a => a.id), ...gradeMismatchAlerts.map(a => a.id)]);
         let search = document.getElementById('searchStudent')?.value.trim() || '';
         let filtered = processed.filter(s => s.id.includes(search));
-        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></td>'; return; }
+        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>'; return; }
         let html = '';
         filtered.forEach((s, i) => {
             const isAlert = alertIds.has(s.id);
