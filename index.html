@@ -565,7 +565,7 @@
     
     const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
     const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDx5d4xEKIFdj25JOo38YrF8PWtl21hOsB0M7L_LCq-Zu-E1vSjc-YJzimPK8ZorZ_QA/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYFMuwptaSIgVNMgJda5zqcFopBTnKmSzgRasGC__0mA5W_o4kSGy6CqaJvuMaDDrpTA/exec";
     
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
@@ -587,30 +587,38 @@
     
     async function addGradeMismatchAlert(id, expectedGrade) {
         try {
-            await fetch(APPS_SCRIPT_URL, {
+            const response = await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'addGradeMismatch', id: id, expectedGrade: expectedGrade })
             });
-            console.log(`Added alert for ${id}`);
-        } catch(e) { console.error("Failed to add alert:", e); }
+            const result = await response.json();
+            console.log("إضافة تنبيه:", result);
+            return result.success;
+        } catch(e) {
+            console.error("فشل إضافة التنبيه:", e);
+            return false;
+        }
     }
     
     async function removeGradeMismatchAlert(id) {
         try {
-            await fetch(APPS_SCRIPT_URL, {
+            const response = await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'removeGradeMismatch', id: id })
             });
-            console.log(`Removed alert for ${id}`);
-        } catch(e) { console.error("Failed to remove alert:", e); }
+            const result = await response.json();
+            console.log("إزالة تنبيه:", result);
+            return result.success;
+        } catch(e) {
+            console.error("فشل إزالة التنبيه:", e);
+            return false;
+        }
     }
     
     async function autoCheckAndUpdateAlerts() {
-        console.log("Auto-checking grades...");
+        console.log("جاري التحقق التلقائي من المعدلات...");
         const { validMap, ignoreSet } = await loadReferenceData(true);
         const currentMismatches = [];
         for (let student of allStudents) {
@@ -730,7 +738,7 @@
             referenceDataCache = { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList };
             return referenceDataCache;
         } catch(e) {
-            console.error("Failed to load reference", e);
+            console.error("فشل تحميل المرجع", e);
             return { validMap: new Map(), ignoreSet: new Set(), generalAlerts: [], gradeMismatchAlerts: [], suspendedList: [] };
         }
     }
