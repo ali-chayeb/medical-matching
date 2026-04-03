@@ -508,7 +508,7 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
+                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><tr></thead>
                 <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr>
                 </tbody>
             </table>
@@ -565,7 +565,7 @@
     
     const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
     const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzglv21es9QLWiQdTvwtyC8aGRbLIBNhJcLfGdpESjaVVlx4TQrn-1J1R-2DU4TJj14mA/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHvlW2DaoX6IilfXecA6eOJDLLB4WYl0R85wcTMyuk2P2QA4cgfxe91iww1jL9OBYrMg/exec";
     
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
@@ -593,10 +593,10 @@
                 body: JSON.stringify({ action: 'addGradeMismatch', id: id, expectedGrade: expectedGrade })
             });
             const result = await response.json();
-            console.log("إضافة تنبيه:", result);
+            console.log("✅ إضافة تنبيه:", result);
             return result.success;
         } catch(e) {
-            console.error("فشل إضافة التنبيه:", e);
+            console.error("❌ فشل إضافة التنبيه:", e);
             return false;
         }
     }
@@ -609,16 +609,16 @@
                 body: JSON.stringify({ action: 'removeGradeMismatch', id: id })
             });
             const result = await response.json();
-            console.log("إزالة تنبيه:", result);
+            console.log("🗑️ إزالة تنبيه:", result);
             return result.success;
         } catch(e) {
-            console.error("فشل إزالة التنبيه:", e);
+            console.error("❌ فشل إزالة التنبيه:", e);
             return false;
         }
     }
     
     async function autoCheckAndUpdateAlerts() {
-        console.log("جاري التحقق التلقائي من المعدلات...");
+        console.log("🔄 جاري التحقق التلقائي من المعدلات...");
         const { validMap, ignoreSet } = await loadReferenceData(true);
         const currentMismatches = [];
         for (let student of allStudents) {
@@ -993,7 +993,7 @@
         const alertIds = new Set([...generalAlerts.map(a => a.id), ...gradeMismatchAlerts.map(a => a.id)]);
         let search = document.getElementById('searchStudent')?.value.trim() || '';
         let filtered = processed.filter(s => s.id.includes(search));
-        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>'; return; }
+        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></td>'; return; }
         let html = '';
         filtered.forEach((s, i) => {
             const isAlert = alertIds.has(s.id);
