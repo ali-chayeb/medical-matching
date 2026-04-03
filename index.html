@@ -291,6 +291,7 @@
             padding: 4px 10px;
             display: inline-block;
             font-size: 12px;
+            direction: ltr;
         }
         .load-more {
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -571,7 +572,6 @@
     let refreshTimer, isAdmin = false;
     let displayLimit = 30, currentData = null;
     let referenceDataCache = null;
-    let hiddenStudentsMap = new Map(); // لتخزين الأرقام المخفية (الرقم الحقيقي -> الرقم المخفي)
     const ADMIN_PW = "Alichayeb@23184";
     const GRADE_TOLERANCE = 0.2;
     
@@ -591,17 +591,6 @@
         const firstChar = id.charAt(0);
         const lastTwo = id.slice(-2);
         return `${firstChar}**${lastTwo}`;
-    }
-    
-    // دالة لعرض الرقم حسب السياق
-    function displayId(student, isAdminView = false) {
-        if (isAdminView) {
-            return student.realId; // المشفر يرى الرقم الحقيقي
-        }
-        if (student.isHidden) {
-            return student.hiddenId;
-        }
-        return student.realId;
     }
     
     // تحميل بيانات الطلاب مع الطابع الزمني وحالة الإخفاء
@@ -856,7 +845,7 @@
         } else {
             let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
             <table style="width:100%; border-collapse:collapse;">
-                <thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th><tr></thead><tbody>`;
+                <thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
             mismatches.forEach(m => {
                 html += `<tr><td><strong>${escapeHtml(m.id)}</strong></td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
             });
@@ -868,7 +857,6 @@
     // دوال المفاضلة
     function runMatch(){
         if(!allStudents.length){ processed=[]; updateUI(); return; }
-        // استخدام الرقم الحقيقي للمفاضلة
         let copy = allStudents.map(s=>({
             realId: s.realId,
             hiddenId: s.hiddenId,
@@ -981,30 +969,58 @@
         }
     }
     
+    // دالة عرض قائمة الطلاب مع إخفاء البيانات للمخفيين
     async function renderStudentsTable() {
         let tbody = document.getElementById('studentsList');
         if (!tbody) return;
+        
         const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
         const alertIds = new Set([...generalAlerts.map(a => a.id), ...gradeMismatchAlerts.map(a => a.id)]);
         let search = document.getElementById('searchStudent')?.value.trim() || '';
-        // البحث يمكن أن يكون بالرقم الحقيقي أو المخفي
-        let filtered = processed.filter(s => 
-            s.realId.includes(search) || s.hiddenId.includes(search)
-        );
-        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>'; return; }
+        
+        let filtered = processed;
+        const isSearching = search.length > 0;
+        
+        if (isSearching) {
+            // في حالة البحث: نعرض فقط الطلاب الذين يتطابق رقمهم (الحقيقي أو المخفي) مع البحث
+            filtered = processed.filter(s => {
+                if (s.isHidden) {
+                    return s.hiddenId.includes(search);
+                } else {
+                    return s.realId.includes(search);
+                }
+            });
+        }
+        
+        if (!filtered.length) { 
+            tbody.innerHTML = '<tr><td colspan="4">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</td></tr>'; 
+            return; 
+        }
+        
         let html = '';
         filtered.forEach((s, i) => {
             const isAlert = alertIds.has(s.realId);
             const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
-            const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
-            const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
-            const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            html += `<tr style="${rowStyle}">
-                        <td style="font-weight:bold;">${i+1}</td>
-                        <td>${idDisplay}</td>
-                        <td>${s.gpa}</td>
-                        <td class="${assignedClass}">${escapeHtml(s.assigned)}</td>
-                     </tr>`;
+            
+            // إذا كان مخفياً وليس في وضع البحث
+            if (s.isHidden && !isSearching) {
+                // عرض صف مخفي بدون تفاصيل
+                html += `<tr style="${rowStyle}">
+                            <td style="font-weight:bold;">${i+1}</td>
+                            <td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</td>
+                          </tr>`;
+            } else {
+                // عرض طبيعي (إما عادي، أو مخفي ولكن في وضع البحث)
+                const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
+                const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
+                const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
+                html += `<tr style="${rowStyle}">
+                            <td style="font-weight:bold;">${i+1}</td>
+                            <td style="direction: ltr; text-align: center;">${idDisplay}</td>
+                            <td>${s.gpa}</td>
+                            <td class="${assignedClass}">${escapeHtml(s.assigned)}</td>
+                          </tr>`;
+            }
         });
         tbody.innerHTML = html;
     }
