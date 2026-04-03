@@ -72,7 +72,7 @@
         }
         .big-number:hover { transform: scale(1.02); }
         .big-number .number { font-size: 56px; font-weight: 800; }
-        .notice-box, .alerts-box, .suspended-box {
+        .notice-box, .alerts-box, .suspended-box, .rejected-box {
             border-radius: 20px;
             padding: 14px;
             margin-bottom: 16px;
@@ -95,9 +95,15 @@
             border-right: 4px solid #ff9800;
             color: #9e5e00;
         }
-        .alerts-box h4, .suspended-box h4 { font-size: 14px; margin-bottom: 8px; }
+        .rejected-box {
+            background: #ffebee;
+            border-right: 4px solid #d32f2f;
+            color: #c62828;
+        }
+        .alerts-box h4, .suspended-box h4, .rejected-box h4 { font-size: 14px; margin-bottom: 8px; }
         .alerts-box h4 { color: #dc3545; }
         .suspended-box h4 { color: #ff9800; }
+        .rejected-box h4 { color: #d32f2f; }
         .alerts-search {
             width: 100%;
             padding: 8px 12px;
@@ -112,7 +118,7 @@
             border-color: #dc3545;
             box-shadow: 0 0 0 2px rgba(220,53,69,0.2);
         }
-        .alerts-list {
+        .alerts-list, .rejected-list {
             max-height: 300px;
             overflow-y: auto;
         }
@@ -484,6 +490,12 @@
         </div>
     </div>
 
+    <!-- مربع الطلاب المخفيين المرفوضين (واجهة الطالب) -->
+    <div class="rejected-box">
+        <h4>🚫 طلاب مخفيون مرفوضون</h4>
+        <div id="publicRejectedList" class="rejected-list">جاري التحميل...</div>
+    </div>
+
     <div class="update-info">
         <span class="live-badge">🔄 تحديث كل 20 ثانية</span>
         <span id="updateTime">جاري التحميل...</span>
@@ -545,6 +557,14 @@
         <div id="gradeMismatchResult" class="result-box" style="display:none;"></div>
     </div>
     
+    <div class="admin-section">
+        <h3>🚫 الطلاب المخفيون المرفوضون</h3>
+        <button id="refreshRejectedBtn" style="background:#ff9800;" class="btn-sm">🔄 تحديث قائمة الرفض</button>
+        <div id="rejectedHiddenStudents" class="result-box" style="margin-top:12px; max-height:300px; overflow-y:auto;">
+            <div class="loading">جاري التحميل...</div>
+        </div>
+    </div>
+    
     <div style="display:flex; justify-content:space-between; margin:15px 0;">
         <h3>📋 تحديث البيانات</h3>
         <button id="manualRefreshBtn" style="background:#0056b3; border:none; padding:6px 15px; border-radius:30px; color:white;">🔄 تحديث يدوي</button>
@@ -569,6 +589,7 @@
     
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
+    let rejectedHiddenStudents = [];
     let refreshTimer, isAdmin = false;
     let displayLimit = 30, currentData = null;
     let referenceDataCache = null;
@@ -585,7 +606,6 @@
         return id.toString().trim();
     }
     
-    // دالة لإخفاء الرقم (2**84)
     function hideIdNumber(id) {
         if (!id || id.length < 4) return id;
         const firstChar = id.charAt(0);
@@ -593,7 +613,6 @@
         return `${firstChar}**${lastTwo}`;
     }
     
-    // تحميل بيانات الطلاب مع الطابع الزمني وحالة الإخفاء
     async function loadStudents() {
         try {
             const res = await fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, {cache:"no-store"});
@@ -661,7 +680,6 @@
         return res;
     }
     
-    // تحميل البيانات المرجعية (للتشغيل اليدوي فقط)
     async function loadReferenceData(forceReload = false) {
         if (referenceDataCache && !forceReload) return referenceDataCache;
         try {
@@ -707,7 +725,121 @@
         }
     }
     
-    // تحديث التنبيهات (يدوي بالكامل)
+    async function validateHiddenStudents() {
+        const { validMap, ignoreSet } = await loadReferenceData(true);
+        const newRejected = [];
+        
+        // كشف التكرار
+        const idCount = new Map();
+        for (let student of allStudents) {
+            if (student.isHidden) {
+                idCount.set(student.realId, (idCount.get(student.realId) || 0) + 1);
+            }
+        }
+        
+        for (let student of allStudents) {
+            if (!student.isHidden) continue;
+            
+            const id = student.realId;
+            let reason = null;
+            
+            if (idCount.get(id) > 1) {
+                reason = "تكرار (استخدام رقم جامعي لطالب آخر)";
+            }
+            else if (!validMap.has(id)) {
+                reason = "عدم وجود الرقم في قوائم 53 و 52 تكميلي";
+            }
+            else {
+                const refValue = validMap.get(id);
+                if (typeof refValue === 'number') {
+                    if (Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) {
+                        reason = `عدم تطابق المعدل التفاضلي (المدخل: ${student.gpa}، المتوقع: ${refValue})`;
+                    }
+                }
+            }
+            
+            if (reason) {
+                newRejected.push({
+                    realId: id,
+                    hiddenId: student.hiddenId,
+                    reason: reason,
+                    timestamp: student.timestamp || new Date().toISOString(),
+                    gpa: student.gpa
+                });
+            }
+        }
+        
+        rejectedHiddenStudents = newRejected;
+        
+        // إزالة المرفوضين من allStudents
+        const acceptedStudents = allStudents.filter(s => {
+            if (!s.isHidden) return true;
+            return !rejectedHiddenStudents.some(r => r.realId === s.realId);
+        });
+        
+        if (acceptedStudents.length !== allStudents.length) {
+            allStudents = acceptedStudents;
+            runMatch();
+        }
+        
+        // تحديث العداد
+        document.getElementById('totalCount').innerText = allStudents.length;
+        
+        // تحديث واجهة الطالب والمشرف
+        renderPublicRejectedList();
+        renderRejectedHiddenTable();
+        
+        return newRejected;
+    }
+    
+    function renderPublicRejectedList() {
+        const container = document.getElementById('publicRejectedList');
+        if (!container) return;
+        
+        if (rejectedHiddenStudents.length === 0) {
+            container.innerHTML = '<div style="color:green;">✅ لا يوجد طلاب مخفيون مرفوضون</div>';
+            return;
+        }
+        
+        let html = '<ul style="margin-right:20px;">';
+        for (let student of rejectedHiddenStudents) {
+            html += `<li style="margin-bottom:8px; direction:ltr; text-align:right;">
+                        <strong style="direction:ltr; display:inline-block;">${escapeHtml(student.hiddenId)}</strong><br>
+                        <span style="color:#d32f2f; font-size:11px;">⚠️ ${escapeHtml(student.reason)}</span>
+                     </li>`;
+        }
+        html += '</ul><div style="font-size:11px; color:#666; margin-top:8px;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>';
+        container.innerHTML = html;
+    }
+    
+    function renderRejectedHiddenTable() {
+        const container = document.getElementById('rejectedHiddenStudents');
+        if (!container) return;
+        
+        if (rejectedHiddenStudents.length === 0) {
+            container.innerHTML = '<div style="color:green; padding:10px;">✅ لا يوجد طلاب مخفيون مرفوضون</div>';
+            return;
+        }
+        
+        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;">
+                        <thead>
+                            <tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></tr>
+                        </thead>
+                        <tbody>`;
+        for (let student of rejectedHiddenStudents) {
+            html += `<tr style="border-bottom:1px solid #ddd;">
+                        <td><strong>${escapeHtml(student.realId)}</strong></td>
+                        <td>${escapeHtml(student.hiddenId)}</td>
+                        <td style="color:#dc3545;">${escapeHtml(student.reason)}</td>
+                        <td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</td>
+                        <td>${student.gpa}</td>
+                      </tr>`;
+        }
+        html += `</tbody></table>
+                 <div style="margin-top:10px; font-size:11px; color:#666;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>`;
+        container.innerHTML = html;
+    }
+    
     async function updateAlertsFromColumnsDEFG() {
         const { generalAlerts, gradeMismatchAlerts } = await loadReferenceData();
         const allAlerts = [...generalAlerts, ...gradeMismatchAlerts];
@@ -778,7 +910,6 @@
         document.getElementById('suspendedContent').innerHTML = html;
     }
     
-    // البحث عن الأرقام غير الموجودة والمكررة
     async function findMissingAndDuplicates() {
         const missingDiv = document.getElementById('missingNumbersResult');
         const duplicateDiv = document.getElementById('duplicateNumbersResult');
@@ -854,7 +985,6 @@
         }
     }
     
-    // دوال المفاضلة
     function runMatch(){
         if(!allStudents.length){ processed=[]; updateUI(); return; }
         let copy = allStudents.map(s=>({
@@ -969,7 +1099,6 @@
         }
     }
     
-    // دالة عرض قائمة الطلاب مع إخفاء البيانات للمخفيين
     async function renderStudentsTable() {
         let tbody = document.getElementById('studentsList');
         if (!tbody) return;
@@ -982,7 +1111,6 @@
         const isSearching = search.length > 0;
         
         if (isSearching) {
-            // في حالة البحث: نعرض فقط الطلاب الذين يتطابق رقمهم (الحقيقي أو المخفي) مع البحث
             filtered = processed.filter(s => {
                 if (s.isHidden) {
                     return s.hiddenId.includes(search);
@@ -1002,15 +1130,12 @@
             const isAlert = alertIds.has(s.realId);
             const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
             
-            // إذا كان مخفياً وليس في وضع البحث
             if (s.isHidden && !isSearching) {
-                // عرض صف مخفي بدون تفاصيل
                 html += `<tr style="${rowStyle}">
                             <td style="font-weight:bold;">${i+1}</td>
                             <td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</td>
                           </tr>`;
             } else {
-                // عرض طبيعي (إما عادي، أو مخفي ولكن في وضع البحث)
                 const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
                 const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
                 const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
@@ -1189,7 +1314,7 @@
         sorted.forEach((s,i)=>{
             let row = tbody.insertRow();
             row.insertCell(0).innerText = i+1;
-            row.insertCell(1).innerText = s.realId;  // الرقم الحقيقي للمشرف
+            row.insertCell(1).innerText = s.realId;
             row.insertCell(2).innerText = s.gpa;
             row.insertCell(3).innerText = s.assigned;
             row.insertCell(4).innerText = s.prefs.slice(0,4).join(' → ') + (s.prefs.length > 4 ? ' ...' : '');
@@ -1207,10 +1332,11 @@
         a.click();
     }
     
-    function startRefresh(){
+    async function startRefresh(){
         if(refreshTimer) clearInterval(refreshTimer);
         refreshTimer = setInterval(async () => {
             await loadStudents();
+            await validateHiddenStudents();
             await updateAlertsFromColumnsDEFG();
             await updateSuspendedFromColumnsHI();
             await renderStats();
@@ -1225,6 +1351,11 @@
     document.getElementById('checkGradesBtn').onclick = checkGrades;
     document.getElementById('manualRefreshBtn').onclick = manualRefresh;
     document.getElementById('exportCSVBtn').onclick = exportCSV;
+    document.getElementById('refreshRejectedBtn').onclick = async () => {
+        await loadStudents();
+        await validateHiddenStudents();
+        alert(`تم التحديث. عدد الطلاب المخفيين المرفوضين: ${rejectedHiddenStudents.length}`);
+    };
     
     document.getElementById('searchSpecialty')?.addEventListener('input', ()=>{ displayLimit=30; renderStats(); });
     document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
