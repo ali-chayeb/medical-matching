@@ -28,10 +28,6 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes slideInRight {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
@@ -76,6 +72,7 @@
             margin-bottom: 20px;
             transition: all 0.3s ease;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            position: relative;
         }
         .big-number:hover { transform: scale(1.02); }
         .big-number .number { font-size: 56px; font-weight: 800; }
@@ -83,6 +80,62 @@
             font-size: 18px;
             margin-top: 8px;
             opacity: 0.95;
+        }
+        .total-visits {
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-right: 4px solid #ffc107;
+            padding: 12px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .warning-icon {
+            font-size: 24px;
+        }
+        .warning-text {
+            flex: 1;
+            font-size: 13px;
+            color: #856404;
+        }
+        .countdown-box {
+            background: #e8f0fe;
+            border-right: 4px solid #0056b3;
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .countdown-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .countdown-timer {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0056b3;
+            direction: ltr;
+            display: inline-block;
         }
         
         .notice-box, .alerts-box, .suspended-box, .rejected-box {
@@ -508,6 +561,7 @@
             .two-columns { flex-direction: column; }
             .tab-btn { min-width: 80px; font-size: 12px; }
             .grade-bar { flex-wrap: wrap; }
+            .countdown-timer { font-size: 14px; }
         }
         ::-webkit-scrollbar {
             width: 8px;
@@ -533,9 +587,28 @@
         <button id="showAdminBtn" class="admin-btn">🔐 Admin</button>
     </div>
     <div class="big-number">
+        <div class="total-visits">
+            <span>👁️</span>
+            <span id="totalVisitsCount">جاري التحميل...</span>
+        </div>
         <div class="number" id="totalCount">--</div>
         <div class="label">عدد الطلاب المسجلين</div>
         <div class="percentage" id="percentageDisplay"></div>
+    </div>
+    
+    <!-- تحذير عدم اكتمال العينة -->
+    <div id="warningBox" class="warning-box" style="display: none;">
+        <div class="warning-icon">⚠️</div>
+        <div class="warning-text">
+            <strong>تنبيه مهم:</strong> حتى الآن شارك <span id="warningCount">0</span> طالباً فقط من أصل <strong>782</strong> (نسبة <span id="warningPercent">0</span>%).<br>
+            النتائج الحالية <strong>غير دقيقة</strong> وقد تتغير بشكل كبير عند اكتمال العينة. يُرجى مشاركة الرابط مع زملائك لتحسين الدقة.
+        </div>
+    </div>
+    
+    <!-- العد التنازلي -->
+    <div id="countdownBox" class="countdown-box">
+        <div class="countdown-label">⏰ الوقت المتبقي لتسجيل الرغبات:</div>
+        <div class="countdown-timer" id="countdownTimer"></div>
     </div>
     
     <div class="notice-box">
@@ -597,8 +670,8 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><tr></thead>
-                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل......</td></tr>
+                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
+                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل......</div></td>
                 </tbody>
             </table>
         </div>
@@ -663,6 +736,7 @@
     const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
     const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
     const TOTAL_GRADUATES = 782;
+    const DEADLINE_DATE = new Date(2026, 3, 13); // 13-4-2026 (الشهر 3 = أبريل)
     
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
@@ -674,7 +748,7 @@
     const GRADE_TOLERANCE = 0.2;
     
     let rankLimits = {
-        individualFirst: 10, groupedFirst: 10, groupedTotal: 10
+        individualFirst: 10, groupedFirst: 10
     };
     
     function cleanId(id) {
@@ -708,6 +782,54 @@
         }
         res.push(cur.trim());
         return res;
+    }
+    
+    // تحديث العد التنازلي
+    function updateCountdown() {
+        const countdownBox = document.getElementById('countdownBox');
+        const countdownTimer = document.getElementById('countdownTimer');
+        const now = new Date();
+        
+        if (now > DEADLINE_DATE) {
+            countdownBox.style.display = 'none';
+            return;
+        }
+        
+        countdownBox.style.display = 'flex';
+        const diff = DEADLINE_DATE - now;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (86400000)) / (3600000));
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        
+        countdownTimer.innerHTML = `${days} يوم ${hours} ساعة ${minutes} دقيقة ${seconds} ثانية`;
+    }
+    
+    // تحديث التحذير
+    function updateWarningBox() {
+        const warningBox = document.getElementById('warningBox');
+        const count = allStudents.length;
+        
+        if (count < 550) {
+            const percentage = ((count / TOTAL_GRADUATES) * 100).toFixed(1);
+            document.getElementById('warningCount').innerText = count;
+            document.getElementById('warningPercent').innerText = percentage;
+            warningBox.style.display = 'flex';
+        } else {
+            warningBox.style.display = 'none';
+        }
+    }
+    
+    // جلب إجمالي الزيارات من CountAPI
+    async function fetchTotalVisits() {
+        try {
+            const response = await fetch('https://api.countapi.xyz/hit/medical-matching-alep/visits');
+            const data = await response.json();
+            document.getElementById('totalVisitsCount').innerText = data.value.toLocaleString();
+        } catch(e) {
+            console.error('فشل جلب عدد الزيارات', e);
+            document.getElementById('totalVisitsCount').innerText = '---';
+        }
     }
     
     function parseReferenceCSV(csv) {
@@ -968,6 +1090,8 @@
                 renderRejectedHiddenTable();
             }
             
+            updateWarningBox();
+            
             runMatch();
             
         } catch(e) { 
@@ -1136,8 +1260,8 @@
                 <h4>🗓️ التسجيل اليومي</h4>
                 <table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
         let cumulative = 0;
-        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></tr>`; }
-        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></tr>`;
+        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></td>`; }
+        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></td>`;
         html += `</tbody></table></div>
         
         <div class="stats-section">
@@ -1530,7 +1654,10 @@
     
     function startRefresh(){
         if(refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(async () => { await loadStudents(); }, 20000);
+        refreshTimer = setInterval(async () => { 
+            await loadStudents();
+            updateCountdown();
+        }, 20000);
     }
     
     document.getElementById('showAdminBtn').onclick = showAdminLogin;
@@ -1555,9 +1682,13 @@
         });
     });
     
+    // بدء التشغيل
     loadStudents();
     startRefresh();
     setupAlertsSearch();
+    fetchTotalVisits();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
     
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
