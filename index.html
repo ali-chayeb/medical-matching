@@ -67,7 +67,6 @@
         .admin-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
         .admin-btn:active { transform: scale(0.96); }
         
-        /* عداد ثابت بدون حركة */
         .big-number {
             background: linear-gradient(135deg, #0056b3, #00a86b);
             border-radius: 28px;
@@ -77,7 +76,6 @@
             margin-bottom: 20px;
             transition: all 0.3s ease;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            position: relative;
         }
         .big-number:hover { transform: scale(1.02); }
         .big-number .number { font-size: 56px; font-weight: 800; }
@@ -85,21 +83,6 @@
             font-size: 18px;
             margin-top: 8px;
             opacity: 0.95;
-        }
-        .online-count {
-            position: absolute;
-            top: 12px;
-            left: 16px;
-            background: rgba(255,255,255,0.2);
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .online-count span {
-            font-weight: bold;
         }
         
         .notice-box, .alerts-box, .suspended-box, .rejected-box {
@@ -518,18 +501,6 @@
         .copy-column-btn:hover {
             background: #218838;
         }
-        .ids-column {
-            background: #f8fafc;
-            padding: 10px;
-            border-radius: 12px;
-            margin-top: 10px;
-            font-family: monospace;
-            font-size: 12px;
-            direction: ltr;
-            text-align: left;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
             .specialty-card h3 { font-size: 14px; }
@@ -562,10 +533,6 @@
         <button id="showAdminBtn" class="admin-btn">🔐 Admin</button>
     </div>
     <div class="big-number">
-        <div class="online-count">
-            <span>👁️</span>
-            <span id="onlineCount">0</span>
-        </div>
         <div class="number" id="totalCount">--</div>
         <div class="label">عدد الطلاب المسجلين</div>
         <div class="percentage" id="percentageDisplay"></div>
@@ -630,7 +597,7 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
+                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><tr></thead>
                 <tbody id="studentsList"><tr><td colspan="4">جاري التحميل......</td></tr>
                 </tbody>
             </table>
@@ -664,7 +631,6 @@
         <h3>📊 التحقق من المعدلات التفاضلية</h3>
         <button id="checkGradesBtn" style="background:#dc3545;" class="btn-sm">⚖️ التحقق من المعدلات</button>
         <div id="gradeMismatchResult" class="result-box" style="display:none;"></div>
-        <div id="gradeMismatchIdsColumn" class="ids-column" style="display:none;"></div>
     </div>
     
     <div class="admin-section">
@@ -710,15 +676,6 @@
     let rankLimits = {
         individualFirst: 10, groupedFirst: 10, groupedTotal: 10
     };
-    
-    // عدد الزوار (تقديري باستخدام SessionStorage)
-    let onlineCount = 1;
-    function updateOnlineCount() {
-        onlineCount = Math.floor(Math.random() * 50) + 15; // محاكاة 15-65 زائر
-        document.getElementById('onlineCount').innerText = onlineCount;
-    }
-    setInterval(updateOnlineCount, 30000);
-    updateOnlineCount();
     
     function cleanId(id) {
         if (!id) return "";
@@ -933,11 +890,11 @@
                         <tbody>`;
         for (let student of rejectedHiddenStudents) {
             html += `<tr style="border-bottom:1px solid #ddd;">
-                        <td><strong>${escapeHtml(student.realId)}</strong></td>
-                        <td>${escapeHtml(student.hiddenId)}</td>
-                        <td style="color:#dc3545;">${escapeHtml(student.reason)}</td>
-                        <td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</td>
-                        <td>${student.gpa}</td>
+                        <td><strong>${escapeHtml(student.realId)}</strong></div>
+                        <td>${escapeHtml(student.hiddenId)}</div>
+                        <td style="color:#dc3545;">${escapeHtml(student.reason)}</div>
+                        <td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</div>
+                        <td>${student.gpa}</div>
                        </tr>`;
         }
         html += `</tbody>
@@ -1145,7 +1102,7 @@
             });
         }
         if (!filtered.length) { 
-            tbody.innerHTML = '<tr><td colspan="4">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</td></tr>'; 
+            tbody.innerHTML = '<tr><td colspan="4">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</div><tr>'; 
             return; 
         }
         let html = '';
@@ -1153,57 +1110,15 @@
             const isAlert = alertIds.has(s.realId);
             const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
             if (s.isHidden && !isSearching) {
-                html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</td><td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</td></tr>`;
+                html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</div><td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</div></tr>`;
             } else {
                 const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
                 const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
                 const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-                html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</td><td style="direction: ltr; text-align: center;">${idDisplay}</td><td>${s.gpa}</td><td class="${assignedClass}">${escapeHtml(s.assigned)}</td></tr>`;
+                html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</div><td style="direction: ltr; text-align: center;">${idDisplay}</div><td>${s.gpa}</div><td class="${assignedClass}">${escapeHtml(s.assigned)}</div></tr>`;
             }
         });
         tbody.innerHTML = html;
-    }
-    
-    // حساب نسبة التنافسية (عدد المقبولين / عدد المتقدمين)
-    function calculateCompetitiveness() {
-        const specialtyToGroup = new Map();
-        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
-        
-        const applicants = new Map(); // عدد المتقدمين (إجمالي الراغبين)
-        const acceptedCount = new Map(); // عدد المقبولين
-        
-        // حساب المتقدمين
-        for (let student of allStudents) {
-            const seen = new Set();
-            for (let pref of student.prefs) {
-                const group = specialtyToGroup.get(pref);
-                if (group && !seen.has(group)) {
-                    seen.add(group);
-                    applicants.set(group, (applicants.get(group) || 0) + 1);
-                }
-            }
-        }
-        
-        // حساب المقبولين من currentData
-        if (currentData && currentData.accepted) {
-            for (let [specName, accList] of Object.entries(currentData.accepted)) {
-                const group = specialtyToGroup.get(specName);
-                if (group) {
-                    acceptedCount.set(group, (acceptedCount.get(group) || 0) + accList.length);
-                }
-            }
-        }
-        
-        // حساب نسبة التنافسية (كلما زادت النسبة، قلت التنافسية؟)
-        // نستخدم المعادلة: (المقبولون / المتقدمون) * 100
-        const result = [];
-        for (let [group, applicantsCount] of applicants) {
-            const accepted = acceptedCount.get(group) || 0;
-            const rate = applicantsCount > 0 ? (accepted / applicantsCount) * 100 : 0;
-            result.push({ name: group, applicants: applicantsCount, accepted: accepted, rate: rate });
-        }
-        
-        return result.sort((a, b) => a.rate - b.rate); // الأقل نسبة = الأكثر تنافسية
     }
     
     async function renderRegistrationStats() {
@@ -1213,11 +1128,7 @@
         const dailyStats = calculateDailyStats();
         const firstChoiceRank = calculateFirstChoiceRank();
         const groupedFirstChoice = calculateGroupedFirstChoice();
-        const groupedTotalWishers = calculateGroupedTotalWishers();
         const gradeDistribution = calculateGradeDistribution();
-        const competitiveness = calculateCompetitiveness();
-        
-        // أكثر اختصاص حسب فئة المعدل (مع قائمة منسدلة)
         const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
         
         let html = `
@@ -1225,8 +1136,8 @@
                 <h4>🗓️ التسجيل اليومي</h4>
                 <table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
         let cumulative = 0;
-        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</td><td>${day.count}</td><td>${cumulative}</td></tr>`; }
-        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</td></tr>`;
+        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></tr>`; }
+        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></tr>`;
         html += `</tbody></table></div>
         
         <div class="stats-section">
@@ -1265,42 +1176,9 @@
                 <option value="60-65">60-65</option>
             </select>
             <div id="gradeRangeTopResult">${renderGradeRangeTop(topSpecialtyByGrade, '90-95')}</div>
-        </div>
-        
-        <div class="stats-section">
-            <h4>🔥 أكثر الاختصاصات تنافسية (كلما قلت النسبة، زادت التنافسية)</h4>
-            <select id="competitivenessLimit" class="dropdown-select" onchange="updateCompetitivenessLimit()">
-                <option value="5">عرض 5</option>
-                <option value="10" selected>عرض 10</option>
-                <option value="15">عرض 15</option>
-                <option value="20">عرض 20</option>
-            </select>
-            <div id="competitivenessList">${renderCompetitivenessList(competitiveness, 10)}</div>
         </div>`;
         
         container.innerHTML = html;
-    }
-    
-    function renderCompetitivenessList(data, limit) {
-        if (data.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-        const displayItems = data.slice(0, limit);
-        let html = '<ul class="rank-list">';
-        for (let i = 0; i < displayItems.length; i++) {
-            const item = displayItems[i];
-            html += `<li>
-                        <span class="rank-number">${i+1}.</span>
-                        <span class="rank-name">${escapeHtml(item.name)}</span>
-                        <span class="rank-count">${item.accepted}/${item.applicants} (${item.rate.toFixed(1)}%)</span>
-                     </li>`;
-        }
-        html += '</ul>';
-        return html;
-    }
-    
-    function updateCompetitivenessLimit() {
-        const limit = parseInt(document.getElementById('competitivenessLimit').value);
-        const competitiveness = calculateCompetitiveness();
-        document.getElementById('competitivenessList').innerHTML = renderCompetitivenessList(competitiveness, limit);
     }
     
     function renderGradeRangeTop(data, selectedRange) {
@@ -1354,23 +1232,6 @@
                 const pref = student.prefs[0];
                 const group = specialtyToGroup.get(pref);
                 if (group) grouped.set(group, (grouped.get(group) || 0) + 1);
-            }
-        }
-        return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-    }
-    
-    function calculateGroupedTotalWishers() {
-        const specialtyToGroup = new Map();
-        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
-        const grouped = new Map();
-        for (let student of allStudents) {
-            const seen = new Set();
-            for (let pref of student.prefs) {
-                const group = specialtyToGroup.get(pref);
-                if (group && !seen.has(group)) {
-                    seen.add(group);
-                    grouped.set(group, (grouped.get(group) || 0) + 1);
-                }
             }
         }
         return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
@@ -1450,7 +1311,6 @@
         let limit = 10;
         if (type === 'individualFirst') limit = rankLimits.individualFirst;
         else if (type === 'groupedFirst') limit = rankLimits.groupedFirst;
-        else if (type === 'groupedTotal') limit = rankLimits.groupedTotal;
         else limit = 10;
         
         const displayItems = rankArray.slice(0, limit);
@@ -1461,7 +1321,7 @@
             html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(item.name)}</span><span class="rank-count">${item.count}</span></li>`;
         }
         html += '</ul>';
-        if (rankArray.length > limit && (type === 'individualFirst' || type === 'groupedFirst' || type === 'groupedTotal')) {
+        if (rankArray.length > limit && (type === 'individualFirst' || type === 'groupedFirst')) {
             html += `<button class="show-more-btn" onclick="showMoreRank('${type}')">➕ عرض المزيد</button>`;
         }
         return html;
@@ -1471,7 +1331,6 @@
         switch(type) {
             case 'individualFirst': rankLimits.individualFirst += 10; break;
             case 'groupedFirst': rankLimits.groupedFirst += 10; break;
-            case 'groupedTotal': rankLimits.groupedTotal += 10; break;
         }
         renderRegistrationStats();
     }
@@ -1612,10 +1471,8 @@
     
     async function checkGrades() {
         const resultDiv = document.getElementById('gradeMismatchResult');
-        const idsColumnDiv = document.getElementById('gradeMismatchIdsColumn');
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = '🔄 جاري التحقق...';
-        idsColumnDiv.style.display = 'none';
         
         const { validMap, ignoreSet } = await (async () => {
             const ref = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`);
@@ -1641,9 +1498,9 @@
             let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
             <table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
             mismatches.forEach(m => {
-                html += `<tr><td><strong>${escapeHtml(m.id)}</strong></td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`;
+                html += `<tr><td><strong>${escapeHtml(m.id)}</strong></div><td>${m.actual}</div><td>${m.expected}</div><td>${Math.abs(m.actual - m.expected).toFixed(2)}</div></tr>`;
             });
-            html += `</tbody>赶</div>
+            html += `</tbody></table></div>
             <button class="copy-column-btn" onclick="copyIdsColumn()">📋 نسخ الأرقام كعمود</button>
             <div id="gradeMismatchIdsColumnContent" style="display:none;">${mismatches.map(m => m.id).join('\n')}</div>`;
             resultDiv.innerHTML = html;
@@ -1705,7 +1562,6 @@
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
     window.showMoreRank = showMoreRank;
-    window.updateCompetitivenessLimit = updateCompetitivenessLimit;
     window.updateGradeRangeTop = updateGradeRangeTop;
 </script>
 </body>
