@@ -498,7 +498,7 @@
         <button class="tab-btn active" data-tab="stats">📊 الإحصائيات</button>
         <button class="tab-btn" data-tab="students">📋 قائمة الطلاب</button>
         <button class="tab-btn" data-tab="registration">📈 إحصائيات التسجيل</button>
-        <button class="tab-btn" data-tab="batches">📚 دفعات سابقة</button>
+        <button class="tab-btn" data-tab="batches">📚 دفعات سابقة (تجريبي)</button>
     </div>
 
     <div id="tabStats" class="tab-pane active">
@@ -569,7 +569,7 @@
     <div style="margin:15px 0;"><button id="exportCSVBtn" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
+            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></td></thead>
             <tbody id="adminStudentsList"></tbody>
         </table>
     </div>
@@ -604,6 +604,7 @@
     let referenceDataCache = null;
     const GRADE_TOLERANCE = 0.2;
     let batchesTabVisible = true;
+    let batchesDataCache = null;
     
     let rankLimits = { individualFirst: 10, groupedFirst: 10 };
     
@@ -699,7 +700,7 @@
         const container = document.getElementById('rejectedHiddenStudents');
         if (!container) return;
         if (rejectedHiddenStudents.length === 0) { container.innerHTML = '<div style="color:green; padding:10px;">✅ لا توجد أرقام مخفية مرفوضة</div>'; return; }
-        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;"><thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></tr></thead><tbody>`;
+        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;"><thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></td></thead><tbody>`;
         for (let student of rejectedHiddenStudents) html += `<tr><td><strong>${escapeHtml(student.realId)}</strong></div><td>${escapeHtml(student.hiddenId)}</div><td style="color:#dc3545;">${escapeHtml(student.reason)}</div><td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</div><td>${student.gpa}</div></tr>`;
         html += `</tbody></table><div style="margin-top:10px; font-size:11px; color:#666;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>`;
         container.innerHTML = html;
@@ -730,19 +731,13 @@
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
                 if (cols.length >= 12) {
-                    const value = cols[11]?.trim().toUpperCase(); // العمود L (index 11)
-                    if (value === "FALSE") {
-                        batchesTabVisible = false;
-                    } else if (value === "TRUE") {
-                        batchesTabVisible = true;
-                    }
+                    const value = cols[11]?.trim().toUpperCase();
+                    if (value === "FALSE") batchesTabVisible = false;
+                    else if (value === "TRUE") batchesTabVisible = true;
                     break;
                 }
             }
-        } catch(e) {
-            console.error("فشل تحميل إعدادات التبويب", e);
-            batchesTabVisible = true;
-        }
+        } catch(e) { console.error("فشل تحميل إعدادات التبويب", e); batchesTabVisible = true; }
         const tabBtn = document.querySelector('.tab-btn[data-tab="batches"]');
         if (tabBtn) tabBtn.style.display = batchesTabVisible ? "block" : "none";
     }
@@ -756,23 +751,11 @@
             if (lines.length < 2) return null;
             
             const headers = parseCSVLine(lines[0]);
+            const col50Name = 0, col50Min = 1, col50Seats = 2, col50Accepted = 3, col50Grades = 4;
+            const col52Name = 5, col52Min = 6, col52Seats = 7, col52Accepted = 8, col52Grades = 10;
             
-            // تحديد أرقام الأعمدة (A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10, L=11)
-            const col50Name = 0;
-            const col50Min = 1;
-            const col50Seats = 2;
-            const col50Accepted = 3;
-            const col50Grades = 4;
-            const col52Name = 5;
-            const col52Min = 6;
-            const col52Seats = 7;
-            const col52Accepted = 8;
-            const col52Grades = 10;
-            
-            const specialties50 = [];
-            const specialties52 = [];
-            let grades50 = [];
-            let grades52 = [];
+            const specialties50 = [], specialties52 = [];
+            let grades50 = [], grades52 = [];
             
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
@@ -786,7 +769,6 @@
                         accepted: parseInt(cols[col50Accepted]) || 0
                     });
                 }
-                
                 if (cols[col52Name] && cols[col52Name].trim()) {
                     specialties52.push({
                         name: cols[col52Name].trim(),
@@ -795,23 +777,17 @@
                         accepted: parseInt(cols[col52Accepted]) || 0
                     });
                 }
-                
                 if (cols[col50Grades] && cols[col50Grades].trim()) {
                     const grade = parseFloat(cols[col50Grades]);
                     if (!isNaN(grade)) grades50.push(grade);
                 }
-                
                 if (col52Grades !== -1 && cols[col52Grades] && cols[col52Grades].trim()) {
                     const grade = parseFloat(cols[col52Grades]);
                     if (!isNaN(grade)) grades52.push(grade);
                 }
             }
-            
             return { specialties50, specialties52, grades50, grades52 };
-        } catch(e) {
-            console.error("فشل تحميل بيانات الدفعات", e);
-            return null;
-        }
+        } catch(e) { console.error("فشل تحميل بيانات الدفعات", e); return null; }
     }
     
     async function loadReferenceGrades53() {
@@ -828,10 +804,7 @@
                 }
             }
             return grades;
-        } catch(e) {
-            console.error("فشل تحميل معدلات 53", e);
-            return [];
-        }
+        } catch(e) { console.error("فشل تحميل معدلات 53", e); return []; }
     }
     
     function calculateGradeDistribution(grades, ranges) {
@@ -852,10 +825,7 @@
         return { counts: distribution, percentages, total };
     }
     
-    function calculateAverage(grades) {
-        if (grades.length === 0) return 0;
-        return grades.reduce((a,b) => a + b, 0) / grades.length;
-    }
+    function calculateAverage(grades) { if (grades.length === 0) return 0; return grades.reduce((a,b) => a + b, 0) / grades.length; }
     
     function calculateSeatFactor(specialties50, specialties52, avg50, avg52, avg53) {
         let validPairs = [];
@@ -883,9 +853,113 @@
         return Math.min(100, Math.max(60, predicted));
     }
     
-    async function renderBatchesPage() {
+    function displayBatchesData(cache, container) {
+        const { batchesData, grades53 } = cache;
+        const { specialties50, specialties52, grades50, grades52 } = batchesData;
+        
+        const avg50 = calculateAverage(grades50);
+        const avg52 = calculateAverage(grades52);
+        const avg53 = calculateAverage(grades53);
+        const seatFactor = calculateSeatFactor(specialties50, specialties52, avg50, avg52, avg53);
+        
+        const ranges = ["90-95", "85-90", "80-85", "75-80", "70-75", "65-70", "60-65"];
+        const dist50 = calculateGradeDistribution(grades50, ranges);
+        const dist52 = calculateGradeDistribution(grades52, ranges);
+        const dist53 = calculateGradeDistribution(grades53, ranges);
+        
+        let specialtiesTable = '';
+        for (let spec50 of specialties50) {
+            const currentSeats = specialties.find(s => s.name === spec50.name)?.seats || spec50.seats;
+            const predictedMin = predictMinGrade(spec50, seatFactor, avg53, avg50, currentSeats);
+            const spec52 = specialties52.find(s => s.name === spec50.name);
+            specialtiesTable += `<tr>
+                <td>${escapeHtml(spec50.name)}</div>
+                <td>${currentSeats}</div>
+                <td>${predictedMin ? predictedMin.toFixed(2) : 'لا توجد بيانات'}</div>
+                <td>${spec52 ? spec52.seats : '-'}</div>
+                <td>${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</div>
+                <td>${spec50.seats}</div>
+                <td>${spec50.minGrade > 0 ? spec50.minGrade.toFixed(2) : '-'}</div>
+            </tr>`;
+        }
+        
+        let distributionHtml = '<table class="batches-table"><thead><tr><th>الفئة</th><th>الدفعة 50</th><th>الدفعة 52</th><th>الدفعة 53</th></tr></thead><tbody>';
+        for (let range of ranges) {
+            distributionHtml += `<tr>
+                <td>${range}</div>
+                <td>${dist50.percentages[range]}% (${dist50.counts[range]})</div>
+                <td>${dist52.percentages[range]}% (${dist52.counts[range]})</div>
+                <td>${dist53.percentages[range]}% (${dist53.counts[range]})</div>
+            </tr>`;
+        }
+        distributionHtml += '</tbody></table>';
+        
+        const margin = 1.2;
+        
+        const html = `
+            <div class="batches-box">
+                <div style="background:#e8f0fe; padding:12px; border-radius:16px; margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                        <p style="font-size:14px; font-weight:bold; margin:0;">📊 دفعات سابقة (50، 52، 53)</p>
+                        <span style="background:#ff9800; color:white; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:bold;">⚠️ تجريبي</span>
+                    </div>
+                    <p style="font-size:13px;">تم استخدام بيانات الدفعات 50 و 52 و 53 (الكاملة) لتقدير الحدود الدنيا المتوقعة للدفعة الحالية.</p>
+                    <p style="font-size:13px; margin-top:8px;"><strong>معامل تأثير المقاعد المحسوب:</strong> ${seatFactor.toFixed(3)} (تم استخلاصه من بيانات 50 و 52)</p>
+                    <p style="font-size:12px; color:#666; margin-top:4px;">📌 آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}</p>
+                </div>
+                
+                <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
+                    <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
+                        <div style="font-size:12px; color:#666;">متوسط الدفعة 50</div>
+                        <div style="font-size:24px; font-weight:bold;">${avg50.toFixed(2)}</div>
+                    </div>
+                    <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
+                        <div style="font-size:12px; color:#666;">متوسط الدفعة 52</div>
+                        <div style="font-size:24px; font-weight:bold;">${avg52.toFixed(2)}</div>
+                    </div>
+                    <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
+                        <div style="font-size:12px; color:#666;">متوسط الدفعة 53</div>
+                        <div style="font-size:24px; font-weight:bold;">${avg53.toFixed(2)}</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom:20px;">
+                    <h4 style="margin-bottom:10px;">📈 توزيع العلامات (نسب مئوية)</h4>
+                    ${distributionHtml}
+                </div>
+                
+                <div style="margin-bottom:20px;">
+                    <h4 style="margin-bottom:10px;">📋 مقارنة الاختصاصات</h4>
+                    <div style="overflow-x:auto;">
+                        <table class="batches-table">
+                            <thead><tr><th>الاختصاص</th><th>مقاعد 53</th><th>حد 53 متوقع</th><th>مقاعد 52</th><th>حد 52</th><th>مقاعد 50</th><th>حد 50</th></tr></thead>
+                            <tbody>${specialtiesTable}</tbody>
+                        </table>
+                    </div>
+                    <div class="confidence-interval" style="margin-top:12px;">
+                        📌 نطاق الثقة المقدر: ±${margin} درجة (هامش خطأ تقديري)
+                    </div>
+                </div>
+                
+                <div style="background:#fff3cd; padding:12px; border-radius:16px; border-right:4px solid #ffc107;">
+                    <p style="font-size:13px; margin:0;">⚠️ <strong>ملاحظة:</strong> هذه التقديرات للاستئناس فقط. تم حساب الحد المتوقع باستخدام الصيغة: <br>
+                    <code>حد_متوقع = حد_50 + (متوسط_53 - متوسط_50) + (معامل_المقاعد × (مقاعد_53 - مقاعد_50) / مقاعد_50)</code><br>
+                    حيث معامل المقاعد (${seatFactor.toFixed(3)}) تم حسابه إحصائياً من بيانات الدفعتين 50 و 52.</p>
+                </div>
+            </div>
+        `;
+        container.innerHTML = html;
+    }
+    
+    async function renderBatchesPage(forceReload = false) {
         const container = document.getElementById('batchesContent');
         if (!container) return;
+        
+        if (batchesDataCache && !forceReload) {
+            displayBatchesData(batchesDataCache, container);
+            return;
+        }
+        
         container.innerHTML = '<div class="loading">جاري تحميل بيانات الدفعات...</div>';
         
         try {
@@ -897,95 +971,9 @@
                 return;
             }
             
-            const { specialties50, specialties52, grades50, grades52 } = batchesData;
-            const avg50 = calculateAverage(grades50);
-            const avg52 = calculateAverage(grades52);
-            const avg53 = calculateAverage(grades53);
-            const seatFactor = calculateSeatFactor(specialties50, specialties52, avg50, avg52, avg53);
+            batchesDataCache = { batchesData, grades53 };
+            displayBatchesData(batchesDataCache, container);
             
-            const ranges = ["90-95", "85-90", "80-85", "75-80", "70-75", "65-70", "60-65"];
-            const dist50 = calculateGradeDistribution(grades50, ranges);
-            const dist52 = calculateGradeDistribution(grades52, ranges);
-            const dist53 = calculateGradeDistribution(grades53, ranges);
-            
-            let specialtiesTable = '';
-            for (let spec50 of specialties50) {
-                const currentSeats = specialties.find(s => s.name === spec50.name)?.seats || spec50.seats;
-                const predictedMin = predictMinGrade(spec50, seatFactor, avg53, avg50, currentSeats);
-                const spec52 = specialties52.find(s => s.name === spec50.name);
-                specialtiesTable += `<tr>
-                    <td>${escapeHtml(spec50.name)}</div>
-                    <td>${currentSeats}</div>
-                    <td>${predictedMin ? predictedMin.toFixed(2) : 'لا توجد بيانات'}</div>
-                    <td>${spec52 ? spec52.seats : '-'}</div>
-                    <td>${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</div>
-                    <td>${spec50.seats}</div>
-                    <td>${spec50.minGrade > 0 ? spec50.minGrade.toFixed(2) : '-'}</div>
-                </tr>`;
-            }
-            
-            let distributionHtml = '<table class="batches-table"><thead><tr><th>الفئة</th><th>الدفعة 50</th><th>الدفعة 52</th><th>الدفعة 53</th></tr></thead><tbody>';
-            for (let range of ranges) {
-                distributionHtml += `<tr>
-                    <td>${range}</div>
-                    <td>${dist50.percentages[range]}% (${dist50.counts[range]})</div>
-                    <td>${dist52.percentages[range]}% (${dist52.counts[range]})</div>
-                    <td>${dist53.percentages[range]}% (${dist53.counts[range]})</div>
-                </tr>`;
-            }
-            distributionHtml += '</tbody></table>';
-            
-            const margin = 1.2;
-            
-            const html = `
-                <div class="batches-box">
-                    <div style="background:#e8f0fe; padding:12px; border-radius:16px; margin-bottom:16px;">
-                        <p style="font-size:14px; font-weight:bold; margin-bottom:8px;">📊 دفعات سابقة (50، 52، 53)</p>
-                        <p style="font-size:13px;">تم استخدام بيانات الدفعات 50 و 52 و 53 (الكاملة) لتقدير الحدود الدنيا المتوقعة للدفعة الحالية.</p>
-                        <p style="font-size:13px; margin-top:8px;"><strong>معامل تأثير المقاعد المحسوب:</strong> ${seatFactor.toFixed(3)} (تم استخلاصه من بيانات 50 و 52)</p>
-                    </div>
-                    
-                    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
-                        <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
-                            <div style="font-size:12px; color:#666;">متوسط الدفعة 50</div>
-                            <div style="font-size:24px; font-weight:bold;">${avg50.toFixed(2)}</div>
-                        </div>
-                        <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
-                            <div style="font-size:12px; color:#666;">متوسط الدفعة 52</div>
-                            <div style="font-size:24px; font-weight:bold;">${avg52.toFixed(2)}</div>
-                        </div>
-                        <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
-                            <div style="font-size:12px; color:#666;">متوسط الدفعة 53</div>
-                            <div style="font-size:24px; font-weight:bold;">${avg53.toFixed(2)}</div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom:20px;">
-                        <h4 style="margin-bottom:10px;">📈 توزيع العلامات (نسب مئوية)</h4>
-                        ${distributionHtml}
-                    </div>
-                    
-                    <div style="margin-bottom:20px;">
-                        <h4 style="margin-bottom:10px;">📋 مقارنة الاختصاصات</h4>
-                        <div style="overflow-x:auto;">
-                            <table class="batches-table">
-                                <thead><tr><th>الاختصاص</th><th>مقاعد 53</th><th>حد 53 متوقع</th><th>مقاعد 52</th><th>حد 52</th><th>مقاعد 50</th><th>حد 50</th></tr></thead>
-                                <tbody>${specialtiesTable}</tbody>
-                            </table>
-                        </div>
-                        <div class="confidence-interval" style="margin-top:12px;">
-                            📌 نطاق الثقة المقدر: ±${margin} درجة (هامش خطأ تقديري)
-                        </div>
-                    </div>
-                    
-                    <div style="background:#fff3cd; padding:12px; border-radius:16px; border-right:4px solid #ffc107;">
-                        <p style="font-size:13px; margin:0;">⚠️ <strong>ملاحظة:</strong> هذه التقديرات للاستئناس فقط. تم حساب الحد المتوقع باستخدام الصيغة: <br>
-                        <code>حد_متوقع = حد_50 + (متوسط_53 - متوسط_50) + (معامل_المقاعد × (مقاعد_53 - مقاعد_50) / مقاعد_50)</code><br>
-                        حيث معامل المقاعد (${seatFactor.toFixed(3)}) تم حسابه إحصائياً من بيانات الدفعتين 50 و 52.</p>
-                    </div>
-                </div>
-            `;
-            container.innerHTML = html;
         } catch(e) {
             console.error(e);
             container.innerHTML = '<div style="color:#dc3545; padding:20px;">❌ حدث خطأ في تحميل البيانات. يرجى المحاولة لاحقاً.</div>';
@@ -1017,7 +1005,6 @@
             if (document.getElementById('rejectedHiddenStudents')) renderRejectedHiddenTable();
             updateWarningBox();
             runMatch();
-            if (document.getElementById('tabBatches').classList.contains('active')) renderBatchesPage();
         } catch(e) { console.error(e); document.getElementById('totalCount').innerText = "!خطأ"; }
     }
     
@@ -1122,7 +1109,7 @@
         let filtered = processed;
         const isSearching = search.length > 0;
         if (isSearching) filtered = processed.filter(s => s.isHidden ? s.hiddenId.includes(search) : s.realId.includes(search));
-        if (!filtered.length) { tbody.innerHTML = '</table><td colspan="4">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</div></td>'; return; }
+        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</div></td>'; return; }
         let html = '';
         filtered.forEach((s,i) => {
             const isAlert = alertIds.has(s.realId);
@@ -1146,7 +1133,7 @@
         const groupedFirstChoice = calculateGroupedFirstChoice();
         const gradeDistribution = calculateGradeDistributionFromStudents();
         const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
-        let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4><table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
+        let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4><table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th><tr></thead><tbody>`;
         let cumulative = 0;
         for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></tr>`; }
         if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></tr>`;
@@ -1196,7 +1183,7 @@
     function delSpec(i){ if(confirm("حذف هذا الاختصاص؟")){ specialties.splice(i,1); renderAdminSpecialties(); runMatch(); } }
     function renderAdminTable(){ let tbody=document.getElementById('adminStudentsList'); if(!tbody) return; let sorted=[...processed].sort((a,b)=>b.gpa-a.gpa); tbody.innerHTML=''; sorted.forEach((s,i)=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=i+1; row.insertCell(1).innerText=s.realId; row.insertCell(2).innerText=s.gpa; row.insertCell(3).innerText=s.assigned; row.insertCell(4).innerText=s.prefs.slice(0,4).join(' → ')+(s.prefs.length>4?' ...':''); }); }
     async function findMissingAndDuplicates() { const missingDiv=document.getElementById('missingNumbersResult'); const duplicateDiv=document.getElementById('duplicateNumbersResult'); missingDiv.style.display='block'; duplicateDiv.style.display='block'; missingDiv.innerHTML='🔄 جاري البحث...'; duplicateDiv.innerHTML='🔄 جاري البحث...'; const {validMap, ignoreSet}=await (async()=>{ const ref=await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`); const csv=await ref.text(); return parseReferenceCSV(csv); })(); const missing=[], found=[]; for(let student of allStudents){ const id=student.realId; if(ignoreSet.has(id)) continue; if(validMap.has(id)) found.push(id); else missing.push(id); } const idCount=new Map(); for(let student of allStudents){ const id=student.realId; idCount.set(id,(idCount.get(id)||0)+1); } const duplicates=[]; for(let [id,count] of idCount.entries()) if(count>1) duplicates.push({id,count}); let missingHtml=`<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>`; if(missing.length===0) missingHtml+='<br>✅ جميع الأرقام موجودة.'; else missingHtml+=`<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`; missingDiv.innerHTML=missingHtml; let duplicateHtml=`<div class="debug-info">📊 إجمالي الطلاب: ${allStudents.length}</div>`; if(duplicates.length===0) duplicateHtml+='<br>✅ لا توجد أرقام جامعية مكررة.'; else{ duplicateHtml+=`<br><strong>⚠️ الأرقام المكررة (ظهرت أكثر من مرة):</strong><br>`; duplicates.forEach(d=>{ duplicateHtml+=`${d.id} (${d.count} مرات) - `; }); duplicateHtml=duplicateHtml.slice(0,-2); } duplicateDiv.innerHTML=duplicateHtml; }
-    async function checkGrades() { const resultDiv=document.getElementById('gradeMismatchResult'); resultDiv.style.display='block'; resultDiv.innerHTML='🔄 جاري التحقق...'; const {validMap,ignoreSet}=await (async()=>{ const ref=await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`); const csv=await ref.text(); return parseReferenceCSV(csv); })(); const mismatches=[]; for(let student of allStudents){ const id=student.realId; if(ignoreSet.has(id)) continue; const refValue=validMap.get(id); if(typeof refValue==='number' && Math.abs(student.gpa-refValue)>GRADE_TOLERANCE) mismatches.push({id, actual:student.gpa, expected:refValue}); } if(mismatches.length===0) resultDiv.innerHTML='✅ جميع المعدلات مطابقة.'; else{ let html=`<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br><table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`; mismatches.forEach(m=>{ html+=`<tr><td><strong>${escapeHtml(m.id)}</strong></div><td>${m.actual}</div><td>${m.expected}</div><td>${Math.abs(m.actual-m.expected).toFixed(2)}</div></tr>`; }); html+=`</tbody><table><button class="copy-column-btn" onclick="copyIdsColumn()">📋 نسخ الأرقام كعمود</button><div id="gradeMismatchIdsColumnContent" style="display:none;">${mismatches.map(m=>m.id).join('\n')}</div>`; resultDiv.innerHTML=html; } }
+    async function checkGrades() { const resultDiv=document.getElementById('gradeMismatchResult'); resultDiv.style.display='block'; resultDiv.innerHTML='🔄 جاري التحقق...'; const {validMap,ignoreSet}=await (async()=>{ const ref=await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`); const csv=await ref.text(); return parseReferenceCSV(csv); })(); const mismatches=[]; for(let student of allStudents){ const id=student.realId; if(ignoreSet.has(id)) continue; const refValue=validMap.get(id); if(typeof refValue==='number' && Math.abs(student.gpa-refValue)>GRADE_TOLERANCE) mismatches.push({id, actual:student.gpa, expected:refValue}); } if(mismatches.length===0) resultDiv.innerHTML='✅ جميع المعدلات مطابقة.'; else{ let html=`<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br><table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`; mismatches.forEach(m=>{ html+=`<tr><td><strong>${escapeHtml(m.id)}</strong></div><td>${m.actual}</div><td>${m.expected}</div><td>${Math.abs(m.actual-m.expected).toFixed(2)}</div></tr>`; }); html+=`</tbody></table><button class="copy-column-btn" onclick="copyIdsColumn()">📋 نسخ الأرقام كعمود</button><div id="gradeMismatchIdsColumnContent" style="display:none;">${mismatches.map(m=>m.id).join('\n')}</div>`; resultDiv.innerHTML=html; } }
     window.copyIdsColumn=function(){ const content=document.getElementById('gradeMismatchIdsColumnContent').innerText; if(content){ navigator.clipboard.writeText(content); alert('تم نسخ الأرقام (كل رقم في سطر منفصل)'); } else alert('لا توجد أرقام لنسخها'); };
     function manualRefresh(){ loadStudents(); }
     function exportCSV(){ let csv="الرقم,المعدل,الاختصاص,الرغبات\n"; processed.forEach(s=>csv+=`"${s.realId}",${s.gpa},"${s.assigned}","${s.prefs.join(' | ')}"\n`); let blob=new Blob(["\uFEFF"+csv],{type:'text/csv'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`نتائج_${Date.now()}.csv`; a.click(); }
@@ -1226,9 +1213,7 @@
         });
     });
     
-    // تحميل حالة التبويب عند بدء التشغيل
     loadBatchesTabVisibility();
-    
     loadStudents();
     startRefresh();
     setupAlertsSearch();
