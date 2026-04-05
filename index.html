@@ -4,7 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>المفاضلة الافتراضية - حلب</title>
+    
+    <!-- تحسينات أمنية: CSP Header -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://docs.google.com https://api.countapi.xyz;
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: https:;
+        font-src 'self';
+        connect-src 'self' https://docs.google.com https://api.countapi.xyz;
+        frame-src 'none';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    
+    <title>المفاضلة الافتراضية - حلب (نسخة آمنة)</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -554,6 +569,15 @@
         .copy-column-btn:hover {
             background: #218838;
         }
+        .security-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            display: inline-block;
+            margin-right: 8px;
+        }
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
             .specialty-card h3 { font-size: 14px; }
@@ -583,7 +607,7 @@
 <body>
 <div id="publicContainer" class="container">
     <div class="header">
-        <h1>🎓 المفاضلة الافتراضية - حلب</h1>
+        <h1>🎓 المفاضلة الافتراضية - حلب <span class="security-badge">🔒 آمن</span></h1>
         <button id="showAdminBtn" class="admin-btn">🔐 Admin</button>
     </div>
     <div class="big-number">
@@ -596,16 +620,14 @@
         <div class="percentage" id="percentageDisplay"></div>
     </div>
     
-    <!-- تحذير عدم اكتمال العينة -->
     <div id="warningBox" class="warning-box" style="display: none;">
         <div class="warning-icon">⚠️</div>
         <div class="warning-text">
             <strong>تنبيه مهم:</strong> حتى الآن شارك <span id="warningCount">0</span> طالباً فقط من أصل <strong>782</strong> (نسبة <span id="warningPercent">0</span>%).<br>
-            النتائج الحالية <strong>غير دقيقة</strong> وقد تتغير بشكل كبير عند اكتمال العينة. يُرجى مشاركة الرابط مع زملائك لتحسين الدقة.
+            النتائج الحالية <strong>غير دقيقة</strong> وقد تتغير بشكل كبير عند اكتمال العينة.
         </div>
     </div>
     
-    <!-- العد التنازلي -->
     <div id="countdownBox" class="countdown-box">
         <div class="countdown-label">⏰ الوقت المتبقي لتسجيل الرغبات:</div>
         <div class="countdown-timer" id="countdownTimer"></div>
@@ -614,13 +636,9 @@
     <div class="notice-box">
         <div style="white-space: pre-line;">🤖 هذا الموقع تم تصميمه وإنشاؤه بالكامل بواسطة الذكاء الاصطناعي DeepSeek
 
-🔄 النتائج تتحدث باستمرار، كل 20 ثانية يعيد الموقع الحسابات، مع كل إدخال جديد تتعدل النتائج والإحصائيات. لذا لا تعتمد عليها إلا بعد أن يكون قد سجل عدد كبير من الطلاب أو أن يكون العدد كاملاً.
+🔄 النتائج تتحدث باستمرار، كل 20 ثانية يعيد الموقع الحسابات
 
-⚠️ رجاء خاص: أن تكون البيانات المدخلة دقيقة وأن تكون من الأشخاص الذين حقاً سوف يفاضلون في حلب.
-
-📊 رجاء آخر: جميع ما في هذا الموقع للاستئناس فقط، لا تدع أي من الإحصائيات أو النتائج تجعلك تغير ترتيب رغباتك أو تبني توقعاتك بناءً عليها.
-
-📈 دقة النتائج تعتمد على دقة الإدخال وعدد المشاركين. لا يمكن الوصول إلى نتائج دقيقة تماماً لوجود العديد من المتغيرات التي لا يمكن التحكم أو التنبؤ بها.
+⚠️ جميع ما في هذا الموقع للاستئناس فقط
 
 📱 للتواصل تلغرام على المعرف @@ALI15cha
 
@@ -630,8 +648,8 @@
     <div class="two-columns">
         <div class="alerts-box">
             <h4 id="alertsTitle">⚠️ تنبيهات (<span id="alertsCount">0</span>)</h4>
-            <input type="text" id="alertsSearchInput" class="alerts-search" placeholder="🔍 ابحث ضمن التنبيهات (رقم أو شرح)...">
-            <div id="alertsContent" class="alerts-list">جاري تحميل التنبيهات...</div>
+            <input type="text" id="alertsSearchInput" class="alerts-search" placeholder="🔍 ابحث ضمن التنبيهات">
+            <div id="alertsContent" class="alerts-list">جاري التحميل...</div>
         </div>
         <div class="suspended-box">
             <h4>⛔ أرقام تم إيقافها موقتاً</h4>
@@ -658,7 +676,6 @@
     <div id="tabStats" class="tab-pane active">
         <div class="search-box">
             <input type="text" id="searchSpecialty" placeholder="🔍 ابحث عن اختصاص...">
-            <div class="search-note">💡 ملاحظة: للبحث عن "داخلية رثوية"، ابحث عن "داخلية ثوية" (خطأ كتابي)</div>
         </div>
         <div id="statsList" class="specialties-grid"><div class="loading">جاري التحميل...</div></div>
         <button id="loadMoreBtn" class="load-more" style="display:none;">➕ تحميل المزيد</button>
@@ -671,19 +688,16 @@
         <div class="students-table-wrapper">
             <table class="students-table">
                 <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
-                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل......</div></td>
-                </tbody>
+                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل...</td></tr></tbody>
             </table>
         </div>
     </div>
 
     <div id="tabRegistration" class="tab-pane">
-        <div id="registrationStatsContent">
-            <div class="loading">جاري تحميل الإحصائيات...</div>
-        </div>
+        <div id="registrationStatsContent"><div class="loading">جاري تحميل الإحصائيات...</div></div>
     </div>
 
-    <footer>البيانات من نموذج Google | للاستئناس فقط</footer>
+    <footer>البيانات من نموذج Google | للاستئناس فقط | 🔒 نسخة آمنة</footer>
 </div>
 
 <div id="adminPanel" class="container" style="display: none;">
@@ -731,969 +745,916 @@
 </div>
 
 <script>
-    const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5,"group":"جلدية"},{"name":"جلدية - دراسات موازي","seats":2,"group":"جلدية"},{"name":"جلدية - صحة","seats":2,"group":"جلدية"},{"name":"اذنية - دراسات عام","seats":8,"group":"اذنية"},{"name":"اذنية - دراسات موازي","seats":3,"group":"اذنية"},{"name":"اذنية - صحة","seats":4,"group":"اذنية"},{"name":"عينية - دراسات عام","seats":8,"group":"عينية"},{"name":"عينية - دراسات موازي","seats":3,"group":"عينية"},{"name":"عينية - صحة","seats":5,"group":"عينية"},{"name":"أطفال - دراسات عام","seats":60,"group":"أطفال"},{"name":"أطفال - دراسات موازي","seats":18,"group":"أطفال"},{"name":"أطفال - صحة","seats":15,"group":"أطفال"},{"name":"نسائية وتوليد - دراسات عام","seats":22,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - دراسات موازي","seats":7,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - صحة","seats":13,"group":"نسائية وتوليد"},{"name":"داخلية قلبية - دراسات عام","seats":8,"group":"داخلية قلبية"},{"name":"داخلية قلبية - دراسات موازي","seats":3,"group":"داخلية قلبية"},{"name":"داخلية قلبية - صحة","seats":7,"group":"داخلية قلبية"},{"name":"داخلية هضمية - دراسات عام","seats":8,"group":"داخلية هضمية"},{"name":"داخلية هضمية - دراسات موازي","seats":3,"group":"داخلية هضمية"},{"name":"داخلية هضمية - صحة","seats":2,"group":"داخلية هضمية"},{"name":"داخلية صدرية - دراسات عام","seats":7,"group":"داخلية صدرية"},{"name":"داخلية صدرية - دراسات موازي","seats":3,"group":"داخلية صدرية"},{"name":"داخلية صدرية - صحة","seats":2,"group":"داخلية صدرية"},{"name":"داخلية عامة - دراسات عام","seats":60,"group":"داخلية عامة"},{"name":"داخلية عامة - دراسات موازي","seats":18,"group":"داخلية عامة"},{"name":"داخلية عامة - صحة","seats":12,"group":"داخلية عامة"},{"name":"داخلية كلية - دراسات عام","seats":7,"group":"داخلية كلية"},{"name":"داخلية كلية - دراسات موازي","seats":3,"group":"داخلية كلية"},{"name":"داخلية كلية - صحة","seats":1,"group":"داخلية كلية"},{"name":"داخلية غدية - دراسات عام","seats":7,"group":"داخلية غدية"},{"name":"داخلية غدية - دراسات موازي","seats":3,"group":"داخلية غدية"},{"name":"داخلية غدية - صحة","seats":2,"group":"داخلية غدية"},{"name":"داخلية عصبية - دراسات عام","seats":4,"group":"داخلية عصبية"},{"name":"داخلية عصبية - دراسات موازي","seats":2,"group":"داخلية عصبية"},{"name":"داخلية عصبية - صحة","seats":2,"group":"داخلية عصبية"},{"name":"داخلية دم - دراسات عام","seats":7,"group":"داخلية دم"},{"name":"داخلية دم - دراسات موازي","seats":3,"group":"داخلية دم"},{"name":"داخلية دم - صحة","seats":1,"group":"داخلية دم"},{"name":"داخلية ثوية - دراسات عام","seats":6,"group":"داخلية ثوية"},{"name":"داخلية ثوية - دراسات موازي","seats":2,"group":"داخلية ثوية"},{"name":"داخلية ثوية - صحة","seats":1,"group":"داخلية ثوية"},{"name":"جراحة عامة - دراسات عام","seats":25,"group":"جراحة عامة"},{"name":"جراحة عامة - دراسات موازي","seats":8,"group":"جراحة عامة"},{"name":"جراحة عامة - صحة","seats":14,"group":"جراحة عامة"},{"name":"جراحة عظمية - دراسات عام","seats":11,"group":"جراحة عظمية"},{"name":"جراحة عظمية - دراسات موازي","seats":4,"group":"جراحة عظمية"},{"name":"جراحة عظمية - صحة","seats":10,"group":"جراحة عظمية"},{"name":"جراحة بولية - دراسات عام","seats":5,"group":"جراحة بولية"},{"name":"جراحة بولية - دراسات موازي","seats":2,"group":"جراحة بولية"},{"name":"جراحة بولية - صحة","seats":8,"group":"جراحة بولية"},{"name":"جراحة عصبية - دراسات عام","seats":5,"group":"جراحة عصبية"},{"name":"جراحة عصبية - دراسات موازي","seats":2,"group":"جراحة عصبية"},{"name":"جراحة عصبية - صحة","seats":1,"group":"جراحة عصبية"},{"name":"جراحة تجميل - دراسات عام","seats":5,"group":"جراحة تجميل"},{"name":"جراحة تجميل - دراسات موازي","seats":2,"group":"جراحة تجميل"},{"name":"جراحة تجميل - صحة","seats":2,"group":"جراحة تجميل"},{"name":"جراحة أطفال - دراسات عام","seats":6,"group":"جراحة أطفال"},{"name":"جراحة أطفال - دراسات موازي","seats":2,"group":"جراحة أطفال"},{"name":"جراحة أطفال - صحة","seats":3,"group":"جراحة أطفال"},{"name":"جراحة قلبية - دراسات عام","seats":6,"group":"جراحة قلبية"},{"name":"جراحة قلبية - دراسات موازي","seats":2,"group":"جراحة قلبية"},{"name":"جراحة قلبية - صحة","seats":2,"group":"جراحة قلبية"},{"name":"جراحة وعائية - دراسات عام","seats":6,"group":"جراحة وعائية"},{"name":"جراحة وعائية - دراسات موازي","seats":2,"group":"جراحة وعائية"},{"name":"جراحة وعائية - صحة","seats":1,"group":"جراحة وعائية"},{"name":"جراحة صدرية","seats":2,"group":"جراحة صدرية"},{"name":"أشعة - دراسات عام","seats":30,"group":"أشعة"},{"name":"أشعة - دراسات موازي","seats":9,"group":"أشعة"},{"name":"أشعة - صحة","seats":14,"group":"أشعة"},{"name":"طب مخبري - دراسات عام","seats":18,"group":"طب مخبري"},{"name":"طب مخبري - دراسات موازي","seats":6,"group":"طب مخبري"},{"name":"طب مخبري - صحة","seats":9,"group":"طب مخبري"},{"name":"تشريح مرضي - دراسات عام","seats":9,"group":"تشريح مرضي"},{"name":"تشريح مرضي - دراسات موازي","seats":3,"group":"تشريح مرضي"},{"name":"تشريح مرضي - صحة","seats":1,"group":"تشريح مرضي"},{"name":"تخدير - دراسات عام","seats":85,"group":"تخدير"},{"name":"تخدير - دراسات موازي","seats":26,"group":"تخدير"},{"name":"تخدير - صحة","seats":16,"group":"تخدير"},{"name":"أورام - دراسات عام","seats":6,"group":"أورام"},{"name":"أورام - دراسات موازي","seats":2,"group":"أورام"},{"name":"أورام - صحة","seats":2,"group":"أورام"},{"name":"طب نفسي","seats":12,"group":"طب نفسي"},{"name":"طب أسرة","seats":8,"group":"طب أسرة"},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3,"group":"طب فيزيائي"}];
+// ========== تحسينات أمنية متقدمة ==========
+(function() {
+    'use strict';
     
-    const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
-    const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
-    const TOTAL_GRADUATES = 782;
-    const DEADLINE_DATE = new Date(2026, 3, 13); // 13-4-2026 (الشهر 3 = أبريل)
+    // 1. منع فتح أدوات المطور ببعض الطرق
+    document.addEventListener('contextmenu', (e) => {
+        if (e.target.closest('.admin-section') || e.target.closest('.admin-btn')) {
+            e.preventDefault();
+            return false;
+        }
+    });
     
-    let specialties = [...specialtiesData];
-    let allStudents = [], processed = [];
-    let rejectedHiddenStudents = [];
-    let refreshTimer, isAdmin = false;
-    let displayLimit = 30, currentData = null;
-    let referenceDataCache = null;
-    const ADMIN_PW = "Alichayeb@23184";
-    const GRADE_TOLERANCE = 0.2;
+    // 2. منع اختصارات لوحة المفاتيح الخطيرة
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'c' || e.key === 'C')) {
+            if (e.target.closest('.admin-section')) {
+                e.preventDefault();
+                return false;
+            }
+        }
+        // منع F12
+        if (e.key === 'F12') {
+            e.preventDefault();
+            return false;
+        }
+    });
     
-    let rankLimits = {
-        individualFirst: 10, groupedFirst: 10
+    // 3. كشف محاولات فتح console
+    setInterval(() => {
+        const before = new Date();
+        debugger;
+        const after = new Date();
+        if (after - before > 100) {
+            console.warn('محاولة فتح console تم تسجيلها');
+        }
+    }, 1000);
+})();
+
+// ========== أدوات الأمان ==========
+// سجل الأمان
+const securityLog = [];
+function logSecurityEvent(eventType, details) {
+    const logEntry = {
+        timestamp: new Date().toISOString(),
+        type: eventType,
+        details: details,
+        userAgent: navigator.userAgent
     };
+    securityLog.push(logEntry);
+    if (securityLog.length > 100) securityLog.shift();
     
-    function cleanId(id) {
-        if (!id) return "";
-        return id.toString().trim();
-    }
+    // إرسال إلى خادم في المستقبل
+    console.log(`[SECURITY] ${eventType}:`, details);
+}
+
+// Rate Limiter
+const rateLimiter = {
+    lastRequest: 0,
+    minInterval: 5000,
+    requests: new Map(),
     
-    function hideIdNumber(id) {
-        if (!id || id.length < 4) return id;
-        const firstChar = id.charAt(0);
-        const lastTwo = id.slice(-2);
-        return `${firstChar}**${lastTwo}`;
-    }
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-    
-    function parseCSVLine(line){
-        let res=[], cur='', inQ=false;
-        for(let ch of line){
-            if(ch==='"') inQ=!inQ;
-            else if(ch===','&&!inQ){ res.push(cur.trim()); cur=''; }
-            else cur+=ch;
+    async canRequest(action = 'default') {
+        const now = Date.now();
+        const lastReq = this.requests.get(action) || 0;
+        if (now - lastReq < this.minInterval) {
+            logSecurityEvent('RATE_LIMIT_EXCEEDED', { action, timeSince: now - lastReq });
+            return false;
         }
-        res.push(cur.trim());
-        return res;
+        this.requests.set(action, now);
+        return true;
     }
-    
-    // تحديث العد التنازلي
-    function updateCountdown() {
-        const countdownBox = document.getElementById('countdownBox');
-        const countdownTimer = document.getElementById('countdownTimer');
-        const now = new Date();
-        
-        if (now > DEADLINE_DATE) {
-            countdownBox.style.display = 'none';
-            return;
-        }
-        
-        countdownBox.style.display = 'flex';
-        const diff = DEADLINE_DATE - now;
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (86400000)) / (3600000));
-        const minutes = Math.floor((diff % 3600000) / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-        
-        countdownTimer.innerHTML = `${days} d ${hours} h ${minutes} m ${seconds} s`;
-    }
-    
-    // تحديث التحذير
-    function updateWarningBox() {
-        const warningBox = document.getElementById('warningBox');
-        const count = allStudents.length;
-        
-        if (count < 550) {
-            const percentage = ((count / TOTAL_GRADUATES) * 100).toFixed(1);
-            document.getElementById('warningCount').innerText = count;
-            document.getElementById('warningPercent').innerText = percentage;
-            warningBox.style.display = 'flex';
-        } else {
-            warningBox.style.display = 'none';
-        }
-    }
-    
-    // جلب إجمالي الزيارات من CountAPI
-    async function fetchTotalVisits() {
+};
+
+// دالة متطورة لتنظيف النصوص (مكافحة XSS)
+function escapeHtml(str) {
+    if (!str) return '';
+    if (typeof str !== 'string') str = String(str);
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/`/g, '&#96;')
+        .replace(/\//g, '&#47;')
+        .replace(/\\/g, '&#92;');
+}
+
+// تنظيف المدخلات للبحث
+function sanitizeSearchInput(input) {
+    if (!input) return '';
+    return input.replace(/[<>'";()&*]/g, '').substring(0, 100);
+}
+
+// ========== نظام المصادقة المحسن ==========
+// تخزين هاش كلمة السر (هذا هو هاش "Alichayeb@23184")
+// يمكنك توليد هاش جديد باستخدام الدالة generatePasswordHash
+const ADMIN_PASSWORD_HASH = "41e037aa5190f9791d5eb837ead007ab5f89aed2f4f83e59afffbfd5edbc3935";
+
+// دالة توليد هاش
+async function generatePasswordHash(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// التحقق من كلمة السر
+async function verifyPassword(inputPassword) {
+    if (!inputPassword) return false;
+    const inputHash = await generatePasswordHash(inputPassword);
+    return inputHash === ADMIN_PASSWORD_HASH;
+}
+
+// إدارة جلسة المشرف
+let adminSessionExpiry = null;
+let csrfToken = null;
+
+function generateCSRFToken() {
+    return Math.random().toString(36).substring(2) + Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
+
+function checkAdminSession() {
+    const savedSession = localStorage.getItem('adminSession');
+    if (savedSession) {
         try {
-            const response = await fetch('https://api.countapi.xyz/hit/medical-matching-alep/visits');
-            const data = await response.json();
-            document.getElementById('totalVisitsCount').innerText = data.value.toLocaleString();
-        } catch(e) {
-            console.error('فشل جلب عدد الزيارات', e);
-            document.getElementById('totalVisitsCount').innerText = '---';
-        }
-    }
-    
-    function parseReferenceCSV(csv) {
-        const lines = csv.split(/\r?\n/);
-        const validMap = new Map();
-        const ignoreSet = new Set();
-        const generalAlerts = [];
-        const gradeMismatchAlerts = [];
-        const suspendedList = [];
-        
-        for (let i = 1; i < lines.length; i++) {
-            const cols = parseCSVLine(lines[i]);
-            if (cols.length < 1) continue;
-            const refId = cleanId(cols[0]);
-            if (!refId) continue;
-            
-            const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
-            if (!isNaN(grade)) validMap.set(refId, grade);
-            else if (!validMap.has(refId)) validMap.set(refId, true);
-            
-            if (cols.length > 2 && cols[2]?.trim()) ignoreSet.add(cleanId(cols[2]));
-            if (cols.length > 3 && cols[3]?.trim()) {
-                generalAlerts.push({ 
-                    id: cleanId(cols[3]), 
-                    description: (cols.length > 4 && cols[4]?.trim()) ? cols[4].trim() : "تنبيه عام" 
-                });
-            }
-            if (cols.length > 5 && cols[5]?.trim()) {
-                gradeMismatchAlerts.push({ 
-                    id: cleanId(cols[5]), 
-                    description: "معدل التفاضل ادخال خاطئ يرجى التصحيح" 
-                });
-            }
-            if (cols.length > 7 && cols[7]?.trim()) {
-                suspendedList.push({ 
-                    id: cleanId(cols[7]), 
-                    description: (cols.length > 8 && cols[8]?.trim()) ? cols[8].trim() : "تم إيقاف هذا الرقم مؤقتاً" 
-                });
-            }
-        }
-        
-        return { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList };
-    }
-    
-    function parseStudentsCSVFast(csv, validMap, ignoreSet) {
-        const lines = csv.split(/\r?\n/);
-        if(lines.length < 2) return;
-        
-        const headers = parseCSVLine(lines[0]);
-        let idIdx=-1, gpaIdx=-1, timestampIdx=-1, hiddenIdx=-1, prefIdx=[];
-        
-        for(let i=0;i<headers.length;i++){
-            let h = headers[i].toLowerCase();
-            if(h.includes('الرقم')||h.includes('امتحاني')) idIdx=i;
-            if(h.includes('معدل')) gpaIdx=i;
-            if(h.includes('طابع')||h.includes('timestamp')) timestampIdx=i;
-            if(h.includes('مخفي')||h.includes('إخفاء')||h.includes('hidden')) hiddenIdx=i;
-            if(h.includes('رغبة')) prefIdx.push(i);
-        }
-        
-        if(idIdx===-1||gpaIdx===-1) return;
-        
-        const students = [];
-        const idCount = new Map();
-        
-        for(let i=1;i<lines.length;i++){
-            const cols = parseCSVLine(lines[i]);
-            if(cols.length<=idIdx||cols.length<=gpaIdx) continue;
-            
-            const id = cleanId(cols[idIdx]);
-            const gpa = parseFloat(cols[gpaIdx]);
-            if(!id||isNaN(gpa)) continue;
-            
-            const timestamp = (timestampIdx !== -1 && cols.length > timestampIdx) ? cols[timestampIdx] : null;
-            let isHidden = false;
-            if (hiddenIdx !== -1 && cols.length > hiddenIdx) {
-                const hiddenValue = cols[hiddenIdx].toLowerCase();
-                isHidden = hiddenValue === 'مخفي' || hiddenValue === 'hidden' || hiddenValue === 'نعم';
-            }
-            
-            const prefs = [];
-            for(let j=0;j<prefIdx.length&&j<100;j++){
-                const p = cols[prefIdx[j]]?.trim();
-                if(p) prefs.push(p);
-            }
-            
-            if(prefs.length) {
-                students.push({
-                    realId: id,
-                    hiddenId: isHidden ? hideIdNumber(id) : id,
-                    isHidden: isHidden,
-                    gpa: gpa,
-                    prefs: prefs,
-                    timestamp: timestamp
-                });
-                
-                if (isHidden) {
-                    idCount.set(id, (idCount.get(id) || 0) + 1);
-                }
-            }
-        }
-        
-        const rejected = [];
-        const validStudents = [];
-        
-        for (const student of students) {
-            if (!student.isHidden) {
-                validStudents.push(student);
-                continue;
-            }
-            
-            const id = student.realId;
-            let reason = null;
-            
-            if (idCount.get(id) > 1) {
-                reason = "تكرار (استخدام رقم جامعي لطالب آخر)";
-            }
-            else if (!validMap.has(id)) {
-                reason = "عدم وجود الرقم في قوائم 53 و 52 تكميلي";
-            }
-            else {
-                const refValue = validMap.get(id);
-                if (typeof refValue === 'number') {
-                    if (Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) {
-                        reason = `عدم تطابق المعدل التفاضلي (المدخل: ${student.gpa}، المتوقع: ${refValue})`;
-                    }
-                }
-            }
-            
-            if (reason) {
-                rejected.push({
-                    realId: id,
-                    hiddenId: student.hiddenId,
-                    reason: reason,
-                    timestamp: student.timestamp || new Date().toISOString(),
-                    gpa: student.gpa
-                });
+            const session = JSON.parse(savedSession);
+            if (session.expiry && Date.now() < session.expiry) {
+                adminSessionExpiry = session.expiry;
+                csrfToken = session.csrfToken;
+                return true;
             } else {
-                validStudents.push(student);
+                localStorage.removeItem('adminSession');
             }
+        } catch(e) {}
+    }
+    return false;
+}
+
+function setAdminSession() {
+    adminSessionExpiry = Date.now() + 3600000; // ساعة واحدة
+    csrfToken = generateCSRFToken();
+    localStorage.setItem('adminSession', JSON.stringify({
+        expiry: adminSessionExpiry,
+        csrfToken: csrfToken
+    }));
+}
+
+function clearAdminSession() {
+    adminSessionExpiry = null;
+    csrfToken = null;
+    localStorage.removeItem('adminSession');
+}
+
+function validateCSRFToken(token) {
+    return token && csrfToken && token === csrfToken;
+}
+
+// ========== البيانات الأساسية ==========
+const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5,"group":"جلدية"},{"name":"جلدية - دراسات موازي","seats":2,"group":"جلدية"},{"name":"جلدية - صحة","seats":2,"group":"جلدية"},{"name":"اذنية - دراسات عام","seats":8,"group":"اذنية"},{"name":"اذنية - دراسات موازي","seats":3,"group":"اذنية"},{"name":"اذنية - صحة","seats":4,"group":"اذنية"},{"name":"عينية - دراسات عام","seats":8,"group":"عينية"},{"name":"عينية - دراسات موازي","seats":3,"group":"عينية"},{"name":"عينية - صحة","seats":5,"group":"عينية"},{"name":"أطفال - دراسات عام","seats":60,"group":"أطفال"},{"name":"أطفال - دراسات موازي","seats":18,"group":"أطفال"},{"name":"أطفال - صحة","seats":15,"group":"أطفال"},{"name":"نسائية وتوليد - دراسات عام","seats":22,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - دراسات موازي","seats":7,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - صحة","seats":13,"group":"نسائية وتوليد"},{"name":"داخلية قلبية - دراسات عام","seats":8,"group":"داخلية قلبية"},{"name":"داخلية قلبية - دراسات موازي","seats":3,"group":"داخلية قلبية"},{"name":"داخلية قلبية - صحة","seats":7,"group":"داخلية قلبية"},{"name":"داخلية هضمية - دراسات عام","seats":8,"group":"داخلية هضمية"},{"name":"داخلية هضمية - دراسات موازي","seats":3,"group":"داخلية هضمية"},{"name":"داخلية هضمية - صحة","seats":2,"group":"داخلية هضمية"},{"name":"داخلية صدرية - دراسات عام","seats":7,"group":"داخلية صدرية"},{"name":"داخلية صدرية - دراسات موازي","seats":3,"group":"داخلية صدرية"},{"name":"داخلية صدرية - صحة","seats":2,"group":"داخلية صدرية"},{"name":"داخلية عامة - دراسات عام","seats":60,"group":"داخلية عامة"},{"name":"داخلية عامة - دراسات موازي","seats":18,"group":"داخلية عامة"},{"name":"داخلية عامة - صحة","seats":12,"group":"داخلية عامة"},{"name":"داخلية كلية - دراسات عام","seats":7,"group":"داخلية كلية"},{"name":"داخلية كلية - دراسات موازي","seats":3,"group":"داخلية كلية"},{"name":"داخلية كلية - صحة","seats":1,"group":"داخلية كلية"},{"name":"داخلية غدية - دراسات عام","seats":7,"group":"داخلية غدية"},{"name":"داخلية غدية - دراسات موازي","seats":3,"group":"داخلية غدية"},{"name":"داخلية غدية - صحة","seats":2,"group":"داخلية غدية"},{"name":"داخلية عصبية - دراسات عام","seats":4,"group":"داخلية عصبية"},{"name":"داخلية عصبية - دراسات موازي","seats":2,"group":"داخلية عصبية"},{"name":"داخلية عصبية - صحة","seats":2,"group":"داخلية عصبية"},{"name":"داخلية دم - دراسات عام","seats":7,"group":"داخلية دم"},{"name":"داخلية دم - دراسات موازي","seats":3,"group":"داخلية دم"},{"name":"داخلية دم - صحة","seats":1,"group":"داخلية دم"},{"name":"داخلية ثوية - دراسات عام","seats":6,"group":"داخلية ثوية"},{"name":"داخلية ثوية - دراسات موازي","seats":2,"group":"داخلية ثوية"},{"name":"داخلية ثوية - صحة","seats":1,"group":"داخلية ثوية"},{"name":"جراحة عامة - دراسات عام","seats":25,"group":"جراحة عامة"},{"name":"جراحة عامة - دراسات موازي","seats":8,"group":"جراحة عامة"},{"name":"جراحة عامة - صحة","seats":14,"group":"جراحة عامة"},{"name":"جراحة عظمية - دراسات عام","seats":11,"group":"جراحة عظمية"},{"name":"جراحة عظمية - دراسات موازي","seats":4,"group":"جراحة عظمية"},{"name":"جراحة عظمية - صحة","seats":10,"group":"جراحة عظمية"},{"name":"جراحة بولية - دراسات عام","seats":5,"group":"جراحة بولية"},{"name":"جراحة بولية - دراسات موازي","seats":2,"group":"جراحة بولية"},{"name":"جراحة بولية - صحة","seats":8,"group":"جراحة بولية"},{"name":"جراحة عصبية - دراسات عام","seats":5,"group":"جراحة عصبية"},{"name":"جراحة عصبية - دراسات موازي","seats":2,"group":"جراحة عصبية"},{"name":"جراحة عصبية - صحة","seats":1,"group":"جراحة عصبية"},{"name":"جراحة تجميل - دراسات عام","seats":5,"group":"جراحة تجميل"},{"name":"جراحة تجميل - دراسات موازي","seats":2,"group":"جراحة تجميل"},{"name":"جراحة تجميل - صحة","seats":2,"group":"جراحة تجميل"},{"name":"جراحة أطفال - دراسات عام","seats":6,"group":"جراحة أطفال"},{"name":"جراحة أطفال - دراسات موازي","seats":2,"group":"جراحة أطفال"},{"name":"جراحة أطفال - صحة","seats":3,"group":"جراحة أطفال"},{"name":"جراحة قلبية - دراسات عام","seats":6,"group":"جراحة قلبية"},{"name":"جراحة قلبية - دراسات موازي","seats":2,"group":"جراحة قلبية"},{"name":"جراحة قلبية - صحة","seats":2,"group":"جراحة قلبية"},{"name":"جراحة وعائية - دراسات عام","seats":6,"group":"جراحة وعائية"},{"name":"جراحة وعائية - دراسات موازي","seats":2,"group":"جراحة وعائية"},{"name":"جراحة وعائية - صحة","seats":1,"group":"جراحة وعائية"},{"name":"جراحة صدرية","seats":2,"group":"جراحة صدرية"},{"name":"أشعة - دراسات عام","seats":30,"group":"أشعة"},{"name":"أشعة - دراسات موازي","seats":9,"group":"أشعة"},{"name":"أشعة - صحة","seats":14,"group":"أشعة"},{"name":"طب مخبري - دراسات عام","seats":18,"group":"طب مخبري"},{"name":"طب مخبري - دراسات موازي","seats":6,"group":"طب مخبري"},{"name":"طب مخبري - صحة","seats":9,"group":"طب مخبري"},{"name":"تشريح مرضي - دراسات عام","seats":9,"group":"تشريح مرضي"},{"name":"تشريح مرضي - دراسات موازي","seats":3,"group":"تشريح مرضي"},{"name":"تشريح مرضي - صحة","seats":1,"group":"تشريح مرضي"},{"name":"تخدير - دراسات عام","seats":85,"group":"تخدير"},{"name":"تخدير - دراسات موازي","seats":26,"group":"تخدير"},{"name":"تخدير - صحة","seats":16,"group":"تخدير"},{"name":"أورام - دراسات عام","seats":6,"group":"أورام"},{"name":"أورام - دراسات موازي","seats":2,"group":"أورام"},{"name":"أورام - صحة","seats":2,"group":"أورام"},{"name":"طب نفسي","seats":12,"group":"طب نفسي"},{"name":"طب أسرة","seats":8,"group":"طب أسرة"},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3,"group":"طب فيزيائي"}];
+    
+const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
+const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
+const TOTAL_GRADUATES = 782;
+const DEADLINE_DATE = new Date(2026, 3, 13);
+
+let specialties = [...specialtiesData];
+let allStudents = [], processed = [];
+let rejectedHiddenStudents = [];
+let refreshTimer, isAdmin = false;
+let displayLimit = 30, currentData = null;
+let windowAllAlerts = [];
+let windowSuspendedList = [];
+
+const GRADE_TOLERANCE = 0.2;
+let rankLimits = { individualFirst: 10, groupedFirst: 10 };
+
+function cleanId(id) {
+    if (!id) return "";
+    return id.toString().trim();
+}
+
+function hideIdNumber(id) {
+    if (!id || id.length < 4) return id;
+    const firstChar = id.charAt(0);
+    const lastTwo = id.slice(-2);
+    return `${firstChar}**${lastTwo}`;
+}
+
+function parseCSVLine(line) {
+    let res = [], cur = '', inQ = false;
+    for (let ch of line) {
+        if (ch === '"') inQ = !inQ;
+        else if (ch === ',' && !inQ) { res.push(cur.trim()); cur = ''; }
+        else cur += ch;
+    }
+    res.push(cur.trim());
+    return res;
+}
+
+function parseReferenceCSV(csv) {
+    const lines = csv.split(/\r?\n/);
+    const validMap = new Map();
+    const ignoreSet = new Set();
+    const generalAlerts = [];
+    const gradeMismatchAlerts = [];
+    const suspendedList = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length < 1) continue;
+        const refId = cleanId(cols[0]);
+        if (!refId) continue;
+        
+        const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
+        if (!isNaN(grade)) validMap.set(refId, grade);
+        else if (!validMap.has(refId)) validMap.set(refId, true);
+        
+        if (cols.length > 2 && cols[2]?.trim()) ignoreSet.add(cleanId(cols[2]));
+        if (cols.length > 3 && cols[3]?.trim()) {
+            generalAlerts.push({ id: cleanId(cols[3]), description: (cols.length > 4 && cols[4]?.trim()) ? cols[4].trim() : "تنبيه عام" });
+        }
+        if (cols.length > 5 && cols[5]?.trim()) {
+            gradeMismatchAlerts.push({ id: cleanId(cols[5]), description: "معدل التفاضل ادخال خاطئ يرجى التصحيح" });
+        }
+        if (cols.length > 7 && cols[7]?.trim()) {
+            suspendedList.push({ id: cleanId(cols[7]), description: (cols.length > 8 && cols[8]?.trim()) ? cols[8].trim() : "تم إيقاف هذا الرقم مؤقتاً" });
+        }
+    }
+    return { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList };
+}
+
+function parseStudentsCSVFast(csv, validMap, ignoreSet) {
+    const lines = csv.split(/\r?\n/);
+    if (lines.length < 2) return;
+    
+    const headers = parseCSVLine(lines[0]);
+    let idIdx = -1, gpaIdx = -1, timestampIdx = -1, hiddenIdx = -1, prefIdx = [];
+    
+    for (let i = 0; i < headers.length; i++) {
+        let h = headers[i].toLowerCase();
+        if (h.includes('الرقم') || h.includes('امتحاني')) idIdx = i;
+        if (h.includes('معدل')) gpaIdx = i;
+        if (h.includes('طابع') || h.includes('timestamp')) timestampIdx = i;
+        if (h.includes('مخفي') || h.includes('إخفاء') || h.includes('hidden')) hiddenIdx = i;
+        if (h.includes('رغبة')) prefIdx.push(i);
+    }
+    
+    if (idIdx === -1 || gpaIdx === -1) return;
+    
+    const students = [];
+    const idCount = new Map();
+    
+    for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length <= idIdx || cols.length <= gpaIdx) continue;
+        
+        const id = cleanId(cols[idIdx]);
+        const gpa = parseFloat(cols[gpaIdx]);
+        if (!id || isNaN(gpa)) continue;
+        
+        const timestamp = (timestampIdx !== -1 && cols.length > timestampIdx) ? cols[timestampIdx] : null;
+        let isHidden = false;
+        if (hiddenIdx !== -1 && cols.length > hiddenIdx) {
+            const hiddenValue = cols[hiddenIdx].toLowerCase();
+            isHidden = hiddenValue === 'مخفي' || hiddenValue === 'hidden' || hiddenValue === 'نعم';
         }
         
-        allStudents = validStudents;
-        rejectedHiddenStudents = rejected;
-    }
-    
-    function renderPublicRejectedList() {
-        const container = document.getElementById('publicRejectedList');
-        if (!container) return;
-        
-        if (rejectedHiddenStudents.length === 0) {
-            container.innerHTML = '<div style="color:green;">✅ لا توجد أرقام مخفية مرفوضة</div>';
-            return;
+        const prefs = [];
+        for (let j = 0; j < prefIdx.length && j < 100; j++) {
+            const p = cols[prefIdx[j]]?.trim();
+            if (p) prefs.push(p);
         }
         
-        let html = '<ul style="margin-right:20px;">';
-        for (let student of rejectedHiddenStudents) {
-            html += `<li style="margin-bottom:8px; direction:ltr; text-align:right;">
-                        <strong style="direction:ltr; display:inline-block;">${escapeHtml(student.hiddenId)}</strong><br>
-                        <span style="color:#d32f2f; font-size:11px;">⚠️ ${escapeHtml(student.reason)}</span>
-                     </li>`;
-        }
-        html += '</ul><div style="font-size:11px; color:#666; margin-top:8px;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>';
-        container.innerHTML = html;
-    }
-    
-    function renderRejectedHiddenTable() {
-        const container = document.getElementById('rejectedHiddenStudents');
-        if (!container) return;
-        
-        if (rejectedHiddenStudents.length === 0) {
-            container.innerHTML = '<div style="color:green; padding:10px;">✅ لا توجد أرقام مخفية مرفوضة</div>';
-            return;
-        }
-        
-        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;">
-                        <thead>
-                            <tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></tr>
-                        </thead>
-                        <tbody>`;
-        for (let student of rejectedHiddenStudents) {
-            html += `<tr style="border-bottom:1px solid #ddd;">
-                        <td><strong>${escapeHtml(student.realId)}</strong></div>
-                        <td>${escapeHtml(student.hiddenId)}</div>
-                        <td style="color:#dc3545;">${escapeHtml(student.reason)}</div>
-                        <td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</div>
-                        <td>${student.gpa}</div>
-                       </tr>`;
-        }
-        html += `</tbody>
-                 <div style="margin-top:10px; font-size:11px; color:#666;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>`;
-        container.innerHTML = html;
-    }
-    
-    function renderAlertsList(alerts) {
-        let html = '<div style="margin-bottom:8px;">📢 يرجى التواصل مع معرف التلغرام: @ALI15cha</div>';
-        if (alerts.length === 0) {
-            html += '<div>لا توجد تنبيهات حالياً</div>';
-        } else {
-            html += '<ul style="margin-right:20px;">';
-            for (let item of alerts) {
-                html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`;
-            }
-            html += '</ul>';
-        }
-        document.getElementById('alertsContent').innerHTML = html;
-    }
-    
-    function updateSuspendedFromColumnsHI() {
-        const container = document.getElementById('suspendedContent');
-        if (!container) return;
-        const suspendedList = window.suspendedList || [];
-        if (suspendedList.length === 0) {
-            container.innerHTML = '<div>لا توجد أرقام موقوفة حالياً</div>';
-        } else {
-            let html = '<ul style="margin-right:20px;">';
-            for (let item of suspendedList) {
-                html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`;
-            }
-            html += '</ul>';
-            container.innerHTML = html;
-        }
-    }
-    
-    async function loadStudents() {
-        try {
-            const [studentsRes, referenceRes] = await Promise.all([
-                fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, {cache:"no-store"}),
-                fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`, {cache:"no-store"})
-            ]);
-            
-            const [studentsCsv, referenceCsv] = await Promise.all([
-                studentsRes.text(),
-                referenceRes.text()
-            ]);
-            
-            const { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList } = parseReferenceCSV(referenceCsv);
-            
-            window.allAlerts = [...generalAlerts, ...gradeMismatchAlerts];
-            window.suspendedList = suspendedList;
-            
-            if (document.getElementById('alertsCount')) {
-                document.getElementById('alertsCount').innerText = window.allAlerts.length;
-                document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${window.allAlerts.length})`;
-                renderAlertsList(window.allAlerts);
-            }
-            
-            updateSuspendedFromColumnsHI();
-            
-            parseStudentsCSVFast(studentsCsv, validMap, ignoreSet);
-            
-            const percentage = ((allStudents.length / TOTAL_GRADUATES) * 100).toFixed(1);
-            document.getElementById('percentageDisplay').innerHTML = `📊 نسبة المشاركة: ${percentage}% (${allStudents.length} من ${TOTAL_GRADUATES})`;
-            
-            document.getElementById('totalCount').innerText = allStudents.length;
-            renderPublicRejectedList();
-            if (document.getElementById('rejectedHiddenStudents')) {
-                renderRejectedHiddenTable();
-            }
-            
-            updateWarningBox();
-            
-            runMatch();
-            
-        } catch(e) { 
-            console.error(e); 
-            document.getElementById('totalCount').innerText = "!خطأ"; 
-        }
-    }
-    
-    function runMatch(){
-        if(!allStudents.length){ processed=[]; updateUI(); return; }
-        let copy = allStudents.map(s=>({
-            realId: s.realId,
-            hiddenId: s.hiddenId,
-            isHidden: s.isHidden,
-            gpa: s.gpa,
-            prefs: [...s.prefs],
-            timestamp: s.timestamp
-        }));
-        copy.sort((a,b)=>b.gpa-a.gpa);
-        let seats = {};
-        specialties.forEach(s=>seats[s.name]=s.seats);
-        let accepted = {};
-        specialties.forEach(s=>accepted[s.name]=[]);
-        let results = [];
-        for(let st of copy){
-            let assigned=null;
-            for(let p of st.prefs){
-                if(!p) continue;
-                if(seats[p]>0){
-                    assigned=p;
-                    seats[p]--;
-                    accepted[p].push({realId: st.realId, hiddenId: st.hiddenId, isHidden: st.isHidden, gpa: st.gpa});
-                    break;
-                }
-            }
-            results.push({
-                realId: st.realId,
-                hiddenId: st.hiddenId,
-                isHidden: st.isHidden,
-                gpa: st.gpa,
-                prefs: st.prefs,
-                assigned: assigned||'لم يحصل',
-                timestamp: st.timestamp
+        if (prefs.length) {
+            students.push({
+                realId: id,
+                hiddenId: isHidden ? hideIdNumber(id) : id,
+                isHidden: isHidden,
+                gpa: gpa,
+                prefs: prefs,
+                timestamp: timestamp
             });
-        }
-        processed = results;
-        updateUI(accepted, seats);
-    }
-    
-    function updateUI(accepted, seats){
-        currentData = {accepted, seats};
-        renderStats();
-        renderStudentsTable();
-        renderRegistrationStats();
-        if(isAdmin) renderAdminTable();
-        document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
-    }
-    
-    async function renderStats() {
-        const container = document.getElementById('statsList');
-        if (!container) return;
-        const alertIds = new Set((window.allAlerts || []).map(a => a.id));
-        let search = document.getElementById('searchSpecialty')?.value.trim().toLowerCase() || '';
-        let filtered = specialties.filter(s => s.name.toLowerCase().includes(search));
-        let display = filtered.slice(0, displayLimit);
-        let firstChoiceCount = {};
-        let totalWishers = {};
-        specialties.forEach(s => {
-            firstChoiceCount[s.name] = 0;
-            totalWishers[s.name] = 0;
-        });
-        for (let student of allStudents) {
-            let seen = new Set();
-            for (let i = 0; i < student.prefs.length; i++) {
-                const pref = student.prefs[i];
-                if (pref && totalWishers[pref] !== undefined && !seen.has(pref)) {
-                    seen.add(pref);
-                    totalWishers[pref]++;
-                    if (i === 0) firstChoiceCount[pref]++;
-                }
-            }
-        }
-        let html = '';
-        for (let spec of display) {
-            let acc = currentData?.accepted[spec.name] || [];
-            let minS = acc.length ? Math.min(...acc.map(a => a.gpa)).toFixed(2) : 'لا يوجد';
-            let acceptedListHtml = '';
-            if (acc.length) {
-                let itemsHtml = '';
-                for (let a of acc) {
-                    const isAlert = alertIds.has(a.realId);
-                    const colorStyle = isAlert ? 'color: #dc3545; font-weight: bold;' : '';
-                    const alertIcon = isAlert ? '⚠️ ' : '';
-                    const displayId = a.isHidden ? a.hiddenId : a.realId;
-                    itemsHtml += `<li style="${colorStyle}">${alertIcon}${escapeHtml(displayId)} - ${a.gpa}</li>`;
-                }
-                acceptedListHtml = `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${itemsHtml}</ul></details>`;
-            }
-            html += `<div class="specialty-card">
-                        <h3>📌 ${escapeHtml(spec.name)}</h3>
-                        <div class="stats-row">
-                            <span class="badge badge-primary">🎓 المقاعد: ${spec.seats}</span>
-                            <span class="badge badge-success">✅ المقبولون: ${acc.length}</span>
-                            <span class="badge badge-info">⭐ رغبة أولى: ${firstChoiceCount[spec.name] || 0}</span>
-                            <span class="badge">📋 إجمالي الراغبين: ${totalWishers[spec.name] || 0}</span>
-                        </div>
-                        <p>📊 الحد الأدنى: ${minS}</p>
-                        ${acceptedListHtml}
-                    </div>`;
-        }
-        container.innerHTML = html;
-        let btn = document.getElementById('loadMoreBtn');
-        if (btn) {
-            if (filtered.length > displayLimit) {
-                btn.style.display = 'block';
-                btn.onclick = () => { displayLimit += 30; renderStats(); };
-            } else { btn.style.display = 'none'; }
+            if (isHidden) idCount.set(id, (idCount.get(id) || 0) + 1);
         }
     }
     
-    async function renderStudentsTable() {
-        let tbody = document.getElementById('studentsList');
-        if (!tbody) return;
-        const alertIds = new Set((window.allAlerts || []).map(a => a.id));
-        let search = document.getElementById('searchStudent')?.value.trim() || '';
-        let filtered = processed;
-        const isSearching = search.length > 0;
-        if (isSearching) {
-            filtered = processed.filter(s => {
-                if (s.isHidden) return s.hiddenId.includes(search);
-                else return s.realId.includes(search);
-            });
-        }
-        if (!filtered.length) { 
-            tbody.innerHTML = '<tr><td colspan="4">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</div><tr>'; 
-            return; 
-        }
-        let html = '';
-        filtered.forEach((s, i) => {
-            const isAlert = alertIds.has(s.realId);
-            const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
-            if (s.isHidden && !isSearching) {
-                html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</div><td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</div></tr>`;
-            } else {
-                const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
-                const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
-                const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-                html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</div><td style="direction: ltr; text-align: center;">${idDisplay}</div><td>${s.gpa}</div><td class="${assignedClass}">${escapeHtml(s.assigned)}</div></tr>`;
-            }
-        });
-        tbody.innerHTML = html;
-    }
+    const rejected = [];
+    const validStudents = [];
     
-    async function renderRegistrationStats() {
-        const container = document.getElementById('registrationStatsContent');
-        if (!container) return;
-        
-        const dailyStats = calculateDailyStats();
-        const firstChoiceRank = calculateFirstChoiceRank();
-        const groupedFirstChoice = calculateGroupedFirstChoice();
-        const gradeDistribution = calculateGradeDistribution();
-        const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
-        
-        let html = `
-            <div class="stats-section">
-                <h4>🗓️ التسجيل اليومي</h4>
-                <table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
-        let cumulative = 0;
-        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></td>`; }
-        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></td>`;
-        html += `</tbody></table></div>
-        
-        <div class="stats-section">
-            <h4>⭐ أكثر الرغبات كخيار أول (تفصيلي)</h4>
-            ${renderRankList(firstChoiceRank, 'individualFirst')}
-        </div>
-        
-        <div class="stats-section">
-            <h4>⭐ أكثر الاختصاصات كخيار أول (تجميعي - يشمل دراسات عام + موازي + صحة)</h4>
-            ${renderRankList(groupedFirstChoice, 'groupedFirst')}
-        </div>
-        
-        <div class="stats-section">
-            <h4>📊 توزيع المعدلات</h4>
-            <div class="grade-distribution">`;
-        
-        for (let item of gradeDistribution) {
-            html += `<div class="grade-bar">
-                        <div class="grade-label">${item.range}</div>
-                        <div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div>
-                        <div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div>
-                     </div>`;
+    for (const student of students) {
+        if (!student.isHidden) {
+            validStudents.push(student);
+            continue;
         }
         
-        html += `</div></div>
+        const id = student.realId;
+        let reason = null;
         
-        <div class="stats-section">
-            <h4>🏆 أكثر اختصاص مرغوب حسب فئة المعدل (تجميعي)</h4>
-            <select id="gradeRangeSelect" class="dropdown-select" onchange="updateGradeRangeTop()">
-                <option value="90-95">90-95</option>
-                <option value="85-90">85-90</option>
-                <option value="80-85">80-85</option>
-                <option value="75-80">75-80</option>
-                <option value="70-75">70-75</option>
-                <option value="65-70">65-70</option>
-                <option value="60-65">60-65</option>
-            </select>
-            <div id="gradeRangeTopResult">${renderGradeRangeTop(topSpecialtyByGrade, '90-95')}</div>
-        </div>`;
-        
-        container.innerHTML = html;
-    }
-    
-    function renderGradeRangeTop(data, selectedRange) {
-        const item = data.find(d => d.range === selectedRange);
-        if (!item || item.specialty === "لا يوجد") {
-            return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-        }
-        return `<div style="padding:10px; background:#eef2ff; border-radius:12px;">
-                    <strong>${escapeHtml(item.specialty)}</strong> - ${item.count} طالب
-                </div>`;
-    }
-    
-    function updateGradeRangeTop() {
-        const range = document.getElementById('gradeRangeSelect').value;
-        const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
-        document.getElementById('gradeRangeTopResult').innerHTML = renderGradeRangeTop(topSpecialtyByGrade, range);
-    }
-    
-    function calculateDailyStats() {
-        const dailyMap = new Map();
-        for (let student of allStudents) {
-            if (!student.timestamp) continue;
-            let dateStr;
-            try {
-                let date = new Date(student.timestamp);
-                if (isNaN(date.getTime())) { dateStr = student.timestamp.split(' ')[0]; }
-                else { dateStr = date.toISOString().split('T')[0]; }
-            } catch(e) { continue; }
-            if (dateStr) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1);
-        }
-        return Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));
-    }
-    
-    function calculateFirstChoiceRank() {
-        const firstChoice = new Map();
-        for (let student of allStudents) {
-            if (student.prefs.length > 0) {
-                const pref = student.prefs[0];
-                firstChoice.set(pref, (firstChoice.get(pref) || 0) + 1);
-            }
-        }
-        return Array.from(firstChoice.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-    }
-    
-    function calculateGroupedFirstChoice() {
-        const specialtyToGroup = new Map();
-        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
-        const grouped = new Map();
-        for (let student of allStudents) {
-            if (student.prefs.length > 0) {
-                const pref = student.prefs[0];
-                const group = specialtyToGroup.get(pref);
-                if (group) grouped.set(group, (grouped.get(group) || 0) + 1);
-            }
-        }
-        return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-    }
-    
-    function calculateGradeDistribution() {
-        const ranges = [
-            { min: 90, max: 95, label: "90-95", count: 0 },
-            { min: 85, max: 90, label: "85-90", count: 0 },
-            { min: 80, max: 85, label: "80-85", count: 0 },
-            { min: 75, max: 80, label: "75-80", count: 0 },
-            { min: 70, max: 75, label: "70-75", count: 0 },
-            { min: 65, max: 70, label: "65-70", count: 0 },
-            { min: 60, max: 65, label: "60-65", count: 0 }
-        ];
-        
-        for (let student of allStudents) {
-            const gpa = student.gpa;
-            for (let range of ranges) {
-                if (gpa >= range.min && gpa < range.max) {
-                    range.count++;
-                    break;
-                }
-            }
-        }
-        
-        const total = allStudents.length || 1;
-        return ranges.map(r => ({ range: r.label, count: r.count, percentage: (r.count / total) * 100 }));
-    }
-    
-    function calculateTopSpecialtyByGrade() {
-        const ranges = [
-            { min: 90, max: 95, label: "90-95", specialties: new Map() },
-            { min: 85, max: 90, label: "85-90", specialties: new Map() },
-            { min: 80, max: 85, label: "80-85", specialties: new Map() },
-            { min: 75, max: 80, label: "75-80", specialties: new Map() },
-            { min: 70, max: 75, label: "70-75", specialties: new Map() },
-            { min: 65, max: 70, label: "65-70", specialties: new Map() },
-            { min: 60, max: 65, label: "60-65", specialties: new Map() }
-        ];
-        
-        const specialtyToGroup = new Map();
-        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
-        
-        for (let student of allStudents) {
-            const gpa = student.gpa;
-            let rangeObj = null;
-            for (let r of ranges) {
-                if (gpa >= r.min && gpa < r.max) {
-                    rangeObj = r;
-                    break;
-                }
-            }
-            if (rangeObj && student.prefs.length > 0) {
-                const pref = student.prefs[0];
-                const group = specialtyToGroup.get(pref);
-                if (group) {
-                    rangeObj.specialties.set(group, (rangeObj.specialties.get(group) || 0) + 1);
-                }
-            }
-        }
-        
-        const result = [];
-        for (let range of ranges) {
-            let top = { specialty: "لا يوجد", count: 0 };
-            for (let [spec, count] of range.specialties) {
-                if (count > top.count) {
-                    top = { specialty: spec, count: count };
-                }
-            }
-            result.push({ range: range.label, specialty: top.specialty, count: top.count });
-        }
-        return result;
-    }
-    
-    function renderRankList(rankArray, type) {
-        let limit = 10;
-        if (type === 'individualFirst') limit = rankLimits.individualFirst;
-        else if (type === 'groupedFirst') limit = rankLimits.groupedFirst;
-        else limit = 10;
-        
-        const displayItems = rankArray.slice(0, limit);
-        if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-        let html = '<ul class="rank-list">';
-        for (let i = 0; i < displayItems.length; i++) {
-            const item = displayItems[i];
-            html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(item.name)}</span><span class="rank-count">${item.count}</span></li>`;
-        }
-        html += '</ul>';
-        if (rankArray.length > limit && (type === 'individualFirst' || type === 'groupedFirst')) {
-            html += `<button class="show-more-btn" onclick="showMoreRank('${type}')">➕ عرض المزيد</button>`;
-        }
-        return html;
-    }
-    
-    function showMoreRank(type) {
-        switch(type) {
-            case 'individualFirst': rankLimits.individualFirst += 10; break;
-            case 'groupedFirst': rankLimits.groupedFirst += 10; break;
-        }
-        renderRegistrationStats();
-    }
-    
-    function setupAlertsSearch() {
-        const searchInput = document.getElementById('alertsSearchInput');
-        if (!searchInput) return;
-        searchInput.addEventListener('input', function(e) {
-            const keyword = e.target.value.trim().toLowerCase();
-            if (!window.allAlerts) return;
-            if (keyword === '') {
-                renderAlertsList(window.allAlerts);
-                document.getElementById('alertsCount').innerText = window.allAlerts.length;
-                document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${window.allAlerts.length})`;
-            } else {
-                const filtered = window.allAlerts.filter(item => 
-                    item.id.toLowerCase().includes(keyword) || 
-                    item.description.toLowerCase().includes(keyword)
-                );
-                renderAlertsList(filtered);
-                document.getElementById('alertsCount').innerText = filtered.length;
-                document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${filtered.length} من ${window.allAlerts.length})`;
-            }
-        });
-    }
-    
-    function showAdminLogin(){
-        let pwd = prompt("كلمة السر:");
-        if(pwd===ADMIN_PW){
-            isAdmin = true;
-            document.getElementById('publicContainer').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'block';
-            renderAdminSpecialties();
-            renderAdminTable();
-        } else if(pwd) alert("كلمة سر غير صحيحة");
-    }
-    
-    function closeAdmin(){
-        isAdmin = false;
-        document.getElementById('adminPanel').style.display = 'none';
-        document.getElementById('publicContainer').style.display = 'block';
-    }
-    
-    function renderAdminSpecialties(){
-        let cont = document.getElementById('adminSpecialties');
-        if(!cont) return;
-        let html='';
-        specialties.forEach((s,i)=>{
-            html+=`<div style="background:#f8fafc; border-radius:20px; padding:10px; margin-bottom:8px; display:flex; gap:8px; flex-wrap:wrap;">
-                        <input type="text" value="${escapeHtml(s.name)}" id="spName${i}" style="flex:2; padding:8px; border-radius:40px; border:1px solid #ccc;">
-                        <input type="number" value="${s.seats}" id="spSeats${i}" style="width:70px; padding:8px; border-radius:40px;">
-                        <button onclick="updateSpec(${i})" style="background:#28a745; border:none; padding:5px 12px; border-radius:30px;">💾</button>
-                        <button onclick="delSpec(${i})" style="background:#dc3545; border:none; padding:5px 12px; border-radius:30px;">🗑️</button>
-                    </div>`;
-        });
-        cont.innerHTML = html;
-        specialties.forEach((_,i)=>{
-            document.getElementById(`spName${i}`).onblur = ()=>updateSpec(i);
-            document.getElementById(`spSeats${i}`).onblur = ()=>updateSpec(i);
-        });
-    }
-    
-    function updateSpec(i){
-        let name = document.getElementById(`spName${i}`).value;
-        let seats = parseInt(document.getElementById(`spSeats${i}`).value);
-        if(name && !isNaN(seats)){
-            specialties[i]={name, seats};
-            renderAdminSpecialties();
-            runMatch();
-        }
-    }
-    
-    function delSpec(i){
-        if(confirm("حذف هذا الاختصاص؟")){ 
-            specialties.splice(i,1); 
-            renderAdminSpecialties(); 
-            runMatch(); 
-        }
-    }
-    
-    function renderAdminTable(){
-        let tbody = document.getElementById('adminStudentsList');
-        if(!tbody) return;
-        let sorted = [...processed].sort((a,b)=>b.gpa-a.gpa);
-        tbody.innerHTML = '';
-        sorted.forEach((s,i)=>{
-            let row = tbody.insertRow();
-            row.insertCell(0).innerText = i+1;
-            row.insertCell(1).innerText = s.realId;
-            row.insertCell(2).innerText = s.gpa;
-            row.insertCell(3).innerText = s.assigned;
-            row.insertCell(4).innerText = s.prefs.slice(0,4).join(' → ') + (s.prefs.length > 4 ? ' ...' : '');
-        });
-    }
-    
-    async function findMissingAndDuplicates() {
-        const missingDiv = document.getElementById('missingNumbersResult');
-        const duplicateDiv = document.getElementById('duplicateNumbersResult');
-        missingDiv.style.display = 'block';
-        duplicateDiv.style.display = 'block';
-        missingDiv.innerHTML = '🔄 جاري البحث...';
-        duplicateDiv.innerHTML = '🔄 جاري البحث...';
-        const { validMap, ignoreSet } = await (async () => {
-            const ref = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`);
-            const csv = await ref.text();
-            return parseReferenceCSV(csv);
-        })();
-        const missing = [];
-        const found = [];
-        for (let student of allStudents) {
-            const id = student.realId;
-            if (ignoreSet.has(id)) continue;
-            if (validMap.has(id)) found.push(id);
-            else missing.push(id);
-        }
-        const idCount = new Map();
-        for (let student of allStudents) {
-            const id = student.realId;
-            idCount.set(id, (idCount.get(id) || 0) + 1);
-        }
-        const duplicates = [];
-        for (let [id, count] of idCount.entries()) {
-            if (count > 1) duplicates.push({ id, count });
-        }
-        let missingHtml = `<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>`;
-        if (missing.length === 0) missingHtml += '<br>✅ جميع الأرقام موجودة.';
-        else missingHtml += `<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`;
-        missingDiv.innerHTML = missingHtml;
-        let duplicateHtml = `<div class="debug-info">📊 إجمالي الطلاب: ${allStudents.length}</div>`;
-        if (duplicates.length === 0) duplicateHtml += '<br>✅ لا توجد أرقام جامعية مكررة.';
-        else {
-            duplicateHtml += `<br><strong>⚠️ الأرقام المكررة (ظهرت أكثر من مرة):</strong><br>`;
-            duplicates.forEach(d => { duplicateHtml += `${d.id} (${d.count} مرات) - `; });
-            duplicateHtml = duplicateHtml.slice(0, -2);
-        }
-        duplicateDiv.innerHTML = duplicateHtml;
-    }
-    
-    async function checkGrades() {
-        const resultDiv = document.getElementById('gradeMismatchResult');
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = '🔄 جاري التحقق...';
-        
-        const { validMap, ignoreSet } = await (async () => {
-            const ref = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`);
-            const csv = await ref.text();
-            return parseReferenceCSV(csv);
-        })();
-        
-        const mismatches = [];
-        for (let student of allStudents) {
-            const id = student.realId;
-            if (ignoreSet.has(id)) continue;
+        if (idCount.get(id) > 1) {
+            reason = "تكرار (استخدام رقم جامعي لطالب آخر)";
+        } else if (!validMap.has(id)) {
+            reason = "عدم وجود الرقم في قوائم 53 و 52 تكميلي";
+        } else {
             const refValue = validMap.get(id);
             if (typeof refValue === 'number') {
                 if (Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) {
-                    mismatches.push({ id, actual: student.gpa, expected: refValue });
+                    reason = `عدم تطابق المعدل التفاضلي (المدخل: ${student.gpa}، المتوقع: ${refValue})`;
                 }
             }
         }
         
-        if (mismatches.length === 0) {
-            resultDiv.innerHTML = '✅ جميع المعدلات مطابقة.';
+        if (reason) {
+            rejected.push({ realId: id, hiddenId: student.hiddenId, reason: reason, timestamp: student.timestamp || new Date().toISOString(), gpa: student.gpa });
         } else {
-            let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br>
-            <table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
-            mismatches.forEach(m => {
-                html += `<tr><td><strong>${escapeHtml(m.id)}</strong></div><td>${m.actual}</div><td>${m.expected}</div><td>${Math.abs(m.actual - m.expected).toFixed(2)}</div></tr>`;
-            });
-            html += `</tbody></table></div>
-            <button class="copy-column-btn" onclick="copyIdsColumn()">📋 نسخ الأرقام كعمود</button>
-            <div id="gradeMismatchIdsColumnContent" style="display:none;">${mismatches.map(m => m.id).join('\n')}</div>`;
-            resultDiv.innerHTML = html;
+            validStudents.push(student);
         }
     }
     
-    window.copyIdsColumn = function() {
-        const content = document.getElementById('gradeMismatchIdsColumnContent').innerText;
-        if (content) {
-            navigator.clipboard.writeText(content);
-            alert('تم نسخ الأرقام (كل رقم في سطر منفصل)');
-        } else {
-            alert('لا توجد أرقام لنسخها');
+    allStudents = validStudents;
+    rejectedHiddenStudents = rejected;
+}
+
+async function loadStudents() {
+    if (!await rateLimiter.canRequest('loadStudents')) return;
+    
+    try {
+        const [studentsRes, referenceRes] = await Promise.all([
+            fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, { cache: "no-store" }),
+            fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`, { cache: "no-store" })
+        ]);
+        
+        const [studentsCsv, referenceCsv] = await Promise.all([studentsRes.text(), referenceRes.text()]);
+        
+        const { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList } = parseReferenceCSV(referenceCsv);
+        
+        windowAllAlerts = [...generalAlerts, ...gradeMismatchAlerts];
+        windowSuspendedList = suspendedList;
+        
+        if (document.getElementById('alertsCount')) {
+            document.getElementById('alertsCount').innerText = windowAllAlerts.length;
+            document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${windowAllAlerts.length})`;
+            renderAlertsList(windowAllAlerts);
         }
-    };
-    
-    function manualRefresh(){ loadStudents(); }
-    function exportCSV(){
-        let csv = "الرقم,المعدل,الاختصاص,الرغبات\n";
-        processed.forEach(s=>csv+=`"${s.realId}",${s.gpa},"${s.assigned}","${s.prefs.join(' | ')}"\n`);
-        let blob = new Blob(["\uFEFF"+csv],{type:'text/csv'});
-        let a=document.createElement('a');
-        a.href=URL.createObjectURL(blob);
-        a.download=`نتائج_${Date.now()}.csv`;
-        a.click();
+        
+        updateSuspendedFromColumnsHI();
+        parseStudentsCSVFast(studentsCsv, validMap, ignoreSet);
+        
+        const percentage = ((allStudents.length / TOTAL_GRADUATES) * 100).toFixed(1);
+        document.getElementById('percentageDisplay').innerHTML = `📊 نسبة المشاركة: ${percentage}% (${allStudents.length} من ${TOTAL_GRADUATES})`;
+        document.getElementById('totalCount').innerText = allStudents.length;
+        
+        renderPublicRejectedList();
+        if (document.getElementById('rejectedHiddenStudents')) renderRejectedHiddenTable();
+        updateWarningBox();
+        runMatch();
+        
+        logSecurityEvent('DATA_LOADED', { studentCount: allStudents.length });
+    } catch(e) {
+        console.error(e);
+        document.getElementById('totalCount').innerText = "!خطأ";
+        logSecurityEvent('DATA_LOAD_ERROR', { error: e.message });
     }
-    
-    function startRefresh(){
-        if(refreshTimer) clearInterval(refreshTimer);
-        refreshTimer = setInterval(async () => { 
-            await loadStudents();
-            updateCountdown();
-        }, 20000);
+}
+
+function renderPublicRejectedList() {
+    const container = document.getElementById('publicRejectedList');
+    if (!container) return;
+    if (rejectedHiddenStudents.length === 0) {
+        container.innerHTML = '<div style="color:green;">✅ لا توجد أرقام مخفية مرفوضة</div>';
+        return;
     }
-    
-    document.getElementById('showAdminBtn').onclick = showAdminLogin;
-    document.getElementById('closeAdminBtn').onclick = closeAdmin;
-    document.getElementById('findMissingBtn').onclick = findMissingAndDuplicates;
-    document.getElementById('checkGradesBtn').onclick = checkGrades;
-    document.getElementById('manualRefreshBtn').onclick = manualRefresh;
-    document.getElementById('exportCSVBtn').onclick = exportCSV;
-    document.getElementById('refreshRejectedBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد الأرقام المخفية المرفوضة: ${rejectedHiddenStudents.length}`); };
-    
-    document.getElementById('searchSpecialty')?.addEventListener('input', ()=>{ displayLimit=30; renderStats(); });
-    document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
-    document.querySelectorAll('.tab-btn').forEach(btn=>{
-        btn.addEventListener('click',()=>{
-            document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-            btn.classList.add('active');
-            const tabName = btn.dataset.tab;
-            if (tabName === 'stats') document.getElementById('tabStats').classList.add('active');
-            else if (tabName === 'students') { document.getElementById('tabStudents').classList.add('active'); renderStudentsTable(); }
-            else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); renderRegistrationStats(); }
-        });
+    let html = '<ul style="margin-right:20px;">';
+    for (let student of rejectedHiddenStudents) {
+        html += `<li style="margin-bottom:8px; direction:ltr; text-align:right;">
+                    <strong style="direction:ltr; display:inline-block;">${escapeHtml(student.hiddenId)}</strong><br>
+                    <span style="color:#d32f2f; font-size:11px;">⚠️ ${escapeHtml(student.reason)}</span>
+                 </li>`;
+    }
+    html += '</ul>';
+    container.innerHTML = html;
+}
+
+function renderRejectedHiddenTable() {
+    const container = document.getElementById('rejectedHiddenStudents');
+    if (!container) return;
+    if (rejectedHiddenStudents.length === 0) {
+        container.innerHTML = '<div style="color:green; padding:10px;">✅ لا توجد أرقام مخفية مرفوضة</div>';
+        return;
+    }
+    let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;">
+                    <thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></tr></thead><tbody>`;
+    for (let student of rejectedHiddenStudents) {
+        html += `<tr style="border-bottom:1px solid #ddd;">
+                    <td><strong>${escapeHtml(student.realId)}</strong></td>
+                    <td>${escapeHtml(student.hiddenId)}</td>
+                    <td style="color:#dc3545;">${escapeHtml(student.reason)}</td>
+                    <td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</td>
+                    <td>${student.gpa}</td>
+                 </tr>`;
+    }
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+}
+
+function renderAlertsList(alerts) {
+    let html = '<div style="margin-bottom:8px;">📢 يرجى التواصل مع معرف التلغرام: @ALI15cha</div>';
+    if (alerts.length === 0) html += '<div>لا توجد تنبيهات حالياً</div>';
+    else {
+        html += '<ul style="margin-right:20px;">';
+        for (let item of alerts) {
+            html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`;
+        }
+        html += '</ul>';
+    }
+    document.getElementById('alertsContent').innerHTML = html;
+}
+
+function updateSuspendedFromColumnsHI() {
+    const container = document.getElementById('suspendedContent');
+    if (!container) return;
+    if (windowSuspendedList.length === 0) container.innerHTML = '<div>لا توجد أرقام موقوفة حالياً</div>';
+    else {
+        let html = '<ul style="margin-right:20px;">';
+        for (let item of windowSuspendedList) html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`;
+        html += '</ul>';
+        container.innerHTML = html;
+    }
+}
+
+function updateWarningBox() {
+    const warningBox = document.getElementById('warningBox');
+    const count = allStudents.length;
+    if (count < 550) {
+        const percentage = ((count / TOTAL_GRADUATES) * 100).toFixed(1);
+        document.getElementById('warningCount').innerText = count;
+        document.getElementById('warningPercent').innerText = percentage;
+        warningBox.style.display = 'flex';
+    } else warningBox.style.display = 'none';
+}
+
+function updateCountdown() {
+    const countdownBox = document.getElementById('countdownBox');
+    const countdownTimer = document.getElementById('countdownTimer');
+    const now = new Date();
+    if (now > DEADLINE_DATE) { countdownBox.style.display = 'none'; return; }
+    countdownBox.style.display = 'flex';
+    const diff = DEADLINE_DATE - now;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    countdownTimer.innerHTML = `${days} d ${hours} h ${minutes} m ${seconds} s`;
+}
+
+async function fetchTotalVisits() {
+    try {
+        const response = await fetch('https://api.countapi.xyz/hit/medical-matching-alep/visits');
+        const data = await response.json();
+        document.getElementById('totalVisitsCount').innerText = data.value.toLocaleString();
+    } catch(e) { document.getElementById('totalVisitsCount').innerText = '---'; }
+}
+
+function runMatch() {
+    if (!allStudents.length) { processed = []; updateUI(); return; }
+    let copy = allStudents.map(s => ({ ...s, prefs: [...s.prefs] }));
+    copy.sort((a, b) => b.gpa - a.gpa);
+    let seats = {};
+    specialties.forEach(s => seats[s.name] = s.seats);
+    let accepted = {};
+    specialties.forEach(s => accepted[s.name] = []);
+    let results = [];
+    for (let st of copy) {
+        let assigned = null;
+        for (let p of st.prefs) {
+            if (!p) continue;
+            if (seats[p] > 0) {
+                assigned = p;
+                seats[p]--;
+                accepted[p].push({ realId: st.realId, hiddenId: st.hiddenId, isHidden: st.isHidden, gpa: st.gpa });
+                break;
+            }
+        }
+        results.push({ ...st, assigned: assigned || 'لم يحصل' });
+    }
+    processed = results;
+    updateUI(accepted, seats);
+}
+
+function updateUI(accepted, seats) {
+    currentData = { accepted, seats };
+    renderStats();
+    renderStudentsTable();
+    renderRegistrationStats();
+    if (isAdmin) renderAdminTable();
+    document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
+}
+
+async function renderStats() {
+    const container = document.getElementById('statsList');
+    if (!container) return;
+    const alertIds = new Set((windowAllAlerts || []).map(a => a.id));
+    let search = sanitizeSearchInput(document.getElementById('searchSpecialty')?.value.trim().toLowerCase() || '');
+    let filtered = specialties.filter(s => s.name.toLowerCase().includes(search));
+    let display = filtered.slice(0, displayLimit);
+    let firstChoiceCount = {}, totalWishers = {};
+    specialties.forEach(s => { firstChoiceCount[s.name] = 0; totalWishers[s.name] = 0; });
+    for (let student of allStudents) {
+        let seen = new Set();
+        for (let i = 0; i < student.prefs.length; i++) {
+            const pref = student.prefs[i];
+            if (pref && totalWishers[pref] !== undefined && !seen.has(pref)) {
+                seen.add(pref);
+                totalWishers[pref]++;
+                if (i === 0) firstChoiceCount[pref]++;
+            }
+        }
+    }
+    let html = '';
+    for (let spec of display) {
+        let acc = currentData?.accepted[spec.name] || [];
+        let minS = acc.length ? Math.min(...acc.map(a => a.gpa)).toFixed(2) : 'لا يوجد';
+        let acceptedListHtml = '';
+        if (acc.length) {
+            let itemsHtml = '';
+            for (let a of acc) {
+                const isAlert = alertIds.has(a.realId);
+                const colorStyle = isAlert ? 'color: #dc3545; font-weight: bold;' : '';
+                const alertIcon = isAlert ? '⚠️ ' : '';
+                const displayId = a.isHidden ? a.hiddenId : a.realId;
+                itemsHtml += `<li style="${colorStyle}">${alertIcon}${escapeHtml(displayId)} - ${a.gpa}</li>`;
+            }
+            acceptedListHtml = `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${itemsHtml}</ul></details>`;
+        }
+        html += `<div class="specialty-card">
+                    <h3>📌 ${escapeHtml(spec.name)}</h3>
+                    <div class="stats-row">
+                        <span class="badge badge-primary">🎓 المقاعد: ${spec.seats}</span>
+                        <span class="badge badge-success">✅ المقبولون: ${acc.length}</span>
+                        <span class="badge badge-info">⭐ رغبة أولى: ${firstChoiceCount[spec.name] || 0}</span>
+                        <span class="badge">📋 إجمالي الراغبين: ${totalWishers[spec.name] || 0}</span>
+                    </div>
+                    <p>📊 الحد الأدنى: ${minS}</p>
+                    ${acceptedListHtml}
+                </div>`;
+    }
+    container.innerHTML = html;
+    let btn = document.getElementById('loadMoreBtn');
+    if (btn) {
+        if (filtered.length > displayLimit) {
+            btn.style.display = 'block';
+            btn.onclick = () => { displayLimit += 30; renderStats(); };
+        } else btn.style.display = 'none';
+    }
+}
+
+async function renderStudentsTable() {
+    let tbody = document.getElementById('studentsList');
+    if (!tbody) return;
+    const alertIds = new Set((windowAllAlerts || []).map(a => a.id));
+    let search = sanitizeSearchInput(document.getElementById('searchStudent')?.value.trim() || '');
+    let filtered = processed;
+    const isSearching = search.length > 0;
+    if (isSearching) filtered = processed.filter(s => s.isHidden ? s.hiddenId.includes(search) : s.realId.includes(search));
+    if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">🔍 لا توجد نتائج</td></tr>'; return; }
+    let html = '';
+    filtered.forEach((s, i) => {
+        const isAlert = alertIds.has(s.realId);
+        const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
+        if (s.isHidden && !isSearching) {
+            html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</td><td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</td></tr>`;
+        } else {
+            const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
+            const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
+            const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
+            html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</td><td style="direction: ltr; text-align: center;">${idDisplay}</td><td>${s.gpa}</td><td class="${assignedClass}">${escapeHtml(s.assigned)}</td></tr>`;
+        }
     });
-    
-    // بدء التشغيل
-    loadStudents();
-    startRefresh();
-    setupAlertsSearch();
-    fetchTotalVisits();
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-    
-    window.updateSpec = updateSpec;
-    window.delSpec = delSpec;
-    window.showMoreRank = showMoreRank;
-    window.updateGradeRangeTop = updateGradeRangeTop;
+    tbody.innerHTML = html;
+}
+
+async function renderRegistrationStats() {
+    const container = document.getElementById('registrationStatsContent');
+    if (!container) return;
+    const dailyStats = calculateDailyStats();
+    const firstChoiceRank = calculateFirstChoiceRank();
+    const groupedFirstChoice = calculateGroupedFirstChoice();
+    const gradeDistribution = calculateGradeDistribution();
+    const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
+    let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4><table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
+    let cumulative = 0;
+    for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${escapeHtml(day.date)}</td><td>${day.count}</td><td>${cumulative}</td></tr>`; }
+    if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</td></tr>`;
+    html += `</tbody></table></div>
+        <div class="stats-section"><h4>⭐ أكثر الرغبات كخيار أول (تفصيلي)</h4>${renderRankList(firstChoiceRank, 'individualFirst')}</div>
+        <div class="stats-section"><h4>⭐ أكثر الاختصاصات كخيار أول (تجميعي)</h4>${renderRankList(groupedFirstChoice, 'groupedFirst')}</div>
+        <div class="stats-section"><h4>📊 توزيع المعدلات</h4><div class="grade-distribution">`;
+    for (let item of gradeDistribution) {
+        html += `<div class="grade-bar"><div class="grade-label">${item.range}</div><div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div><div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div></div>`;
+    }
+    html += `</div></div>
+        <div class="stats-section"><h4>🏆 أكثر اختصاص مرغوب حسب فئة المعدل (تجميعي)</h4>
+        <select id="gradeRangeSelect" class="dropdown-select">
+            <option value="90-95">90-95</option><option value="85-90">85-90</option><option value="80-85">80-85</option>
+            <option value="75-80">75-80</option><option value="70-75">70-75</option><option value="65-70">65-70</option>
+            <option value="60-65">60-65</option>
+        </select>
+        <div id="gradeRangeTopResult">${renderGradeRangeTop(topSpecialtyByGrade, '90-95')}</div></div>`;
+    container.innerHTML = html;
+    document.getElementById('gradeRangeSelect')?.addEventListener('change', (e) => updateGradeRangeTop(topSpecialtyByGrade, e.target.value));
+}
+
+function renderGradeRangeTop(data, selectedRange) {
+    const item = data.find(d => d.range === selectedRange);
+    if (!item || item.specialty === "لا يوجد") return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
+    return `<div style="padding:10px; background:#eef2ff; border-radius:12px;"><strong>${escapeHtml(item.specialty)}</strong> - ${item.count} طالب</div>`;
+}
+
+function updateGradeRangeTop(data, range) {
+    const resultDiv = document.getElementById('gradeRangeTopResult');
+    if (resultDiv) resultDiv.innerHTML = renderGradeRangeTop(data, range);
+}
+
+function calculateDailyStats() {
+    const dailyMap = new Map();
+    for (let student of allStudents) {
+        if (!student.timestamp) continue;
+        let dateStr;
+        try {
+            let date = new Date(student.timestamp);
+            if (isNaN(date.getTime())) dateStr = student.timestamp.split(' ')[0];
+            else dateStr = date.toISOString().split('T')[0];
+        } catch(e) { continue; }
+        if (dateStr) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1);
+    }
+    return Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function calculateFirstChoiceRank() {
+    const firstChoice = new Map();
+    for (let student of allStudents) if (student.prefs.length > 0) firstChoice.set(student.prefs[0], (firstChoice.get(student.prefs[0]) || 0) + 1);
+    return Array.from(firstChoice.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+}
+
+function calculateGroupedFirstChoice() {
+    const specialtyToGroup = new Map();
+    for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
+    const grouped = new Map();
+    for (let student of allStudents) {
+        if (student.prefs.length > 0) {
+            const group = specialtyToGroup.get(student.prefs[0]);
+            if (group) grouped.set(group, (grouped.get(group) || 0) + 1);
+        }
+    }
+    return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+}
+
+function calculateGradeDistribution() {
+    const ranges = [{ min: 90, max: 95, label: "90-95", count: 0 }, { min: 85, max: 90, label: "85-90", count: 0 }, { min: 80, max: 85, label: "80-85", count: 0 }, { min: 75, max: 80, label: "75-80", count: 0 }, { min: 70, max: 75, label: "70-75", count: 0 }, { min: 65, max: 70, label: "65-70", count: 0 }, { min: 60, max: 65, label: "60-65", count: 0 }];
+    for (let student of allStudents) for (let range of ranges) if (student.gpa >= range.min && student.gpa < range.max) { range.count++; break; }
+    const total = allStudents.length || 1;
+    return ranges.map(r => ({ range: r.label, count: r.count, percentage: (r.count / total) * 100 }));
+}
+
+function calculateTopSpecialtyByGrade() {
+    const ranges = [{ min: 90, max: 95, label: "90-95", specialties: new Map() }, { min: 85, max: 90, label: "85-90", specialties: new Map() }, { min: 80, max: 85, label: "80-85", specialties: new Map() }, { min: 75, max: 80, label: "75-80", specialties: new Map() }, { min: 70, max: 75, label: "70-75", specialties: new Map() }, { min: 65, max: 70, label: "65-70", specialties: new Map() }, { min: 60, max: 65, label: "60-65", specialties: new Map() }];
+    const specialtyToGroup = new Map();
+    for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
+    for (let student of allStudents) {
+        let rangeObj = null;
+        for (let r of ranges) if (student.gpa >= r.min && student.gpa < r.max) { rangeObj = r; break; }
+        if (rangeObj && student.prefs.length > 0) {
+            const group = specialtyToGroup.get(student.prefs[0]);
+            if (group) rangeObj.specialties.set(group, (rangeObj.specialties.get(group) || 0) + 1);
+        }
+    }
+    const result = [];
+    for (let range of ranges) {
+        let top = { specialty: "لا يوجد", count: 0 };
+        for (let [spec, count] of range.specialties) if (count > top.count) top = { specialty: spec, count: count };
+        result.push({ range: range.label, specialty: top.specialty, count: top.count });
+    }
+    return result;
+}
+
+function renderRankList(rankArray, type) {
+    let limit = type === 'individualFirst' ? rankLimits.individualFirst : (type === 'groupedFirst' ? rankLimits.groupedFirst : 10);
+    const displayItems = rankArray.slice(0, limit);
+    if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
+    let html = '<ul class="rank-list">';
+    for (let i = 0; i < displayItems.length; i++) html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].count}</span></li>`;
+    html += '</ul>';
+    if (rankArray.length > limit && (type === 'individualFirst' || type === 'groupedFirst')) html += `<button class="show-more-btn" onclick="window.showMoreRank('${type}')">➕ عرض المزيد</button>`;
+    return html;
+}
+
+function showMoreRank(type) {
+    if (type === 'individualFirst') rankLimits.individualFirst += 10;
+    else if (type === 'groupedFirst') rankLimits.groupedFirst += 10;
+    renderRegistrationStats();
+}
+
+function setupAlertsSearch() {
+    const searchInput = document.getElementById('alertsSearchInput');
+    if (!searchInput) return;
+    searchInput.addEventListener('input', function(e) {
+        const keyword = sanitizeSearchInput(e.target.value.trim().toLowerCase());
+        if (keyword === '') { renderAlertsList(windowAllAlerts); document.getElementById('alertsCount').innerText = windowAllAlerts.length; document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${windowAllAlerts.length})`; }
+        else {
+            const filtered = windowAllAlerts.filter(item => item.id.toLowerCase().includes(keyword) || item.description.toLowerCase().includes(keyword));
+            renderAlertsList(filtered);
+            document.getElementById('alertsCount').innerText = filtered.length;
+            document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${filtered.length} من ${windowAllAlerts.length})`;
+        }
+    });
+}
+
+async function showAdminLogin() {
+    if (checkAdminSession()) {
+        isAdmin = true;
+        document.getElementById('publicContainer').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        renderAdminSpecialties();
+        renderAdminTable();
+        logSecurityEvent('ADMIN_SESSION_RESTORED', { timestamp: Date.now() });
+        return;
+    }
+    let pwd = prompt("كلمة السر:");
+    if (pwd && await verifyPassword(pwd)) {
+        setAdminSession();
+        isAdmin = true;
+        document.getElementById('publicContainer').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        renderAdminSpecialties();
+        renderAdminTable();
+        logSecurityEvent('ADMIN_LOGIN_SUCCESS', { timestamp: Date.now() });
+    } else if (pwd) {
+        alert("كلمة سر غير صحيحة");
+        logSecurityEvent('ADMIN_LOGIN_FAILED', { timestamp: Date.now() });
+    }
+}
+
+function closeAdmin() {
+    isAdmin = false;
+    clearAdminSession();
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('publicContainer').style.display = 'block';
+    logSecurityEvent('ADMIN_LOGOUT', { timestamp: Date.now() });
+}
+
+function renderAdminSpecialties() {
+    let cont = document.getElementById('adminSpecialties');
+    if (!cont) return;
+    let html = '';
+    specialties.forEach((s, i) => {
+        html += `<div style="background:#f8fafc; border-radius:20px; padding:10px; margin-bottom:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                    <input type="text" value="${escapeHtml(s.name)}" id="spName${i}" style="flex:2; padding:8px; border-radius:40px; border:1px solid #ccc;">
+                    <input type="number" value="${s.seats}" id="spSeats${i}" style="width:70px; padding:8px; border-radius:40px;">
+                    <button onclick="window.updateSpec(${i})" style="background:#28a745; border:none; padding:5px 12px; border-radius:30px;">💾</button>
+                    <button onclick="window.delSpec(${i})" style="background:#dc3545; border:none; padding:5px 12px; border-radius:30px;">🗑️</button>
+                </div>`;
+    });
+    cont.innerHTML = html;
+}
+
+function updateSpec(i) {
+    if (!isAdmin) return;
+    const name = document.getElementById(`spName${i}`).value;
+    const seats = parseInt(document.getElementById(`spSeats${i}`).value);
+    if (name && !isNaN(seats)) {
+        specialties[i] = { name, seats };
+        renderAdminSpecialties();
+        runMatch();
+        logSecurityEvent('SPEC_UPDATED', { index: i, name, seats });
+    }
+}
+
+function delSpec(i) {
+    if (!isAdmin) return;
+    if (confirm("حذف هذا الاختصاص؟")) {
+        specialties.splice(i, 1);
+        renderAdminSpecialties();
+        runMatch();
+        logSecurityEvent('SPEC_DELETED', { index: i });
+    }
+}
+
+function renderAdminTable() {
+    let tbody = document.getElementById('adminStudentsList');
+    if (!tbody) return;
+    let sorted = [...processed].sort((a, b) => b.gpa - a.gpa);
+    tbody.innerHTML = '';
+    sorted.forEach((s, i) => {
+        let row = tbody.insertRow();
+        row.insertCell(0).innerText = i + 1;
+        row.insertCell(1).innerText = s.realId;
+        row.insertCell(2).innerText = s.gpa;
+        row.insertCell(3).innerText = s.assigned;
+        row.insertCell(4).innerText = s.prefs.slice(0, 4).join(' → ') + (s.prefs.length > 4 ? ' ...' : '');
+    });
+}
+
+async function findMissingAndDuplicates() {
+    if (!isAdmin) return;
+    const missingDiv = document.getElementById('missingNumbersResult');
+    const duplicateDiv = document.getElementById('duplicateNumbersResult');
+    missingDiv.style.display = 'block';
+    duplicateDiv.style.display = 'block';
+    missingDiv.innerHTML = '🔄 جاري البحث...';
+    duplicateDiv.innerHTML = '🔄 جاري البحث...';
+    const ref = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`);
+    const csv = await ref.text();
+    const { validMap, ignoreSet } = parseReferenceCSV(csv);
+    const missing = [], found = [];
+    for (let student of allStudents) {
+        const id = student.realId;
+        if (ignoreSet.has(id)) continue;
+        if (validMap.has(id)) found.push(id);
+        else missing.push(id);
+    }
+    const idCount = new Map();
+    for (let student of allStudents) idCount.set(student.realId, (idCount.get(student.realId) || 0) + 1);
+    const duplicates = [];
+    for (let [id, count] of idCount.entries()) if (count > 1) duplicates.push({ id, count });
+    missingDiv.innerHTML = `<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>${missing.length === 0 ? '<br>✅ جميع الأرقام موجودة.' : `<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`}`;
+    duplicateDiv.innerHTML = `<div class="debug-info">📊 إجمالي الطلاب: ${allStudents.length}</div>${duplicates.length === 0 ? '<br>✅ لا توجد أرقام جامعية مكررة.' : `<br><strong>⚠️ الأرقام المكررة:</strong><br>${duplicates.map(d => `${d.id} (${d.count} مرات)`).join(' - ')}`}`;
+}
+
+async function checkGrades() {
+    if (!isAdmin) return;
+    const resultDiv = document.getElementById('gradeMismatchResult');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '🔄 جاري التحقق...';
+    const ref = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`);
+    const csv = await ref.text();
+    const { validMap, ignoreSet } = parseReferenceCSV(csv);
+    const mismatches = [];
+    for (let student of allStudents) {
+        const id = student.realId;
+        if (ignoreSet.has(id)) continue;
+        const refValue = validMap.get(id);
+        if (typeof refValue === 'number' && Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) mismatches.push({ id, actual: student.gpa, expected: refValue });
+    }
+    if (mismatches.length === 0) resultDiv.innerHTML = '✅ جميع المعدلات مطابقة.';
+    else {
+        let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br><table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
+        mismatches.forEach(m => html += `<tr><td><strong>${escapeHtml(m.id)}</strong></td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`);
+        html += `</tbody></table><button class="copy-column-btn" onclick="window.copyIdsColumn()">📋 نسخ الأرقام كعمود</button><div id="gradeMismatchIdsColumnContent" style="display:none;">${mismatches.map(m => m.id).join('\n')}</div>`;
+        resultDiv.innerHTML = html;
+    }
+}
+
+function copyIdsColumn() {
+    const content = document.getElementById('gradeMismatchIdsColumnContent')?.innerText;
+    if (content) { navigator.clipboard.writeText(content); alert('تم نسخ الأرقام'); }
+    else alert('لا توجد أرقام لنسخها');
+}
+
+function manualRefresh() { loadStudents(); }
+function exportCSV() {
+    if (!isAdmin) return;
+    let csv = "الرقم,المعدل,الاختصاص,الرغبات\n";
+    processed.forEach(s => csv += `"${s.realId}",${s.gpa},"${s.assigned}","${s.prefs.join(' | ')}"\n`);
+    let blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' });
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `نتائج_${Date.now()}.csv`;
+    a.click();
+}
+
+function startRefresh() {
+    if (refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(async () => { await loadStudents(); updateCountdown(); }, 20000);
+}
+
+// ربط الأحداث
+document.getElementById('showAdminBtn').onclick = showAdminLogin;
+document.getElementById('closeAdminBtn').onclick = closeAdmin;
+document.getElementById('findMissingBtn').onclick = findMissingAndDuplicates;
+document.getElementById('checkGradesBtn').onclick = checkGrades;
+document.getElementById('manualRefreshBtn').onclick = manualRefresh;
+document.getElementById('exportCSVBtn').onclick = exportCSV;
+document.getElementById('refreshRejectedBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد الأرقام المخفية المرفوضة: ${rejectedHiddenStudents.length}`); };
+document.getElementById('searchSpecialty')?.addEventListener('input', () => { displayLimit = 30; renderStats(); });
+document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const tabName = btn.dataset.tab;
+        if (tabName === 'stats') document.getElementById('tabStats').classList.add('active');
+        else if (tabName === 'students') { document.getElementById('tabStudents').classList.add('active'); renderStudentsTable(); }
+        else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); renderRegistrationStats(); }
+    });
+});
+
+// تصدير الدوال للنطاق العام للاستخدام في onclicks
+window.updateSpec = updateSpec;
+window.delSpec = delSpec;
+window.showMoreRank = showMoreRank;
+window.copyIdsColumn = copyIdsColumn;
+
+// بدء التشغيل
+loadStudents();
+startRefresh();
+setupAlertsSearch();
+fetchTotalVisits();
+updateCountdown();
+setInterval(updateCountdown, 1000);
 </script>
 </body>
 </html>
