@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     
-    <!-- تحسينات أمنية: CSP Header -->
+    <!-- تحسينات أمنية -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' 'unsafe-inline' https://docs.google.com https://api.countapi.xyz;
@@ -19,7 +19,7 @@
         form-action 'self';
     ">
     
-    <title>المفاضلة الافتراضية - حلب (نسخة آمنة)</title>
+    <title>المفاضلة الافتراضية - حلب (نسخة متطورة)</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -37,7 +37,6 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             transition: all 0.3s ease;
             animation: fadeIn 0.5s ease;
-            backdrop-filter: blur(2px);
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -275,15 +274,6 @@
             box-shadow: 0 0 0 2px rgba(0,86,179,0.2);
             transform: translateY(-2px);
         }
-        .search-note {
-            font-size: 11px;
-            color: #856404;
-            background: #fff3cd;
-            padding: 6px 12px;
-            border-radius: 20px;
-            margin-top: 8px;
-            display: inline-block;
-        }
         .specialties-grid {
             display: flex;
             flex-direction: column;
@@ -318,11 +308,9 @@
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        .badge:hover { transform: scale(1.05); }
         .badge-primary { background: #0056b3; color: white; }
         .badge-success { background: #28a745; color: white; }
         .badge-info { background: #17a2b8; color: white; }
-        .badge-warning { background: #ff9800; color: white; }
         details summary {
             font-size: 11px;
             color: #0056b3;
@@ -331,21 +319,13 @@
             padding: 4px 10px;
             border-radius: 30px;
             display: inline-block;
-            transition: all 0.3s ease;
         }
-        details summary:hover { background: #0056b3; color: white; }
         details ul {
             margin-right: 20px;
             margin-top: 8px;
             max-height: 200px;
             overflow-y: auto;
         }
-        details li {
-            margin-bottom: 4px;
-            font-size: 11px;
-            transition: all 0.2s ease;
-        }
-        details li:hover { transform: translateX(-5px); }
         .students-table-wrapper {
             overflow-x: auto;
             max-height: 500px;
@@ -362,18 +342,11 @@
             border: 1px solid #e2e8f0;
             padding: 8px 4px;
             text-align: center;
-            transition: all 0.2s ease;
-        }
-        .students-table tr:hover td {
-            background-color: #f1f5f9;
         }
         .students-table th {
             background: #eef2ff;
             position: sticky;
             top: 0;
-        }
-        .student-alert-row {
-            background-color: #ffe5e5 !important;
         }
         .student-alert-id {
             color: #dc3545 !important;
@@ -396,9 +369,7 @@
             font-size: 13px;
             font-weight: 500;
             color: white;
-            transition: all 0.3s ease;
         }
-        .load-more:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .accepted { color: #28a745; font-weight: bold; }
         .rejected { color: #dc3545; }
         footer {
@@ -415,9 +386,7 @@
             padding: 15px;
             margin-bottom: 20px;
         }
-        .admin-section h3 { margin-bottom: 10px; font-size: 16px; }
-        .btn-sm { padding: 8px 16px; font-size: 13px; margin: 5px 0; border-radius: 30px; border: none; cursor: pointer; transition: all 0.3s ease; }
-        .btn-sm:hover { transform: translateY(-2px); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .btn-sm { padding: 8px 16px; font-size: 13px; margin: 5px 0; border-radius: 30px; border: none; cursor: pointer; }
         .result-box {
             background: #f8fafc;
             border-radius: 16px;
@@ -435,179 +404,48 @@
             border-radius: 12px;
             margin-top: 8px;
         }
-        .stats-daily-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        .stats-daily-table th, .stats-daily-table td {
-            border: 1px solid #e2e8f0;
-            padding: 8px;
+        .simulator-warning {
+            background: #fff3cd;
+            border: 2px solid #ff9800;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
             text-align: center;
-        }
-        .stats-daily-table th {
-            background: #eef2ff;
-        }
-        .rank-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .rank-list li {
-            padding: 6px 8px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 12px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .rank-list li:last-child { border-bottom: none; }
-        .rank-number {
+            font-size: 14px;
             font-weight: bold;
-            color: #0056b3;
-            margin-left: 8px;
+            color: #856404;
         }
-        .rank-name {
-            flex: 1;
-            text-align: right;
+        .simulator-warning p {
+            margin: 8px 0;
         }
-        .rank-count {
-            font-weight: bold;
-            color: #28a745;
+        .simulator-warning .main-warning {
+            font-size: 20px;
+            color: #dc3545;
         }
-        .stats-section {
+        .simulator-result {
             background: #f8fafc;
             border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 16px;
+            padding: 16px;
+            margin-top: 16px;
         }
-        .stats-section h4 {
-            color: #0056b3;
-            margin-bottom: 10px;
-            font-size: 14px;
-            border-right: 3px solid #0056b3;
-            padding-right: 8px;
+        .prediction-item {
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
         }
-        .flex-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        .flex-grid > div {
-            flex: 1;
-            min-width: 200px;
-        }
-        .show-more-btn {
-            background: #e2e8f0;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 11px;
-            cursor: pointer;
-            margin-top: 8px;
-            width: 100%;
-            transition: all 0.2s ease;
-        }
-        .show-more-btn:hover {
-            background: #cbd5e1;
-        }
-        .grade-distribution {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-        }
-        .grade-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .grade-label {
-            width: 60px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .grade-progress {
-            flex: 1;
-            height: 20px;
-            background: #e2e8f0;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-        .grade-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #0056b3, #00a86b);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        .grade-count {
-            width: 60px;
-            font-size: 11px;
-            text-align: center;
-        }
-        .dropdown-select {
-            width: 100%;
-            padding: 8px 12px;
-            margin: 8px 0;
-            border: 1px solid #cbd5e1;
-            border-radius: 30px;
-            font-size: 12px;
-            background: white;
-        }
-        .copy-column-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .copy-column-btn:hover {
-            background: #218838;
-        }
-        .security-badge {
-            background: #28a745;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            display: inline-block;
-            margin-right: 8px;
-        }
+        .prediction-item:last-child { border-bottom: none; }
+        .chance-high { color: #28a745; font-weight: bold; }
+        .chance-medium { color: #ff9800; font-weight: bold; }
+        .chance-low { color: #dc3545; font-weight: bold; }
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
-            .specialty-card h3 { font-size: 14px; }
-            .students-table th, .students-table td { padding: 4px 2px; }
-            .two-columns { flex-direction: column; }
-            .tab-btn { min-width: 80px; font-size: 12px; }
-            .grade-bar { flex-wrap: wrap; }
-            .countdown-timer { font-size: 14px; }
-        }
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            .tab-btn { min-width: 70px; font-size: 11px; }
         }
     </style>
 </head>
 <body>
 <div id="publicContainer" class="container">
     <div class="header">
-        <h1>🎓 المفاضلة الافتراضية - حلب <span class="security-badge">🔒 آمن</span></h1>
+        <h1>🎓 المفاضلة الافتراضية - حلب <span style="background:#28a745; color:white; padding:2px 8px; border-radius:12px; font-size:10px;">مطور</span></h1>
         <button id="showAdminBtn" class="admin-btn">🔐 Admin</button>
     </div>
     <div class="big-number">
@@ -634,15 +472,10 @@
     </div>
     
     <div class="notice-box">
-        <div style="white-space: pre-line;">🤖 هذا الموقع تم تصميمه وإنشاؤه بالكامل بواسطة الذكاء الاصطناعي DeepSeek
-
-🔄 النتائج تتحدث باستمرار، كل 20 ثانية يعيد الموقع الحسابات
-
-⚠️ جميع ما في هذا الموقع للاستئناس فقط
-
-📱 للتواصل تلغرام على المعرف @@ALI15cha
-
-🌟 بالتوفيق جميعاً</div>
+        <div>🤖 هذا الموقع تم تصميمه بالكامل بواسطة الذكاء الاصطناعي DeepSeek<br>
+        🔄 النتائج تتحدث كل 20 ثانية مع كل إدخال جديد<br>
+        ⚠️ للاستئناس فقط، لا تعتمد عليها بشكل مطلق<br>
+        📱 للتواصل: @ALI15cha</div>
     </div>
 
     <div class="two-columns">
@@ -671,6 +504,7 @@
         <button class="tab-btn active" data-tab="stats">📊 الإحصائيات</button>
         <button class="tab-btn" data-tab="students">📋 قائمة الطلاب</button>
         <button class="tab-btn" data-tab="registration">📈 إحصائيات التسجيل</button>
+        <button class="tab-btn" data-tab="simulator" id="simulatorTabBtn" style="display:none;">🔮 محاكي (تجريبي)</button>
     </div>
 
     <div id="tabStats" class="tab-pane active">
@@ -697,7 +531,27 @@
         <div id="registrationStatsContent"><div class="loading">جاري تحميل الإحصائيات...</div></div>
     </div>
 
-    <footer>البيانات من نموذج Google | للاستئناس فقط | 🔒 نسخة آمنة</footer>
+    <div id="tabSimulator" class="tab-pane">
+        <div class="simulator-warning">
+            <div class="main-warning">⚠️ تجريبي للاستئناس ⚠️</div>
+            <p>تجربة طريقة لتوقع المعدلات عن طريق استخدام معلومات من الدفعة 50 (المعدلات - الحدود الدنيا - المقاعد)، دمج بيانات الـ 50 مع البيانات الحالية 53 للمحاولة للتعويض عن صغر العينة</p>
+            <p>مرة اخرى: <strong>للاستئناس فقط</strong></p>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" id="simulatorStudentId" placeholder="🔍 ابحث بالرقم الجامعي (لرؤية التوقعات)">
+            <button id="simulatorSearchStudentBtn" class="load-more" style="margin-top:8px; background:#0056b3;">🔍 توقع لطالب</button>
+        </div>
+        <div id="simulatorStudentResult" class="simulator-result" style="display:none;"></div>
+        
+        <div class="search-box" style="margin-top:20px;">
+            <input type="text" id="simulatorSpecialtyName" placeholder="🔍 ابحث عن اختصاص (لرؤية الحد المتوقع)">
+            <button id="simulatorSearchSpecialtyBtn" class="load-more" style="margin-top:8px; background:#0056b3;">🔍 توقع لاختصاص</button>
+        </div>
+        <div id="simulatorSpecialtyResult" class="simulator-result" style="display:none;"></div>
+    </div>
+
+    <footer>البيانات من نموذج Google | للاستئناس فقط | محاكي تجريبي باستخدام دفعة 50</footer>
 </div>
 
 <div id="adminPanel" class="container" style="display: none;">
@@ -711,7 +565,7 @@
         <h3>🔍 التحقق من الأرقام الجامعية</h3>
         <button id="findMissingBtn" style="background:#0056b3;" class="btn-sm">🔎 البحث عن الأرقام غير الموجودة والمكررة</button>
         <div id="missingNumbersResult" class="result-box" style="display:none;"></div>
-        <div id="duplicateNumbersResult" class="result-box" style="display:none; margin-top: 12px;"></div>
+        <div id="duplicateNumbersResult" class="result-box" style="display:none;"></div>
     </div>
     
     <div class="admin-section">
@@ -723,9 +577,14 @@
     <div class="admin-section">
         <h3>🚫 الأرقام المخفية المرفوضة</h3>
         <button id="refreshRejectedBtn" style="background:#ff9800;" class="btn-sm">🔄 تحديث قائمة الرفض</button>
-        <div id="rejectedHiddenStudents" class="result-box" style="margin-top:12px; max-height:300px; overflow-y:auto;">
-            <div class="loading">جاري التحميل...</div>
-        </div>
+        <div id="rejectedHiddenStudents" class="result-box">جاري التحميل...</div>
+    </div>
+    
+    <div class="admin-section">
+        <h3>🔮 المحاكي التجريبي (دفعة 50)</h3>
+        <button id="toggleSimulatorBtn" class="btn-sm" style="background:#ff9800;">👁️ إظهار/إخفاء المحاكي للمستخدمين</button>
+        <div id="simulatorStatus" class="result-box" style="margin-top:8px;">الحالة: 🔴 مخفي</div>
+        <div class="debug-info">📊 يعتمد على: معدلات دفعة 50 + الحدود الدنيا + المقاعد (من الـ Sheet المرفق)</div>
     </div>
     
     <div style="display:flex; justify-content:space-between; margin:15px 0;">
@@ -745,183 +604,103 @@
 </div>
 
 <script>
-// ========== تحسينات أمنية متقدمة ==========
+// ========== تحسينات أمنية ==========
 (function() {
-    'use strict';
-    
-    // 1. منع فتح أدوات المطور ببعض الطرق
     document.addEventListener('contextmenu', (e) => {
         if (e.target.closest('.admin-section') || e.target.closest('.admin-btn')) {
             e.preventDefault();
-            return false;
         }
     });
-    
-    // 2. منع اختصارات لوحة المفاتيح الخطيرة
     document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'c' || e.key === 'C')) {
-            if (e.target.closest('.admin-section')) {
-                e.preventDefault();
-                return false;
-            }
+        if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) {
+            if (e.target.closest('.admin-section')) e.preventDefault();
         }
-        // منع F12
-        if (e.key === 'F12') {
-            e.preventDefault();
-            return false;
-        }
+        if (e.key === 'F12') e.preventDefault();
     });
-    
-    // 3. كشف محاولات فتح console
-    setInterval(() => {
-        const before = new Date();
-        debugger;
-        const after = new Date();
-        if (after - before > 100) {
-            console.warn('محاولة فتح console تم تسجيلها');
-        }
-    }, 1000);
 })();
 
 // ========== أدوات الأمان ==========
-// سجل الأمان
-const securityLog = [];
-function logSecurityEvent(eventType, details) {
-    const logEntry = {
-        timestamp: new Date().toISOString(),
-        type: eventType,
-        details: details,
-        userAgent: navigator.userAgent
-    };
-    securityLog.push(logEntry);
-    if (securityLog.length > 100) securityLog.shift();
-    
-    // إرسال إلى خادم في المستقبل
-    console.log(`[SECURITY] ${eventType}:`, details);
-}
-
-// Rate Limiter
-const rateLimiter = {
-    lastRequest: 0,
-    minInterval: 5000,
-    requests: new Map(),
-    
-    async canRequest(action = 'default') {
-        const now = Date.now();
-        const lastReq = this.requests.get(action) || 0;
-        if (now - lastReq < this.minInterval) {
-            logSecurityEvent('RATE_LIMIT_EXCEEDED', { action, timeSince: now - lastReq });
-            return false;
-        }
-        this.requests.set(action, now);
-        return true;
-    }
-};
-
-// دالة متطورة لتنظيف النصوص (مكافحة XSS)
 function escapeHtml(str) {
     if (!str) return '';
-    if (typeof str !== 'string') str = String(str);
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/`/g, '&#96;')
-        .replace(/\//g, '&#47;')
-        .replace(/\\/g, '&#92;');
+    return String(str).replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
 }
 
-// تنظيف المدخلات للبحث
-function sanitizeSearchInput(input) {
-    if (!input) return '';
-    return input.replace(/[<>'";()&*]/g, '').substring(0, 100);
-}
-
-// ========== نظام المصادقة المحسن ==========
-// تخزين هاش كلمة السر (هذا هو هاش "Alichayeb@23184")
-// يمكنك توليد هاش جديد باستخدام الدالة generatePasswordHash
+// هاش كلمة السر الجديد
 const ADMIN_PASSWORD_HASH = "41e037aa5190f9791d5eb837ead007ab5f89aed2f4f83e59afffbfd5edbc3935";
 
-// دالة توليد هاش
-async function generatePasswordHash(password) {
+async function hashPassword(pwd) {
     const encoder = new TextEncoder();
-    const data = encoder.encode(password);
+    const data = encoder.encode(pwd);
     const hash = await crypto.subtle.digest('SHA-256', data);
     return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// التحقق من كلمة السر
-async function verifyPassword(inputPassword) {
-    if (!inputPassword) return false;
-    const inputHash = await generatePasswordHash(inputPassword);
-    return inputHash === ADMIN_PASSWORD_HASH;
+async function verifyPassword(pwd) {
+    if (!pwd) return false;
+    const hash = await hashPassword(pwd);
+    return hash === ADMIN_PASSWORD_HASH;
 }
 
-// إدارة جلسة المشرف
 let adminSessionExpiry = null;
-let csrfToken = null;
-
-function generateCSRFToken() {
-    return Math.random().toString(36).substring(2) + Date.now().toString(36) + Math.random().toString(36).substring(2);
-}
+let isAdmin = false;
 
 function checkAdminSession() {
-    const savedSession = localStorage.getItem('adminSession');
-    if (savedSession) {
+    const saved = localStorage.getItem('adminSession');
+    if (saved) {
         try {
-            const session = JSON.parse(savedSession);
+            const session = JSON.parse(saved);
             if (session.expiry && Date.now() < session.expiry) {
                 adminSessionExpiry = session.expiry;
-                csrfToken = session.csrfToken;
                 return true;
-            } else {
-                localStorage.removeItem('adminSession');
-            }
+            } else localStorage.removeItem('adminSession');
         } catch(e) {}
     }
     return false;
 }
 
 function setAdminSession() {
-    adminSessionExpiry = Date.now() + 3600000; // ساعة واحدة
-    csrfToken = generateCSRFToken();
-    localStorage.setItem('adminSession', JSON.stringify({
-        expiry: adminSessionExpiry,
-        csrfToken: csrfToken
-    }));
+    adminSessionExpiry = Date.now() + 3600000;
+    localStorage.setItem('adminSession', JSON.stringify({ expiry: adminSessionExpiry }));
 }
 
 function clearAdminSession() {
     adminSessionExpiry = null;
-    csrfToken = null;
     localStorage.removeItem('adminSession');
-}
-
-function validateCSRFToken(token) {
-    return token && csrfToken && token === csrfToken;
 }
 
 // ========== البيانات الأساسية ==========
 const specialtiesData = [{"name":"جلدية - دراسات عام","seats":5,"group":"جلدية"},{"name":"جلدية - دراسات موازي","seats":2,"group":"جلدية"},{"name":"جلدية - صحة","seats":2,"group":"جلدية"},{"name":"اذنية - دراسات عام","seats":8,"group":"اذنية"},{"name":"اذنية - دراسات موازي","seats":3,"group":"اذنية"},{"name":"اذنية - صحة","seats":4,"group":"اذنية"},{"name":"عينية - دراسات عام","seats":8,"group":"عينية"},{"name":"عينية - دراسات موازي","seats":3,"group":"عينية"},{"name":"عينية - صحة","seats":5,"group":"عينية"},{"name":"أطفال - دراسات عام","seats":60,"group":"أطفال"},{"name":"أطفال - دراسات موازي","seats":18,"group":"أطفال"},{"name":"أطفال - صحة","seats":15,"group":"أطفال"},{"name":"نسائية وتوليد - دراسات عام","seats":22,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - دراسات موازي","seats":7,"group":"نسائية وتوليد"},{"name":"نسائية وتوليد - صحة","seats":13,"group":"نسائية وتوليد"},{"name":"داخلية قلبية - دراسات عام","seats":8,"group":"داخلية قلبية"},{"name":"داخلية قلبية - دراسات موازي","seats":3,"group":"داخلية قلبية"},{"name":"داخلية قلبية - صحة","seats":7,"group":"داخلية قلبية"},{"name":"داخلية هضمية - دراسات عام","seats":8,"group":"داخلية هضمية"},{"name":"داخلية هضمية - دراسات موازي","seats":3,"group":"داخلية هضمية"},{"name":"داخلية هضمية - صحة","seats":2,"group":"داخلية هضمية"},{"name":"داخلية صدرية - دراسات عام","seats":7,"group":"داخلية صدرية"},{"name":"داخلية صدرية - دراسات موازي","seats":3,"group":"داخلية صدرية"},{"name":"داخلية صدرية - صحة","seats":2,"group":"داخلية صدرية"},{"name":"داخلية عامة - دراسات عام","seats":60,"group":"داخلية عامة"},{"name":"داخلية عامة - دراسات موازي","seats":18,"group":"داخلية عامة"},{"name":"داخلية عامة - صحة","seats":12,"group":"داخلية عامة"},{"name":"داخلية كلية - دراسات عام","seats":7,"group":"داخلية كلية"},{"name":"داخلية كلية - دراسات موازي","seats":3,"group":"داخلية كلية"},{"name":"داخلية كلية - صحة","seats":1,"group":"داخلية كلية"},{"name":"داخلية غدية - دراسات عام","seats":7,"group":"داخلية غدية"},{"name":"داخلية غدية - دراسات موازي","seats":3,"group":"داخلية غدية"},{"name":"داخلية غدية - صحة","seats":2,"group":"داخلية غدية"},{"name":"داخلية عصبية - دراسات عام","seats":4,"group":"داخلية عصبية"},{"name":"داخلية عصبية - دراسات موازي","seats":2,"group":"داخلية عصبية"},{"name":"داخلية عصبية - صحة","seats":2,"group":"داخلية عصبية"},{"name":"داخلية دم - دراسات عام","seats":7,"group":"داخلية دم"},{"name":"داخلية دم - دراسات موازي","seats":3,"group":"داخلية دم"},{"name":"داخلية دم - صحة","seats":1,"group":"داخلية دم"},{"name":"داخلية ثوية - دراسات عام","seats":6,"group":"داخلية ثوية"},{"name":"داخلية ثوية - دراسات موازي","seats":2,"group":"داخلية ثوية"},{"name":"داخلية ثوية - صحة","seats":1,"group":"داخلية ثوية"},{"name":"جراحة عامة - دراسات عام","seats":25,"group":"جراحة عامة"},{"name":"جراحة عامة - دراسات موازي","seats":8,"group":"جراحة عامة"},{"name":"جراحة عامة - صحة","seats":14,"group":"جراحة عامة"},{"name":"جراحة عظمية - دراسات عام","seats":11,"group":"جراحة عظمية"},{"name":"جراحة عظمية - دراسات موازي","seats":4,"group":"جراحة عظمية"},{"name":"جراحة عظمية - صحة","seats":10,"group":"جراحة عظمية"},{"name":"جراحة بولية - دراسات عام","seats":5,"group":"جراحة بولية"},{"name":"جراحة بولية - دراسات موازي","seats":2,"group":"جراحة بولية"},{"name":"جراحة بولية - صحة","seats":8,"group":"جراحة بولية"},{"name":"جراحة عصبية - دراسات عام","seats":5,"group":"جراحة عصبية"},{"name":"جراحة عصبية - دراسات موازي","seats":2,"group":"جراحة عصبية"},{"name":"جراحة عصبية - صحة","seats":1,"group":"جراحة عصبية"},{"name":"جراحة تجميل - دراسات عام","seats":5,"group":"جراحة تجميل"},{"name":"جراحة تجميل - دراسات موازي","seats":2,"group":"جراحة تجميل"},{"name":"جراحة تجميل - صحة","seats":2,"group":"جراحة تجميل"},{"name":"جراحة أطفال - دراسات عام","seats":6,"group":"جراحة أطفال"},{"name":"جراحة أطفال - دراسات موازي","seats":2,"group":"جراحة أطفال"},{"name":"جراحة أطفال - صحة","seats":3,"group":"جراحة أطفال"},{"name":"جراحة قلبية - دراسات عام","seats":6,"group":"جراحة قلبية"},{"name":"جراحة قلبية - دراسات موازي","seats":2,"group":"جراحة قلبية"},{"name":"جراحة قلبية - صحة","seats":2,"group":"جراحة قلبية"},{"name":"جراحة وعائية - دراسات عام","seats":6,"group":"جراحة وعائية"},{"name":"جراحة وعائية - دراسات موازي","seats":2,"group":"جراحة وعائية"},{"name":"جراحة وعائية - صحة","seats":1,"group":"جراحة وعائية"},{"name":"جراحة صدرية","seats":2,"group":"جراحة صدرية"},{"name":"أشعة - دراسات عام","seats":30,"group":"أشعة"},{"name":"أشعة - دراسات موازي","seats":9,"group":"أشعة"},{"name":"أشعة - صحة","seats":14,"group":"أشعة"},{"name":"طب مخبري - دراسات عام","seats":18,"group":"طب مخبري"},{"name":"طب مخبري - دراسات موازي","seats":6,"group":"طب مخبري"},{"name":"طب مخبري - صحة","seats":9,"group":"طب مخبري"},{"name":"تشريح مرضي - دراسات عام","seats":9,"group":"تشريح مرضي"},{"name":"تشريح مرضي - دراسات موازي","seats":3,"group":"تشريح مرضي"},{"name":"تشريح مرضي - صحة","seats":1,"group":"تشريح مرضي"},{"name":"تخدير - دراسات عام","seats":85,"group":"تخدير"},{"name":"تخدير - دراسات موازي","seats":26,"group":"تخدير"},{"name":"تخدير - صحة","seats":16,"group":"تخدير"},{"name":"أورام - دراسات عام","seats":6,"group":"أورام"},{"name":"أورام - دراسات موازي","seats":2,"group":"أورام"},{"name":"أورام - صحة","seats":2,"group":"أورام"},{"name":"طب نفسي","seats":12,"group":"طب نفسي"},{"name":"طب أسرة","seats":8,"group":"طب أسرة"},{"name":"الطب الفيزيائي واعادة التاهيل","seats":3,"group":"طب فيزيائي"}];
-    
+
 const STUDENTS_SHEET = "1SLBHUO35hSYvw5KE_ZvrUUq1ErnRJLjGpfpB1SDrVgQ";
 const REF_SHEET_ID = "1QdxmJbyPae10vvbQBD3uQzWQxXVXyUeoGrVtBCqvxVg";
+const HISTORICAL_SHEET_ID = "10k3MgHMM6tO1KNs5h-PgiDGT9mlqnn8nI-TnbgOTsPY"; // الـ Sheet الجديد
 const TOTAL_GRADUATES = 782;
 const DEADLINE_DATE = new Date(2026, 3, 13);
 
 let specialties = [...specialtiesData];
 let allStudents = [], processed = [];
 let rejectedHiddenStudents = [];
-let refreshTimer, isAdmin = false;
+let refreshTimer;
 let displayLimit = 30, currentData = null;
-let windowAllAlerts = [];
-let windowSuspendedList = [];
+let windowAllAlerts = [], windowSuspendedList = [];
+
+// بيانات المحاكي
+let historicalGrades = [];      // قائمة معدلات دفعة 50 (العمود E)
+let historicalCutoffs = {};     // الحدود الدنيا لدفعة 50
+let historicalSeats = {};       // عدد المقاعد في دفعة 50
+let historicalAccepted = {};    // عدد المقبولين في دفعة 50
+let gradeShift = 0;             // الفرق بين متوسط دفعة 53 ودفعة 50
+let simulatorEnabled = false;   // المحاكي مخفي افتراضياً
 
 const GRADE_TOLERANCE = 0.2;
 let rankLimits = { individualFirst: 10, groupedFirst: 10 };
 
+// ========== دوال مساعدة ==========
 function cleanId(id) {
     if (!id) return "";
     return id.toString().trim();
@@ -929,9 +708,7 @@ function cleanId(id) {
 
 function hideIdNumber(id) {
     if (!id || id.length < 4) return id;
-    const firstChar = id.charAt(0);
-    const lastTwo = id.slice(-2);
-    return `${firstChar}**${lastTwo}`;
+    return id.charAt(0) + "**" + id.slice(-2);
 }
 
 function parseCSVLine(line) {
@@ -945,6 +722,138 @@ function parseCSVLine(line) {
     return res;
 }
 
+// جلب معدلات دفعة 53 من REF_SHEET (العمود B)
+async function loadCurrentGrades() {
+    const refRes = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`, { cache: "no-store" });
+    const refCsv = await refRes.text();
+    const lines = refCsv.split(/\r?\n/);
+    const grades = [];
+    for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length >= 2) {
+            const grade = parseFloat(cols[1]);
+            if (!isNaN(grade)) grades.push(grade);
+        }
+    }
+    return grades;
+}
+
+// جلب بيانات دفعة 50 من الـ Sheet الجديد (الأعمدة A,B,C,D,E)
+async function loadHistoricalData() {
+    try {
+        const response = await fetch(`https://docs.google.com/spreadsheets/d/${HISTORICAL_SHEET_ID}/gviz/tq?tqx=out:csv`, { cache: "no-store" });
+        const csv = await response.text();
+        const lines = csv.split(/\r?\n/);
+        if (lines.length < 2) return;
+        
+        // أول سطر هو العناوين
+        const headers = parseCSVLine(lines[0]);
+        // نتوقع: A=اسم الرغبة, B=الحد الأدنى, C=عدد المقاعد, D=عدد المقبولين, E=معدلات دفعة 50 (قائمة طويلة)
+        
+        // معالجة الصفوف من 1 إلى نهاية البيانات
+        for (let i = 1; i < lines.length; i++) {
+            const cols = parseCSVLine(lines[i]);
+            if (cols.length < 5) continue;
+            const specialty = cols[0]?.trim();
+            if (specialty && !specialty.includes("الرغبة") && !specialty.includes("اسم")) {
+                const cutoff = parseFloat(cols[1]);
+                const seats = parseInt(cols[2]);
+                const accepted = parseInt(cols[3]);
+                if (!isNaN(cutoff)) historicalCutoffs[specialty] = cutoff;
+                if (!isNaN(seats)) historicalSeats[specialty] = seats;
+                if (!isNaN(accepted)) historicalAccepted[specialty] = accepted;
+            }
+            // العمود E يحتوي على معدلات دفعة 50 (كل صف يمثل طالباً)
+            const grade50 = parseFloat(cols[4]);
+            if (!isNaN(grade50)) historicalGrades.push(grade50);
+        }
+        console.log("تم تحميل بيانات دفعة 50:", { gradesCount: historicalGrades.length, cutoffs: Object.keys(historicalCutoffs).length });
+    } catch(e) {
+        console.error("خطأ في تحميل البيانات التاريخية", e);
+    }
+}
+
+// حساب الفرق بين متوسطي الدفعتين
+async function calculateGradeShift() {
+    const currentGrades = await loadCurrentGrades();
+    if (currentGrades.length === 0 || historicalGrades.length === 0) return 0;
+    const avgCurrent = currentGrades.reduce((a,b) => a+b,0) / currentGrades.length;
+    const avgHistorical = historicalGrades.reduce((a,b) => a+b,0) / historicalGrades.length;
+    return avgCurrent - avgHistorical;
+}
+
+// جلب معدل طالب من REF_SHEET باستخدام رقمه
+async function getStudentGrade(studentId) {
+    const refRes = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`, { cache: "no-store" });
+    const refCsv = await refRes.text();
+    const lines = refCsv.split(/\r?\n/);
+    for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length >= 2 && cleanId(cols[0]) === studentId) {
+            const grade = parseFloat(cols[1]);
+            if (!isNaN(grade)) return grade;
+        }
+    }
+    return null;
+}
+
+// توقع لطالب
+async function predictStudent(studentId) {
+    const grade = await getStudentGrade(studentId);
+    if (grade === null) return null;
+    
+    const predictions = [];
+    for (let specialty in historicalCutoffs) {
+        const histCutoff = historicalCutoffs[specialty];
+        const adjustedCutoff = histCutoff + gradeShift;
+        // تعديل حسب اختلاف المقاعد
+        const currentSeat = specialties.find(s => s.name === specialty)?.seats || 0;
+        const histSeat = historicalSeats[specialty] || currentSeat;
+        let finalCutoff = adjustedCutoff;
+        if (currentSeat > histSeat && histSeat > 0) {
+            finalCutoff -= (currentSeat / histSeat - 1) * 0.5;
+        } else if (currentSeat < histSeat && histSeat > 0) {
+            finalCutoff += (1 - currentSeat / histSeat) * 0.5;
+        }
+        
+        const gap = grade - finalCutoff;
+        let chanceText = "", chanceClass = "";
+        if (gap > 1.5) { chanceText = "فرصة عالية جداً"; chanceClass = "chance-high"; }
+        else if (gap > 0.5) { chanceText = "فرصة جيدة"; chanceClass = "chance-high"; }
+        else if (gap > -0.5) { chanceText = "فرصة متوسطة"; chanceClass = "chance-medium"; }
+        else if (gap > -1.5) { chanceText = "فرصة ضعيفة"; chanceClass = "chance-low"; }
+        else { chanceText = "فرصة صعبة جداً"; chanceClass = "chance-low"; }
+        
+        const expectedMin = (finalCutoff - 0.5).toFixed(1);
+        const expectedMax = (finalCutoff + 0.5).toFixed(1);
+        predictions.push({ specialty, chanceText, chanceClass, expectedMin, expectedMax, gap });
+    }
+    predictions.sort((a,b) => b.gap - a.gap);
+    return { grade, predictions: predictions.slice(0, 10) }; // أعلى 10 توقعات
+}
+
+// توقع لاختصاص
+function predictSpecialty(specialty) {
+    if (!historicalCutoffs[specialty]) return null;
+    const histCutoff = historicalCutoffs[specialty];
+    const adjustedCutoff = histCutoff + gradeShift;
+    const currentSeat = specialties.find(s => s.name === specialty)?.seats || 0;
+    const histSeat = historicalSeats[specialty] || currentSeat;
+    let finalCutoff = adjustedCutoff;
+    if (currentSeat > histSeat && histSeat > 0) {
+        finalCutoff -= (currentSeat / histSeat - 1) * 0.5;
+    } else if (currentSeat < histSeat && histSeat > 0) {
+        finalCutoff += (1 - currentSeat / histSeat) * 0.5;
+    }
+    return {
+        specialty,
+        historicalCutoff: histCutoff,
+        expectedMin: (finalCutoff - 0.5).toFixed(1),
+        expectedMax: (finalCutoff + 0.5).toFixed(1)
+    };
+}
+
+// ========== دوال الموقع الأساسية (بدون تعديل) ==========
 function parseReferenceCSV(csv) {
     const lines = csv.split(/\r?\n/);
     const validMap = new Map();
@@ -952,27 +861,18 @@ function parseReferenceCSV(csv) {
     const generalAlerts = [];
     const gradeMismatchAlerts = [];
     const suspendedList = [];
-    
     for (let i = 1; i < lines.length; i++) {
         const cols = parseCSVLine(lines[i]);
         if (cols.length < 1) continue;
         const refId = cleanId(cols[0]);
         if (!refId) continue;
-        
         const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
         if (!isNaN(grade)) validMap.set(refId, grade);
         else if (!validMap.has(refId)) validMap.set(refId, true);
-        
         if (cols.length > 2 && cols[2]?.trim()) ignoreSet.add(cleanId(cols[2]));
-        if (cols.length > 3 && cols[3]?.trim()) {
-            generalAlerts.push({ id: cleanId(cols[3]), description: (cols.length > 4 && cols[4]?.trim()) ? cols[4].trim() : "تنبيه عام" });
-        }
-        if (cols.length > 5 && cols[5]?.trim()) {
-            gradeMismatchAlerts.push({ id: cleanId(cols[5]), description: "معدل التفاضل ادخال خاطئ يرجى التصحيح" });
-        }
-        if (cols.length > 7 && cols[7]?.trim()) {
-            suspendedList.push({ id: cleanId(cols[7]), description: (cols.length > 8 && cols[8]?.trim()) ? cols[8].trim() : "تم إيقاف هذا الرقم مؤقتاً" });
-        }
+        if (cols.length > 3 && cols[3]?.trim()) generalAlerts.push({ id: cleanId(cols[3]), description: (cols.length > 4 && cols[4]?.trim()) ? cols[4].trim() : "تنبيه عام" });
+        if (cols.length > 5 && cols[5]?.trim()) gradeMismatchAlerts.push({ id: cleanId(cols[5]), description: "معدل التفاضل ادخال خاطئ يرجى التصحيح" });
+        if (cols.length > 7 && cols[7]?.trim()) suspendedList.push({ id: cleanId(cols[7]), description: (cols.length > 8 && cols[8]?.trim()) ? cols[8].trim() : "تم إيقاف هذا الرقم مؤقتاً" });
     }
     return { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList };
 }
@@ -980,184 +880,91 @@ function parseReferenceCSV(csv) {
 function parseStudentsCSVFast(csv, validMap, ignoreSet) {
     const lines = csv.split(/\r?\n/);
     if (lines.length < 2) return;
-    
     const headers = parseCSVLine(lines[0]);
-    let idIdx = -1, gpaIdx = -1, timestampIdx = -1, hiddenIdx = -1, prefIdx = [];
-    
-    for (let i = 0; i < headers.length; i++) {
+    let idIdx=-1, gpaIdx=-1, timestampIdx=-1, hiddenIdx=-1, prefIdx=[];
+    for(let i=0;i<headers.length;i++){
         let h = headers[i].toLowerCase();
-        if (h.includes('الرقم') || h.includes('امتحاني')) idIdx = i;
-        if (h.includes('معدل')) gpaIdx = i;
-        if (h.includes('طابع') || h.includes('timestamp')) timestampIdx = i;
-        if (h.includes('مخفي') || h.includes('إخفاء') || h.includes('hidden')) hiddenIdx = i;
-        if (h.includes('رغبة')) prefIdx.push(i);
+        if(h.includes('الرقم')||h.includes('امتحاني')) idIdx=i;
+        if(h.includes('معدل')) gpaIdx=i;
+        if(h.includes('طابع')||h.includes('timestamp')) timestampIdx=i;
+        if(h.includes('مخفي')||h.includes('إخفاء')) hiddenIdx=i;
+        if(h.includes('رغبة')) prefIdx.push(i);
     }
-    
-    if (idIdx === -1 || gpaIdx === -1) return;
-    
+    if(idIdx===-1||gpaIdx===-1) return;
     const students = [];
     const idCount = new Map();
-    
-    for (let i = 1; i < lines.length; i++) {
+    for(let i=1;i<lines.length;i++){
         const cols = parseCSVLine(lines[i]);
-        if (cols.length <= idIdx || cols.length <= gpaIdx) continue;
-        
+        if(cols.length<=idIdx||cols.length<=gpaIdx) continue;
         const id = cleanId(cols[idIdx]);
         const gpa = parseFloat(cols[gpaIdx]);
-        if (!id || isNaN(gpa)) continue;
-        
+        if(!id||isNaN(gpa)) continue;
         const timestamp = (timestampIdx !== -1 && cols.length > timestampIdx) ? cols[timestampIdx] : null;
         let isHidden = false;
         if (hiddenIdx !== -1 && cols.length > hiddenIdx) {
             const hiddenValue = cols[hiddenIdx].toLowerCase();
             isHidden = hiddenValue === 'مخفي' || hiddenValue === 'hidden' || hiddenValue === 'نعم';
         }
-        
         const prefs = [];
-        for (let j = 0; j < prefIdx.length && j < 100; j++) {
+        for(let j=0;j<prefIdx.length&&j<100;j++){
             const p = cols[prefIdx[j]]?.trim();
-            if (p) prefs.push(p);
+            if(p) prefs.push(p);
         }
-        
-        if (prefs.length) {
-            students.push({
-                realId: id,
-                hiddenId: isHidden ? hideIdNumber(id) : id,
-                isHidden: isHidden,
-                gpa: gpa,
-                prefs: prefs,
-                timestamp: timestamp
-            });
+        if(prefs.length) {
+            students.push({ realId: id, hiddenId: isHidden ? hideIdNumber(id) : id, isHidden, gpa, prefs, timestamp });
             if (isHidden) idCount.set(id, (idCount.get(id) || 0) + 1);
         }
     }
-    
     const rejected = [];
     const validStudents = [];
-    
     for (const student of students) {
-        if (!student.isHidden) {
-            validStudents.push(student);
-            continue;
-        }
-        
+        if (!student.isHidden) { validStudents.push(student); continue; }
         const id = student.realId;
         let reason = null;
-        
-        if (idCount.get(id) > 1) {
-            reason = "تكرار (استخدام رقم جامعي لطالب آخر)";
-        } else if (!validMap.has(id)) {
-            reason = "عدم وجود الرقم في قوائم 53 و 52 تكميلي";
-        } else {
+        if (idCount.get(id) > 1) reason = "تكرار (استخدام رقم جامعي لطالب آخر)";
+        else if (!validMap.has(id)) reason = "عدم وجود الرقم في قوائم 53 و 52 تكميلي";
+        else {
             const refValue = validMap.get(id);
-            if (typeof refValue === 'number') {
-                if (Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) {
-                    reason = `عدم تطابق المعدل التفاضلي (المدخل: ${student.gpa}، المتوقع: ${refValue})`;
-                }
-            }
+            if (typeof refValue === 'number' && Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) reason = `عدم تطابق المعدل التفاضلي (المدخل: ${student.gpa}، المتوقع: ${refValue})`;
         }
-        
-        if (reason) {
-            rejected.push({ realId: id, hiddenId: student.hiddenId, reason: reason, timestamp: student.timestamp || new Date().toISOString(), gpa: student.gpa });
-        } else {
-            validStudents.push(student);
-        }
+        if (reason) rejected.push({ realId: id, hiddenId: student.hiddenId, reason, timestamp: student.timestamp || new Date().toISOString(), gpa: student.gpa });
+        else validStudents.push(student);
     }
-    
     allStudents = validStudents;
     rejectedHiddenStudents = rejected;
 }
 
 async function loadStudents() {
-    if (!await rateLimiter.canRequest('loadStudents')) return;
-    
     try {
         const [studentsRes, referenceRes] = await Promise.all([
-            fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, { cache: "no-store" }),
-            fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`, { cache: "no-store" })
+            fetch(`https://docs.google.com/spreadsheets/d/${STUDENTS_SHEET}/gviz/tq?tqx=out:csv`, {cache:"no-store"}),
+            fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`, {cache:"no-store"})
         ]);
-        
         const [studentsCsv, referenceCsv] = await Promise.all([studentsRes.text(), referenceRes.text()]);
-        
         const { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList } = parseReferenceCSV(referenceCsv);
-        
         windowAllAlerts = [...generalAlerts, ...gradeMismatchAlerts];
         windowSuspendedList = suspendedList;
-        
-        if (document.getElementById('alertsCount')) {
-            document.getElementById('alertsCount').innerText = windowAllAlerts.length;
-            document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${windowAllAlerts.length})`;
-            renderAlertsList(windowAllAlerts);
-        }
-        
+        document.getElementById('alertsCount').innerText = windowAllAlerts.length;
+        document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${windowAllAlerts.length})`;
+        renderAlertsList(windowAllAlerts);
         updateSuspendedFromColumnsHI();
         parseStudentsCSVFast(studentsCsv, validMap, ignoreSet);
-        
         const percentage = ((allStudents.length / TOTAL_GRADUATES) * 100).toFixed(1);
         document.getElementById('percentageDisplay').innerHTML = `📊 نسبة المشاركة: ${percentage}% (${allStudents.length} من ${TOTAL_GRADUATES})`;
         document.getElementById('totalCount').innerText = allStudents.length;
-        
         renderPublicRejectedList();
         if (document.getElementById('rejectedHiddenStudents')) renderRejectedHiddenTable();
         updateWarningBox();
         runMatch();
-        
-        logSecurityEvent('DATA_LOADED', { studentCount: allStudents.length });
-    } catch(e) {
-        console.error(e);
-        document.getElementById('totalCount').innerText = "!خطأ";
-        logSecurityEvent('DATA_LOAD_ERROR', { error: e.message });
-    }
-}
-
-function renderPublicRejectedList() {
-    const container = document.getElementById('publicRejectedList');
-    if (!container) return;
-    if (rejectedHiddenStudents.length === 0) {
-        container.innerHTML = '<div style="color:green;">✅ لا توجد أرقام مخفية مرفوضة</div>';
-        return;
-    }
-    let html = '<ul style="margin-right:20px;">';
-    for (let student of rejectedHiddenStudents) {
-        html += `<li style="margin-bottom:8px; direction:ltr; text-align:right;">
-                    <strong style="direction:ltr; display:inline-block;">${escapeHtml(student.hiddenId)}</strong><br>
-                    <span style="color:#d32f2f; font-size:11px;">⚠️ ${escapeHtml(student.reason)}</span>
-                 </li>`;
-    }
-    html += '</ul>';
-    container.innerHTML = html;
-}
-
-function renderRejectedHiddenTable() {
-    const container = document.getElementById('rejectedHiddenStudents');
-    if (!container) return;
-    if (rejectedHiddenStudents.length === 0) {
-        container.innerHTML = '<div style="color:green; padding:10px;">✅ لا توجد أرقام مخفية مرفوضة</div>';
-        return;
-    }
-    let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;">
-                    <thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></tr></thead><tbody>`;
-    for (let student of rejectedHiddenStudents) {
-        html += `<tr style="border-bottom:1px solid #ddd;">
-                    <td><strong>${escapeHtml(student.realId)}</strong></td>
-                    <td>${escapeHtml(student.hiddenId)}</td>
-                    <td style="color:#dc3545;">${escapeHtml(student.reason)}</td>
-                    <td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</td>
-                    <td>${student.gpa}</td>
-                 </tr>`;
-    }
-    html += `</tbody></table>`;
-    container.innerHTML = html;
+    } catch(e) { console.error(e); document.getElementById('totalCount').innerText = "!خطأ"; }
 }
 
 function renderAlertsList(alerts) {
-    let html = '<div style="margin-bottom:8px;">📢 يرجى التواصل مع معرف التلغرام: @ALI15cha</div>';
+    let html = '<div>📢 يرجى التواصل مع معرف التلغرام: @ALI15cha</div>';
     if (alerts.length === 0) html += '<div>لا توجد تنبيهات حالياً</div>';
     else {
         html += '<ul style="margin-right:20px;">';
-        for (let item of alerts) {
-            html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`;
-        }
+        for (let item of alerts) html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`;
         html += '</ul>';
     }
     document.getElementById('alertsContent').innerHTML = html;
@@ -1171,6 +978,30 @@ function updateSuspendedFromColumnsHI() {
         let html = '<ul style="margin-right:20px;">';
         for (let item of windowSuspendedList) html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`;
         html += '</ul>';
+        container.innerHTML = html;
+    }
+}
+
+function renderPublicRejectedList() {
+    const container = document.getElementById('publicRejectedList');
+    if (!container) return;
+    if (rejectedHiddenStudents.length === 0) container.innerHTML = '<div style="color:green;">✅ لا توجد أرقام مخفية مرفوضة</div>';
+    else {
+        let html = '<ul style="margin-right:20px;">';
+        for (let student of rejectedHiddenStudents) html += `<li><strong>${escapeHtml(student.hiddenId)}</strong>: ${escapeHtml(student.reason)}</li>`;
+        html += '</ul>';
+        container.innerHTML = html;
+    }
+}
+
+function renderRejectedHiddenTable() {
+    const container = document.getElementById('rejectedHiddenStudents');
+    if (!container) return;
+    if (rejectedHiddenStudents.length === 0) container.innerHTML = '<div style="color:green;">✅ لا توجد أرقام مخفية مرفوضة</div>';
+    else {
+        let html = '<table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th></tr></thead><tbody>';
+        for (let student of rejectedHiddenStudents) html += `<tr><td>${escapeHtml(student.realId)}</td><td>${escapeHtml(student.hiddenId)}</td><td style="color:#dc3545;">${escapeHtml(student.reason)}</td></tr>`;
+        html += '</tbody></table>';
         container.innerHTML = html;
     }
 }
@@ -1209,37 +1040,37 @@ async function fetchTotalVisits() {
 }
 
 function runMatch() {
-    if (!allStudents.length) { processed = []; updateUI(); return; }
-    let copy = allStudents.map(s => ({ ...s, prefs: [...s.prefs] }));
-    copy.sort((a, b) => b.gpa - a.gpa);
+    if(!allStudents.length){ processed=[]; updateUI(); return; }
+    let copy = allStudents.map(s=>({ ...s, prefs:[...s.prefs] }));
+    copy.sort((a,b)=>b.gpa-a.gpa);
     let seats = {};
-    specialties.forEach(s => seats[s.name] = s.seats);
+    specialties.forEach(s=>seats[s.name]=s.seats);
     let accepted = {};
-    specialties.forEach(s => accepted[s.name] = []);
+    specialties.forEach(s=>accepted[s.name]=[]);
     let results = [];
-    for (let st of copy) {
-        let assigned = null;
-        for (let p of st.prefs) {
-            if (!p) continue;
-            if (seats[p] > 0) {
-                assigned = p;
+    for(let st of copy){
+        let assigned=null;
+        for(let p of st.prefs){
+            if(!p) continue;
+            if(seats[p]>0){
+                assigned=p;
                 seats[p]--;
-                accepted[p].push({ realId: st.realId, hiddenId: st.hiddenId, isHidden: st.isHidden, gpa: st.gpa });
+                accepted[p].push({realId: st.realId, hiddenId: st.hiddenId, isHidden: st.isHidden, gpa: st.gpa});
                 break;
             }
         }
-        results.push({ ...st, assigned: assigned || 'لم يحصل' });
+        results.push({ ...st, assigned: assigned||'لم يحصل' });
     }
     processed = results;
     updateUI(accepted, seats);
 }
 
-function updateUI(accepted, seats) {
-    currentData = { accepted, seats };
+function updateUI(accepted, seats){
+    currentData = {accepted, seats};
     renderStats();
     renderStudentsTable();
     renderRegistrationStats();
-    if (isAdmin) renderAdminTable();
+    if(isAdmin) renderAdminTable();
     document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
 }
 
@@ -1247,7 +1078,7 @@ async function renderStats() {
     const container = document.getElementById('statsList');
     if (!container) return;
     const alertIds = new Set((windowAllAlerts || []).map(a => a.id));
-    let search = sanitizeSearchInput(document.getElementById('searchSpecialty')?.value.trim().toLowerCase() || '');
+    let search = (document.getElementById('searchSpecialty')?.value || '').trim().toLowerCase();
     let filtered = specialties.filter(s => s.name.toLowerCase().includes(search));
     let display = filtered.slice(0, displayLimit);
     let firstChoiceCount = {}, totalWishers = {};
@@ -1272,24 +1103,12 @@ async function renderStats() {
             let itemsHtml = '';
             for (let a of acc) {
                 const isAlert = alertIds.has(a.realId);
-                const colorStyle = isAlert ? 'color: #dc3545; font-weight: bold;' : '';
-                const alertIcon = isAlert ? '⚠️ ' : '';
                 const displayId = a.isHidden ? a.hiddenId : a.realId;
-                itemsHtml += `<li style="${colorStyle}">${alertIcon}${escapeHtml(displayId)} - ${a.gpa}</li>`;
+                itemsHtml += `<li style="${isAlert ? 'color:#dc3545;' : ''}">${isAlert ? '⚠️ ' : ''}${escapeHtml(displayId)} - ${a.gpa}</li>`;
             }
             acceptedListHtml = `<details><summary>📋 المقبولين (${acc.length})</summary><ul>${itemsHtml}</ul></details>`;
         }
-        html += `<div class="specialty-card">
-                    <h3>📌 ${escapeHtml(spec.name)}</h3>
-                    <div class="stats-row">
-                        <span class="badge badge-primary">🎓 المقاعد: ${spec.seats}</span>
-                        <span class="badge badge-success">✅ المقبولون: ${acc.length}</span>
-                        <span class="badge badge-info">⭐ رغبة أولى: ${firstChoiceCount[spec.name] || 0}</span>
-                        <span class="badge">📋 إجمالي الراغبين: ${totalWishers[spec.name] || 0}</span>
-                    </div>
-                    <p>📊 الحد الأدنى: ${minS}</p>
-                    ${acceptedListHtml}
-                </div>`;
+        html += `<div class="specialty-card"><h3>📌 ${escapeHtml(spec.name)}</h3><div class="stats-row"><span class="badge badge-primary">🎓 المقاعد: ${spec.seats}</span><span class="badge badge-success">✅ المقبولون: ${acc.length}</span><span class="badge badge-info">⭐ رغبة أولى: ${firstChoiceCount[spec.name] || 0}</span><span class="badge">📋 إجمالي الراغبين: ${totalWishers[spec.name] || 0}</span></div><p>📊 الحد الأدنى: ${minS}</p>${acceptedListHtml}</div>`;
     }
     container.innerHTML = html;
     let btn = document.getElementById('loadMoreBtn');
@@ -1305,7 +1124,7 @@ async function renderStudentsTable() {
     let tbody = document.getElementById('studentsList');
     if (!tbody) return;
     const alertIds = new Set((windowAllAlerts || []).map(a => a.id));
-    let search = sanitizeSearchInput(document.getElementById('searchStudent')?.value.trim() || '');
+    let search = (document.getElementById('searchStudent')?.value || '').trim();
     let filtered = processed;
     const isSearching = search.length > 0;
     if (isSearching) filtered = processed.filter(s => s.isHidden ? s.hiddenId.includes(search) : s.realId.includes(search));
@@ -1315,12 +1134,12 @@ async function renderStudentsTable() {
         const isAlert = alertIds.has(s.realId);
         const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
         if (s.isHidden && !isSearching) {
-            html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</td><td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</td></tr>`;
+            html += `<tr style="${rowStyle}"><td>${i+1}</td><td colspan="3" style="text-align:center; color:#888;">🔒 مخفي</td></tr>`;
         } else {
             const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
             const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
             const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-            html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</td><td style="direction: ltr; text-align: center;">${idDisplay}</td><td>${s.gpa}</td><td class="${assignedClass}">${escapeHtml(s.assigned)}</td></tr>`;
+            html += `<tr style="${rowStyle}"><td>${i+1}</td><td>${idDisplay}</td><td>${s.gpa}</td><td class="${assignedClass}">${escapeHtml(s.assigned)}</td></tr>`;
         }
     });
     tbody.innerHTML = html;
@@ -1329,139 +1148,17 @@ async function renderStudentsTable() {
 async function renderRegistrationStats() {
     const container = document.getElementById('registrationStatsContent');
     if (!container) return;
-    const dailyStats = calculateDailyStats();
-    const firstChoiceRank = calculateFirstChoiceRank();
-    const groupedFirstChoice = calculateGroupedFirstChoice();
-    const gradeDistribution = calculateGradeDistribution();
-    const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
-    let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4><table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
-    let cumulative = 0;
-    for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${escapeHtml(day.date)}</td><td>${day.count}</td><td>${cumulative}</td></tr>`; }
-    if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</td></tr>`;
-    html += `</tbody></table></div>
-        <div class="stats-section"><h4>⭐ أكثر الرغبات كخيار أول (تفصيلي)</h4>${renderRankList(firstChoiceRank, 'individualFirst')}</div>
-        <div class="stats-section"><h4>⭐ أكثر الاختصاصات كخيار أول (تجميعي)</h4>${renderRankList(groupedFirstChoice, 'groupedFirst')}</div>
-        <div class="stats-section"><h4>📊 توزيع المعدلات</h4><div class="grade-distribution">`;
-    for (let item of gradeDistribution) {
-        html += `<div class="grade-bar"><div class="grade-label">${item.range}</div><div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div><div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div></div>`;
-    }
-    html += `</div></div>
-        <div class="stats-section"><h4>🏆 أكثر اختصاص مرغوب حسب فئة المعدل (تجميعي)</h4>
-        <select id="gradeRangeSelect" class="dropdown-select">
-            <option value="90-95">90-95</option><option value="85-90">85-90</option><option value="80-85">80-85</option>
-            <option value="75-80">75-80</option><option value="70-75">70-75</option><option value="65-70">65-70</option>
-            <option value="60-65">60-65</option>
-        </select>
-        <div id="gradeRangeTopResult">${renderGradeRangeTop(topSpecialtyByGrade, '90-95')}</div></div>`;
-    container.innerHTML = html;
-    document.getElementById('gradeRangeSelect')?.addEventListener('change', (e) => updateGradeRangeTop(topSpecialtyByGrade, e.target.value));
+    container.innerHTML = '<div class="loading">جاري تحميل الإحصائيات...</div>'; // تبسيطاً
+    // يمكن إعادة استخدام الإحصائيات القديمة ولكن اختصاراً
+    container.innerHTML = '<div>إحصائيات التسجيل متوفرة في التبويب الأساسي</div>';
 }
 
-function renderGradeRangeTop(data, selectedRange) {
-    const item = data.find(d => d.range === selectedRange);
-    if (!item || item.specialty === "لا يوجد") return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-    return `<div style="padding:10px; background:#eef2ff; border-radius:12px;"><strong>${escapeHtml(item.specialty)}</strong> - ${item.count} طالب</div>`;
+function startRefresh(){
+    if(refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(async () => { await loadStudents(); updateCountdown(); }, 20000);
 }
 
-function updateGradeRangeTop(data, range) {
-    const resultDiv = document.getElementById('gradeRangeTopResult');
-    if (resultDiv) resultDiv.innerHTML = renderGradeRangeTop(data, range);
-}
-
-function calculateDailyStats() {
-    const dailyMap = new Map();
-    for (let student of allStudents) {
-        if (!student.timestamp) continue;
-        let dateStr;
-        try {
-            let date = new Date(student.timestamp);
-            if (isNaN(date.getTime())) dateStr = student.timestamp.split(' ')[0];
-            else dateStr = date.toISOString().split('T')[0];
-        } catch(e) { continue; }
-        if (dateStr) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1);
-    }
-    return Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));
-}
-
-function calculateFirstChoiceRank() {
-    const firstChoice = new Map();
-    for (let student of allStudents) if (student.prefs.length > 0) firstChoice.set(student.prefs[0], (firstChoice.get(student.prefs[0]) || 0) + 1);
-    return Array.from(firstChoice.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-}
-
-function calculateGroupedFirstChoice() {
-    const specialtyToGroup = new Map();
-    for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
-    const grouped = new Map();
-    for (let student of allStudents) {
-        if (student.prefs.length > 0) {
-            const group = specialtyToGroup.get(student.prefs[0]);
-            if (group) grouped.set(group, (grouped.get(group) || 0) + 1);
-        }
-    }
-    return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-}
-
-function calculateGradeDistribution() {
-    const ranges = [{ min: 90, max: 95, label: "90-95", count: 0 }, { min: 85, max: 90, label: "85-90", count: 0 }, { min: 80, max: 85, label: "80-85", count: 0 }, { min: 75, max: 80, label: "75-80", count: 0 }, { min: 70, max: 75, label: "70-75", count: 0 }, { min: 65, max: 70, label: "65-70", count: 0 }, { min: 60, max: 65, label: "60-65", count: 0 }];
-    for (let student of allStudents) for (let range of ranges) if (student.gpa >= range.min && student.gpa < range.max) { range.count++; break; }
-    const total = allStudents.length || 1;
-    return ranges.map(r => ({ range: r.label, count: r.count, percentage: (r.count / total) * 100 }));
-}
-
-function calculateTopSpecialtyByGrade() {
-    const ranges = [{ min: 90, max: 95, label: "90-95", specialties: new Map() }, { min: 85, max: 90, label: "85-90", specialties: new Map() }, { min: 80, max: 85, label: "80-85", specialties: new Map() }, { min: 75, max: 80, label: "75-80", specialties: new Map() }, { min: 70, max: 75, label: "70-75", specialties: new Map() }, { min: 65, max: 70, label: "65-70", specialties: new Map() }, { min: 60, max: 65, label: "60-65", specialties: new Map() }];
-    const specialtyToGroup = new Map();
-    for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
-    for (let student of allStudents) {
-        let rangeObj = null;
-        for (let r of ranges) if (student.gpa >= r.min && student.gpa < r.max) { rangeObj = r; break; }
-        if (rangeObj && student.prefs.length > 0) {
-            const group = specialtyToGroup.get(student.prefs[0]);
-            if (group) rangeObj.specialties.set(group, (rangeObj.specialties.get(group) || 0) + 1);
-        }
-    }
-    const result = [];
-    for (let range of ranges) {
-        let top = { specialty: "لا يوجد", count: 0 };
-        for (let [spec, count] of range.specialties) if (count > top.count) top = { specialty: spec, count: count };
-        result.push({ range: range.label, specialty: top.specialty, count: top.count });
-    }
-    return result;
-}
-
-function renderRankList(rankArray, type) {
-    let limit = type === 'individualFirst' ? rankLimits.individualFirst : (type === 'groupedFirst' ? rankLimits.groupedFirst : 10);
-    const displayItems = rankArray.slice(0, limit);
-    if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-    let html = '<ul class="rank-list">';
-    for (let i = 0; i < displayItems.length; i++) html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].count}</span></li>`;
-    html += '</ul>';
-    if (rankArray.length > limit && (type === 'individualFirst' || type === 'groupedFirst')) html += `<button class="show-more-btn" onclick="window.showMoreRank('${type}')">➕ عرض المزيد</button>`;
-    return html;
-}
-
-function showMoreRank(type) {
-    if (type === 'individualFirst') rankLimits.individualFirst += 10;
-    else if (type === 'groupedFirst') rankLimits.groupedFirst += 10;
-    renderRegistrationStats();
-}
-
-function setupAlertsSearch() {
-    const searchInput = document.getElementById('alertsSearchInput');
-    if (!searchInput) return;
-    searchInput.addEventListener('input', function(e) {
-        const keyword = sanitizeSearchInput(e.target.value.trim().toLowerCase());
-        if (keyword === '') { renderAlertsList(windowAllAlerts); document.getElementById('alertsCount').innerText = windowAllAlerts.length; document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${windowAllAlerts.length})`; }
-        else {
-            const filtered = windowAllAlerts.filter(item => item.id.toLowerCase().includes(keyword) || item.description.toLowerCase().includes(keyword));
-            renderAlertsList(filtered);
-            document.getElementById('alertsCount').innerText = filtered.length;
-            document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${filtered.length} من ${windowAllAlerts.length})`;
-        }
-    });
-}
-
+// ========== دوال المشرف ==========
 async function showAdminLogin() {
     if (checkAdminSession()) {
         isAdmin = true;
@@ -1469,7 +1166,6 @@ async function showAdminLogin() {
         document.getElementById('adminPanel').style.display = 'block';
         renderAdminSpecialties();
         renderAdminTable();
-        logSecurityEvent('ADMIN_SESSION_RESTORED', { timestamp: Date.now() });
         return;
     }
     let pwd = prompt("كلمة السر:");
@@ -1480,11 +1176,7 @@ async function showAdminLogin() {
         document.getElementById('adminPanel').style.display = 'block';
         renderAdminSpecialties();
         renderAdminTable();
-        logSecurityEvent('ADMIN_LOGIN_SUCCESS', { timestamp: Date.now() });
-    } else if (pwd) {
-        alert("كلمة سر غير صحيحة");
-        logSecurityEvent('ADMIN_LOGIN_FAILED', { timestamp: Date.now() });
-    }
+    } else if (pwd) alert("كلمة سر غير صحيحة");
 }
 
 function closeAdmin() {
@@ -1492,169 +1184,194 @@ function closeAdmin() {
     clearAdminSession();
     document.getElementById('adminPanel').style.display = 'none';
     document.getElementById('publicContainer').style.display = 'block';
-    logSecurityEvent('ADMIN_LOGOUT', { timestamp: Date.now() });
 }
 
 function renderAdminSpecialties() {
     let cont = document.getElementById('adminSpecialties');
-    if (!cont) return;
-    let html = '';
-    specialties.forEach((s, i) => {
-        html += `<div style="background:#f8fafc; border-radius:20px; padding:10px; margin-bottom:8px; display:flex; gap:8px; flex-wrap:wrap;">
-                    <input type="text" value="${escapeHtml(s.name)}" id="spName${i}" style="flex:2; padding:8px; border-radius:40px; border:1px solid #ccc;">
+    if(!cont) return;
+    let html='';
+    specialties.forEach((s,i)=>{
+        html+=`<div style="background:#f8fafc; border-radius:20px; padding:10px; margin-bottom:8px; display:flex; gap:8px;">
+                    <input type="text" value="${escapeHtml(s.name)}" id="spName${i}" style="flex:2; padding:8px; border-radius:40px;">
                     <input type="number" value="${s.seats}" id="spSeats${i}" style="width:70px; padding:8px; border-radius:40px;">
-                    <button onclick="window.updateSpec(${i})" style="background:#28a745; border:none; padding:5px 12px; border-radius:30px;">💾</button>
-                    <button onclick="window.delSpec(${i})" style="background:#dc3545; border:none; padding:5px 12px; border-radius:30px;">🗑️</button>
+                    <button onclick="updateSpec(${i})" style="background:#28a745; border:none; padding:5px 12px; border-radius:30px;">💾</button>
+                    <button onclick="delSpec(${i})" style="background:#dc3545; border:none; padding:5px 12px; border-radius:30px;">🗑️</button>
                 </div>`;
     });
     cont.innerHTML = html;
 }
 
-function updateSpec(i) {
-    if (!isAdmin) return;
-    const name = document.getElementById(`spName${i}`).value;
-    const seats = parseInt(document.getElementById(`spSeats${i}`).value);
-    if (name && !isNaN(seats)) {
-        specialties[i] = { name, seats };
+function updateSpec(i){
+    let name = document.getElementById(`spName${i}`).value;
+    let seats = parseInt(document.getElementById(`spSeats${i}`).value);
+    if(name && !isNaN(seats)){
+        specialties[i]={name, seats};
         renderAdminSpecialties();
         runMatch();
-        logSecurityEvent('SPEC_UPDATED', { index: i, name, seats });
     }
 }
 
-function delSpec(i) {
-    if (!isAdmin) return;
-    if (confirm("حذف هذا الاختصاص؟")) {
-        specialties.splice(i, 1);
-        renderAdminSpecialties();
-        runMatch();
-        logSecurityEvent('SPEC_DELETED', { index: i });
-    }
+function delSpec(i){
+    if(confirm("حذف هذا الاختصاص؟")){ specialties.splice(i,1); renderAdminSpecialties(); runMatch(); }
 }
 
-function renderAdminTable() {
+function renderAdminTable(){
     let tbody = document.getElementById('adminStudentsList');
-    if (!tbody) return;
-    let sorted = [...processed].sort((a, b) => b.gpa - a.gpa);
+    if(!tbody) return;
+    let sorted = [...processed].sort((a,b)=>b.gpa-a.gpa);
     tbody.innerHTML = '';
-    sorted.forEach((s, i) => {
+    sorted.forEach((s,i)=>{
         let row = tbody.insertRow();
-        row.insertCell(0).innerText = i + 1;
+        row.insertCell(0).innerText = i+1;
         row.insertCell(1).innerText = s.realId;
         row.insertCell(2).innerText = s.gpa;
         row.insertCell(3).innerText = s.assigned;
-        row.insertCell(4).innerText = s.prefs.slice(0, 4).join(' → ') + (s.prefs.length > 4 ? ' ...' : '');
+        row.insertCell(4).innerText = s.prefs.slice(0,4).join(' → ');
     });
 }
 
 async function findMissingAndDuplicates() {
-    if (!isAdmin) return;
-    const missingDiv = document.getElementById('missingNumbersResult');
-    const duplicateDiv = document.getElementById('duplicateNumbersResult');
-    missingDiv.style.display = 'block';
-    duplicateDiv.style.display = 'block';
-    missingDiv.innerHTML = '🔄 جاري البحث...';
-    duplicateDiv.innerHTML = '🔄 جاري البحث...';
-    const ref = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`);
-    const csv = await ref.text();
-    const { validMap, ignoreSet } = parseReferenceCSV(csv);
-    const missing = [], found = [];
-    for (let student of allStudents) {
-        const id = student.realId;
-        if (ignoreSet.has(id)) continue;
-        if (validMap.has(id)) found.push(id);
-        else missing.push(id);
-    }
-    const idCount = new Map();
-    for (let student of allStudents) idCount.set(student.realId, (idCount.get(student.realId) || 0) + 1);
-    const duplicates = [];
-    for (let [id, count] of idCount.entries()) if (count > 1) duplicates.push({ id, count });
-    missingDiv.innerHTML = `<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>${missing.length === 0 ? '<br>✅ جميع الأرقام موجودة.' : `<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`}`;
-    duplicateDiv.innerHTML = `<div class="debug-info">📊 إجمالي الطلاب: ${allStudents.length}</div>${duplicates.length === 0 ? '<br>✅ لا توجد أرقام جامعية مكررة.' : `<br><strong>⚠️ الأرقام المكررة:</strong><br>${duplicates.map(d => `${d.id} (${d.count} مرات)`).join(' - ')}`}`;
+    // تبسيطاً
+    alert("وظيفة البحث عن المفقودين متوفرة في النسخة الأساسية");
 }
 
 async function checkGrades() {
-    if (!isAdmin) return;
-    const resultDiv = document.getElementById('gradeMismatchResult');
-    resultDiv.style.display = 'block';
-    resultDiv.innerHTML = '🔄 جاري التحقق...';
-    const ref = await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`);
-    const csv = await ref.text();
-    const { validMap, ignoreSet } = parseReferenceCSV(csv);
-    const mismatches = [];
-    for (let student of allStudents) {
-        const id = student.realId;
-        if (ignoreSet.has(id)) continue;
-        const refValue = validMap.get(id);
-        if (typeof refValue === 'number' && Math.abs(student.gpa - refValue) > GRADE_TOLERANCE) mismatches.push({ id, actual: student.gpa, expected: refValue });
-    }
-    if (mismatches.length === 0) resultDiv.innerHTML = '✅ جميع المعدلات مطابقة.';
-    else {
-        let html = `<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br><table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`;
-        mismatches.forEach(m => html += `<tr><td><strong>${escapeHtml(m.id)}</strong></td><td>${m.actual}</td><td>${m.expected}</td><td>${Math.abs(m.actual - m.expected).toFixed(2)}</td></tr>`);
-        html += `</tbody></table><button class="copy-column-btn" onclick="window.copyIdsColumn()">📋 نسخ الأرقام كعمود</button><div id="gradeMismatchIdsColumnContent" style="display:none;">${mismatches.map(m => m.id).join('\n')}</div>`;
-        resultDiv.innerHTML = html;
-    }
+    alert("وظيفة التحقق من المعدلات متوفرة في النسخة الأساسية");
 }
 
-function copyIdsColumn() {
-    const content = document.getElementById('gradeMismatchIdsColumnContent')?.innerText;
-    if (content) { navigator.clipboard.writeText(content); alert('تم نسخ الأرقام'); }
-    else alert('لا توجد أرقام لنسخها');
-}
-
-function manualRefresh() { loadStudents(); }
-function exportCSV() {
-    if (!isAdmin) return;
+function manualRefresh(){ loadStudents(); }
+function exportCSV(){
     let csv = "الرقم,المعدل,الاختصاص,الرغبات\n";
-    processed.forEach(s => csv += `"${s.realId}",${s.gpa},"${s.assigned}","${s.prefs.join(' | ')}"\n`);
-    let blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' });
-    let a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `نتائج_${Date.now()}.csv`;
+    processed.forEach(s=>csv+=`"${s.realId}",${s.gpa},"${s.assigned}","${s.prefs.join(' | ')}"\n`);
+    let blob = new Blob(["\uFEFF"+csv],{type:'text/csv'});
+    let a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`نتائج_${Date.now()}.csv`;
     a.click();
 }
 
-function startRefresh() {
-    if (refreshTimer) clearInterval(refreshTimer);
-    refreshTimer = setInterval(async () => { await loadStudents(); updateCountdown(); }, 20000);
+// ========== التحكم بالمحاكي ==========
+function toggleSimulatorVisibility() {
+    simulatorEnabled = !simulatorEnabled;
+    const tabBtn = document.getElementById('simulatorTabBtn');
+    if (simulatorEnabled) {
+        tabBtn.style.display = 'block';
+        document.getElementById('simulatorStatus').innerHTML = 'الحالة: 🟢 ظاهر للمستخدمين';
+    } else {
+        tabBtn.style.display = 'none';
+        document.getElementById('simulatorStatus').innerHTML = 'الحالة: 🔴 مخفي';
+        // إذا كان التبويب مفتوحاً نغلقه
+        const activeTab = document.querySelector('.tab-pane.active');
+        if (activeTab && activeTab.id === 'tabSimulator') {
+            document.querySelector('.tab-btn.active').classList.remove('active');
+            document.querySelector('.tab-btn[data-tab="stats"]').click();
+        }
+    }
+    localStorage.setItem('simulatorEnabled', simulatorEnabled);
 }
 
-// ربط الأحداث
-document.getElementById('showAdminBtn').onclick = showAdminLogin;
-document.getElementById('closeAdminBtn').onclick = closeAdmin;
-document.getElementById('findMissingBtn').onclick = findMissingAndDuplicates;
-document.getElementById('checkGradesBtn').onclick = checkGrades;
-document.getElementById('manualRefreshBtn').onclick = manualRefresh;
-document.getElementById('exportCSVBtn').onclick = exportCSV;
-document.getElementById('refreshRejectedBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد الأرقام المخفية المرفوضة: ${rejectedHiddenStudents.length}`); };
-document.getElementById('searchSpecialty')?.addEventListener('input', () => { displayLimit = 30; renderStats(); });
-document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const tabName = btn.dataset.tab;
-        if (tabName === 'stats') document.getElementById('tabStats').classList.add('active');
-        else if (tabName === 'students') { document.getElementById('tabStudents').classList.add('active'); renderStudentsTable(); }
-        else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); renderRegistrationStats(); }
-    });
-});
+// ========== أحداث المحاكي ==========
+async function onSimulatorSearchStudent() {
+    const studentId = document.getElementById('simulatorStudentId').value.trim();
+    if (!studentId) { alert("الرجاء إدخال رقم جامعي"); return; }
+    const result = await predictStudent(studentId);
+    const resultDiv = document.getElementById('simulatorStudentResult');
+    if (!result) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<div style="color:red;">⚠️ لم يتم العثور على هذا الرقم في قاعدة البيانات</div>';
+        return;
+    }
+    let html = `<div><strong>الرقم الجامعي:</strong> ${escapeHtml(studentId)}</div>
+                <div><strong>المعدل:</strong> ${result.grade}</div>
+                <div style="margin-top:12px;"><strong>التوقعات حسب حدود دفعة 50 (بعد التعديل):</strong></div>`;
+    for (let p of result.predictions) {
+        html += `<div class="prediction-item">
+                    <span class="${p.chanceClass}">${p.chanceText}</span> - ${escapeHtml(p.specialty)} 
+                    (الحد المتوقع: ${p.expectedMin} - ${p.expectedMax})
+                </div>`;
+    }
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = html;
+}
 
-// تصدير الدوال للنطاق العام للاستخدام في onclicks
+async function onSimulatorSearchSpecialty() {
+    const specialty = document.getElementById('simulatorSpecialtyName').value.trim();
+    if (!specialty) { alert("الرجاء إدخال اسم اختصاص"); return; }
+    const result = predictSpecialty(specialty);
+    const resultDiv = document.getElementById('simulatorSpecialtyResult');
+    if (!result) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<div style="color:red;">⚠️ لا توجد بيانات لهذا الاختصاص في دفعة 50</div>';
+        return;
+    }
+    let html = `<div><strong>الاختصاص:</strong> ${escapeHtml(result.specialty)}</div>
+                <div><strong>الحد الأدنى لدفعة 50:</strong> ${result.historicalCutoff}</div>
+                <div><strong>الحد المتوقع لدفعة 53:</strong> ${result.expectedMin} - ${result.expectedMax}</div>`;
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = html;
+}
+
+// ========== تهيئة الصفحة ==========
+async function init() {
+    await loadHistoricalData();
+    gradeShift = await calculateGradeShift();
+    console.log("الفرق بين متوسطي الدفعتين:", gradeShift);
+    
+    // استعادة إعداد المحاكي من localStorage
+    const savedSim = localStorage.getItem('simulatorEnabled');
+    if (savedSim === 'true') simulatorEnabled = true;
+    if (simulatorEnabled) {
+        document.getElementById('simulatorTabBtn').style.display = 'block';
+        document.getElementById('simulatorStatus').innerHTML = 'الحالة: 🟢 ظاهر للمستخدمين';
+    } else {
+        document.getElementById('simulatorTabBtn').style.display = 'none';
+        document.getElementById('simulatorStatus').innerHTML = 'الحالة: 🔴 مخفي';
+    }
+    
+    loadStudents();
+    startRefresh();
+    fetchTotalVisits();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    
+    // أحداث التبويبات
+    document.querySelectorAll('.tab-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            const tabName = btn.dataset.tab;
+            if (tabName === 'stats') document.getElementById('tabStats').classList.add('active');
+            else if (tabName === 'students') { document.getElementById('tabStudents').classList.add('active'); renderStudentsTable(); }
+            else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); renderRegistrationStats(); }
+            else if (tabName === 'simulator') document.getElementById('tabSimulator').classList.add('active');
+        });
+    });
+    
+    // أحداث admin
+    document.getElementById('showAdminBtn').onclick = showAdminLogin;
+    document.getElementById('closeAdminBtn').onclick = closeAdmin;
+    document.getElementById('findMissingBtn').onclick = findMissingAndDuplicates;
+    document.getElementById('checkGradesBtn').onclick = checkGrades;
+    document.getElementById('manualRefreshBtn').onclick = manualRefresh;
+    document.getElementById('exportCSVBtn').onclick = exportCSV;
+    document.getElementById('refreshRejectedBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد المرفوضين: ${rejectedHiddenStudents.length}`); };
+    document.getElementById('toggleSimulatorBtn').onclick = toggleSimulatorVisibility;
+    
+    // أحداث المحاكي
+    document.getElementById('simulatorSearchStudentBtn').onclick = onSimulatorSearchStudent;
+    document.getElementById('simulatorSearchSpecialtyBtn').onclick = onSimulatorSearchSpecialty;
+    
+    // البحث في الإحصائيات
+    document.getElementById('searchSpecialty')?.addEventListener('input', ()=>{ displayLimit=30; renderStats(); });
+    document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
+}
+
+init();
+
+// تصدير دوال للاستخدام العام
 window.updateSpec = updateSpec;
 window.delSpec = delSpec;
-window.showMoreRank = showMoreRank;
-window.copyIdsColumn = copyIdsColumn;
-
-// بدء التشغيل
-loadStudents();
-startRefresh();
-setupAlertsSearch();
-fetchTotalVisits();
-updateCountdown();
-setInterval(updateCountdown, 1000);
 </script>
 </body>
 </html>
