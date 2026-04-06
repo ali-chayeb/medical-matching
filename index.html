@@ -409,12 +409,16 @@
         }
         .batches-table th, .batches-table td {
             border: 1px solid #ddd;
-            padding: 6px;
+            padding: 8px 6px;
             text-align: center;
         }
         .batches-table th {
             background: #eef2ff;
         }
+        .col-batch50 { background-color: #e8f5e9; }
+        .col-batch51 { background-color: #e3f2fd; }
+        .col-batch52 { background-color: #fff3e0; }
+        .col-batch53 { background-color: #f3e5f5; }
         .factors-box {
             background: #e8f0fe;
             padding: 12px;
@@ -525,8 +529,8 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
-                <tbody id="studentsList"><td><td colspan="4">جاري التحميل......</div></td></tbody>
+                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></td></thead>
+                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل......</div></td></tbody>
             </table>
         </div>
     </div>
@@ -615,7 +619,7 @@
     let batchesTabVisible = true;
     let batchesDataCache = null;
     
-    let rankLimits = { individualFirst: 10, groupedFirst: 10, totalWishersLimit: 10, topMinLimit: 10 };
+    let rankLimits = { individualFirst: 10, groupedFirst: 10 };
     
     // ===================== الدوال الأساسية =====================
     function cleanId(id) { if (!id) return ""; return id.toString().trim(); }
@@ -759,7 +763,6 @@
             const lines = csvText.split(/\r?\n/);
             if (lines.length < 2) return null;
             
-            // أعمدة الدفعات: 50 (A,B,C,D,E), 51 (M,N,O,P,Q), 52 (F,G,H,I,K)
             const col50Name = 0, col50Min = 1, col50Seats = 2, col50Accepted = 3, col50Grades = 4;
             const col52Name = 5, col52Min = 6, col52Seats = 7, col52Accepted = 8, col52Grades = 10;
             const col51Name = 12, col51Min = 13, col51Seats = 14, col51Accepted = 15, col51Grades = 16;
@@ -851,7 +854,6 @@
     
     function calculateSeatFactor(specialties50, specialties51, specialties52, avg50, avg51, avg52) {
         let validPairs = [];
-        // من 50 إلى 51
         for (let spec50 of specialties50) {
             const spec51 = specialties51.find(s => s.name === spec50.name);
             if (spec51 && spec50.seats > 0 && spec51.seats > 0 && spec50.minGrade > 0 && spec51.minGrade > 0) {
@@ -864,7 +866,6 @@
                 }
             }
         }
-        // من 51 إلى 52
         for (let spec51 of specialties51) {
             const spec52 = specialties52.find(s => s.name === spec51.name);
             if (spec52 && spec51.seats > 0 && spec52.seats > 0 && spec51.minGrade > 0 && spec52.minGrade > 0) {
@@ -882,9 +883,7 @@
     }
     
     function predictMinGradeRange(spec50, spec51, spec52, seatFactor, avg53, avg50, avg51, avg52, currentSeats) {
-        // استخدام متوسط مرجح للحدود الدنيا من 50 و 51 و 52
-        let weightedMin = 0;
-        let weights = 0;
+        let weightedMin = 0, weights = 0;
         if (spec50 && spec50.minGrade > 0) { weightedMin += spec50.minGrade * 1; weights += 1; }
         if (spec51 && spec51.minGrade > 0) { weightedMin += spec51.minGrade * 2; weights += 2; }
         if (spec52 && spec52.minGrade > 0) { weightedMin += spec52.minGrade * 3; weights += 3; }
@@ -894,9 +893,7 @@
         const refAvg = (avg50 * 1 + avg51 * 2 + avg52 * 3) / 6;
         const deltaAvg = avg53 - refAvg;
         
-        // متوسط المقاعد المرجعي
-        let refSeats = 0;
-        let seatsWeights = 0;
+        let refSeats = 0, seatsWeights = 0;
         if (spec50 && spec50.seats > 0) { refSeats += spec50.seats * 1; seatsWeights += 1; }
         if (spec51 && spec51.seats > 0) { refSeats += spec51.seats * 2; seatsWeights += 2; }
         if (spec52 && spec52.seats > 0) { refSeats += spec52.seats * 3; seatsWeights += 3; }
@@ -930,7 +927,6 @@
         const dist52 = calculateGradeDistribution(grades52, ranges);
         const dist53 = calculateGradeDistribution(grades53, ranges);
         
-        // بناء جدول المقارنة
         let specialtiesTable = '';
         for (let spec50 of specialties50) {
             const spec51 = specialties51.find(s => s.name === spec50.name);
@@ -940,14 +936,14 @@
             
             specialtiesTable += `<tr>
                 <td>${escapeHtml(spec50.name)}</div>
-                <td>${getSeatsStatus(spec50.seats, spec50.accepted)}</div>
-                <td>${spec50.minGrade > 0 ? spec50.minGrade.toFixed(2) : '-'}</div>
-                <td>${spec51 ? getSeatsStatus(spec51.seats, spec51.accepted) : '-'}</div>
-                <td>${spec51 && spec51.minGrade > 0 ? spec51.minGrade.toFixed(2) : '-'}</div>
-                <td>${spec52 ? getSeatsStatus(spec52.seats, spec52.accepted) : '-'}</div>
-                <td>${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</div>
-                <td>${currentSeats}</div>
-                <td>${predictedRange ? `${predictedRange.min.toFixed(1)}-${predictedRange.max.toFixed(1)}` : 'لا توجد بيانات كافية'}</div>
+                <td class="col-batch50">${getSeatsStatus(spec50.seats, spec50.accepted)}</td>
+                <td class="col-batch50">${spec50.minGrade > 0 ? spec50.minGrade.toFixed(2) : '-'}</td>
+                <td class="col-batch51">${spec51 ? getSeatsStatus(spec51.seats, spec51.accepted) : '-'}</td>
+                <td class="col-batch51">${spec51 && spec51.minGrade > 0 ? spec51.minGrade.toFixed(2) : '-'}</td>
+                <td class="col-batch52">${spec52 ? getSeatsStatus(spec52.seats, spec52.accepted) : '-'}</td>
+                <td class="col-batch52">${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</td>
+                <td class="col-batch53">${currentSeats}</td>
+                <td class="col-batch53">${predictedRange ? `${predictedRange.min.toFixed(1)}-${predictedRange.max.toFixed(1)}` : 'لا توجد بيانات كافية'}</td>
             </tr>`;
         }
         
@@ -955,10 +951,10 @@
         for (let range of ranges) {
             distributionHtml += `<tr>
                 <td>${range}</div>
-                <td>${dist50.percentages[range]}% (${dist50.counts[range]})</div>
-                <td>${dist51.percentages[range]}% (${dist51.counts[range]})</div>
-                <td>${dist52.percentages[range]}% (${dist52.counts[range]})</div>
-                <td>${dist53.percentages[range]}% (${dist53.counts[range]})</div>
+                <td class="col-batch50">${dist50.percentages[range]}% (${dist50.counts[range]})</td>
+                <td class="col-batch51">${dist51.percentages[range]}% (${dist51.counts[range]})</td>
+                <td class="col-batch52">${dist52.percentages[range]}% (${dist52.counts[range]})</td>
+                <td class="col-batch53">${dist53.percentages[range]}% (${dist53.counts[range]})</td>
             </tr>`;
         }
         distributionHtml += '</tbody></table>';
@@ -988,21 +984,21 @@
                 </div>
                 
                 <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
-                    <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
-                        <div style="font-size:12px; color:#666;">متوسط الدفعة 50</div>
-                        <div style="font-size:24px; font-weight:bold;">${avg50.toFixed(2)}</div>
+                    <div style="flex:1; background:#e8f5e9; padding:12px; border-radius:16px; text-align:center;">
+                        <div style="font-size:12px; color:#2e7d32;">متوسط الدفعة 50</div>
+                        <div style="font-size:24px; font-weight:bold; color:#2e7d32;">${avg50.toFixed(2)}</div>
                     </div>
-                    <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
-                        <div style="font-size:12px; color:#666;">متوسط الدفعة 51</div>
-                        <div style="font-size:24px; font-weight:bold;">${avg51.toFixed(2)}</div>
+                    <div style="flex:1; background:#e3f2fd; padding:12px; border-radius:16px; text-align:center;">
+                        <div style="font-size:12px; color:#1565c0;">متوسط الدفعة 51</div>
+                        <div style="font-size:24px; font-weight:bold; color:#1565c0;">${avg51.toFixed(2)}</div>
                     </div>
-                    <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
-                        <div style="font-size:12px; color:#666;">متوسط الدفعة 52</div>
-                        <div style="font-size:24px; font-weight:bold;">${avg52.toFixed(2)}</div>
+                    <div style="flex:1; background:#fff3e0; padding:12px; border-radius:16px; text-align:center;">
+                        <div style="font-size:12px; color:#e65100;">متوسط الدفعة 52</div>
+                        <div style="font-size:24px; font-weight:bold; color:#e65100;">${avg52.toFixed(2)}</div>
                     </div>
-                    <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
-                        <div style="font-size:12px; color:#666;">متوسط الدفعة 53</div>
-                        <div style="font-size:24px; font-weight:bold;">${avg53.toFixed(2)}</div>
+                    <div style="flex:1; background:#f3e5f5; padding:12px; border-radius:16px; text-align:center;">
+                        <div style="font-size:12px; color:#6a1b9a;">متوسط الدفعة 53</div>
+                        <div style="font-size:24px; font-weight:bold; color:#6a1b9a;">${avg53.toFixed(2)}</div>
                     </div>
                 </div>
                 
@@ -1064,192 +1060,7 @@
         }
     }
     
-    // ===================== إضافات إحصائيات التسجيل =====================
-    function calculateGroupedTotalWishers() {
-        const specialtyToGroup = new Map();
-        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
-        const grouped = new Map();
-        for (let student of allStudents) {
-            const seen = new Set();
-            for (let pref of student.prefs) {
-                const group = specialtyToGroup.get(pref);
-                if (group && !seen.has(group)) {
-                    seen.add(group);
-                    grouped.set(group, (grouped.get(group) || 0) + 1);
-                }
-            }
-        }
-        return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-    }
-    
-    function calculateTopMinSpecs() {
-        // أعلى رغبة من حيث الحد الأدنى (من بيانات المفاضلة الحالية)
-        if (!currentData || !currentData.accepted) return [];
-        const result = [];
-        for (let [specName, acceptedList] of Object.entries(currentData.accepted)) {
-            if (acceptedList.length > 0) {
-                const minGrade = Math.min(...acceptedList.map(a => a.gpa));
-                result.push({ name: specName, minGrade: minGrade });
-            }
-        }
-        return result.sort((a, b) => b.minGrade - a.minGrade);
-    }
-    
-    function calculateTopSpecialtiesByGradeGrouped() {
-        const ranges = [
-            { min: 90, max: 95, label: "90-95", specialties: new Map(), limit: 3 },
-            { min: 85, max: 90, label: "85-90", specialties: new Map(), limit: 5 },
-            { min: 80, max: 85, label: "80-85", specialties: new Map(), limit: 5 },
-            { min: 75, max: 80, label: "75-80", specialties: new Map(), limit: 5 },
-            { min: 70, max: 75, label: "70-75", specialties: new Map(), limit: 5 },
-            { min: 65, max: 70, label: "65-70", specialties: new Map(), limit: 5 },
-            { min: 60, max: 65, label: "60-65", specialties: new Map(), limit: 5 }
-        ];
-        
-        const specialtyToGroup = new Map();
-        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
-        
-        for (let student of allStudents) {
-            const gpa = student.gpa;
-            let rangeObj = null;
-            for (let r of ranges) {
-                if (gpa >= r.min && gpa < r.max) {
-                    rangeObj = r;
-                    break;
-                }
-            }
-            if (rangeObj && student.prefs.length > 0) {
-                const pref = student.prefs[0];
-                const group = specialtyToGroup.get(pref);
-                if (group) {
-                    rangeObj.specialties.set(group, (rangeObj.specialties.get(group) || 0) + 1);
-                }
-            }
-        }
-        
-        const result = [];
-        for (let range of ranges) {
-            const sorted = Array.from(range.specialties.entries())
-                .map(([name, count]) => ({ name, count }))
-                .sort((a, b) => b.count - a.count)
-                .slice(0, range.limit);
-            result.push({ range: range.label, specialties: sorted });
-        }
-        return result;
-    }
-    
-    function renderGroupedWishersList(data, limit) {
-        const displayItems = data.slice(0, limit);
-        if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-        let html = '<ul class="rank-list">';
-        for (let i = 0; i < displayItems.length; i++) {
-            html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].count}</span></li>`;
-        }
-        html += '</ul>';
-        return html;
-    }
-    
-    function renderTopMinList(data, limit) {
-        const displayItems = data.slice(0, limit);
-        if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-        let html = '<ul class="rank-list">';
-        for (let i = 0; i < displayItems.length; i++) {
-            html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].minGrade.toFixed(2)}</span></li>`;
-        }
-        html += '</ul>';
-        return html;
-    }
-    
-    // تحديث دالة renderRegistrationStats لإضافة الميزات الجديدة
-    const originalRenderRegistrationStats = renderRegistrationStats;
-    window.renderRegistrationStats = async function() {
-        const container = document.getElementById('registrationStatsContent');
-        if (!container) return;
-        
-        const dailyStats = calculateDailyStats();
-        const firstChoiceRank = calculateFirstChoiceRank();
-        const groupedFirstChoice = calculateGroupedFirstChoice();
-        const gradeDistribution = calculateGradeDistributionFromStudents();
-        const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
-        const groupedTotalWishers = calculateGroupedTotalWishers();
-        const topMinSpecs = calculateTopMinSpecs();
-        const topSpecialtiesByGradeGrouped = calculateTopSpecialtiesByGradeGrouped();
-        
-        let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4><table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
-        let cumulative = 0;
-        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></tr>`; }
-        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></tr>`;
-        html += `</tbody></table></div>
-        
-        <div class="stats-section"><h4>⭐ أكثر الرغبات كخيار أول (تفصيلي)</h4>${renderRankList(firstChoiceRank, 'individualFirst')}</div>
-        
-        <div class="stats-section"><h4>⭐ أكثر الاختصاصات كخيار أول (تجميعي - يشمل دراسات عام + موازي + صحة)</h4>${renderRankList(groupedFirstChoice, 'groupedFirst')}</div>
-        
-        <div class="stats-section">
-            <h4>📊 أكثر اختصاص من حيث عدد الراغبين (تجميعي)</h4>
-            <select id="totalWishersLimit" class="dropdown-select" onchange="updateTotalWishersLimit()">
-                <option value="5">عرض 5</option>
-                <option value="10" selected>عرض 10</option>
-                <option value="15">عرض 15</option>
-                <option value="30">عرض الكل</option>
-            </select>
-            <div id="totalWishersList">${renderGroupedWishersList(groupedTotalWishers, 10)}</div>
-        </div>
-        
-        <div class="stats-section">
-            <h4>🏆 أعلى رغبة من حيث الحد الأدنى</h4>
-            <select id="topMinLimit" class="dropdown-select" onchange="updateTopMinLimit()">
-                <option value="5">عرض 5</option>
-                <option value="10" selected>عرض 10</option>
-                <option value="15">عرض 15</option>
-                <option value="30">عرض الكل</option>
-            </select>
-            <div id="topMinList">${renderTopMinList(topMinSpecs, 10)}</div>
-        </div>
-        
-        <div class="stats-section">
-            <h4>🏆 أكثر اختصاصات مرغوب حسب فئة المعدل (تجميعي)</h4>`;
-        
-        for (let item of topSpecialtiesByGradeGrouped) {
-            html += `<div style="margin-bottom:16px;">
-                        <strong style="display:block; margin-bottom:8px;">📌 فئة ${item.range}:</strong>
-                        <ul class="rank-list" style="margin-right:20px;">`;
-            for (let spec of item.specialties) {
-                html += `<li><span class="rank-name">${escapeHtml(spec.name)}</span><span class="rank-count">${spec.count}</span></li>`;
-            }
-            if (item.specialties.length === 0) html += `<li style="color:#999;">لا توجد بيانات</li>`;
-            html += `</ul></div>`;
-        }
-        
-        html += `</div>
-        
-        <div class="stats-section"><h4>📊 توزيع المعدلات (العينة الحالية)</h4><div class="grade-distribution">`;
-        for (let item of gradeDistribution) html += `<div class="grade-bar"><div class="grade-label">${item.range}</div><div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div><div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div></div>`;
-        html += `</div></div>
-        
-        <div class="stats-section"><h4>🏆 أكثر اختصاص مرغوب حسب فئة المعدل (تفصيلي - كل اختصاص بمفرده)</h4>
-        <select id="gradeRangeSelect" class="dropdown-select" onchange="updateGradeRangeTop()">
-            <option value="90-95">90-95</option><option value="85-90">85-90</option><option value="80-85">80-85</option>
-            <option value="75-80">75-80</option><option value="70-75">70-75</option><option value="65-70">65-70</option><option value="60-65">60-65</option>
-        </select>
-        <div id="gradeRangeTopResult">${renderGradeRangeTop(topSpecialtyByGrade, '90-95')}</div></div>`;
-        
-        container.innerHTML = html;
-    };
-    
-    function updateTotalWishersLimit() {
-        const limit = parseInt(document.getElementById('totalWishersLimit').value);
-        const groupedTotalWishers = calculateGroupedTotalWishers();
-        document.getElementById('totalWishersList').innerHTML = renderGroupedWishersList(groupedTotalWishers, limit);
-    }
-    
-    function updateTopMinLimit() {
-        const limit = parseInt(document.getElementById('topMinLimit').value);
-        const topMinSpecs = calculateTopMinSpecs();
-        document.getElementById('topMinList').innerHTML = renderTopMinList(topMinSpecs, limit);
-    }
-    
-    // ===================== الدوال الأساسية للموقع (المتبقية) =====================
+    // ===================== الدوال الأساسية للموقع (بدون تعديل) =====================
     async function loadStudents() {
         try {
             const [studentsRes, referenceRes] = await Promise.all([
@@ -1326,7 +1137,7 @@
         currentData = {accepted, seats};
         renderStats();
         renderStudentsTable();
-        window.renderRegistrationStats();
+        renderRegistrationStats();
         if(isAdmin) renderAdminTable();
         document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
     }
@@ -1383,7 +1194,7 @@
         filtered.forEach((s,i) => {
             const isAlert = alertIds.has(s.realId);
             const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
-            if (s.isHidden && !isSearching) { html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</div><td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</div><tr>`; }
+            if (s.isHidden && !isSearching) { html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</div><td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</div></tr>`; }
             else {
                 const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
                 const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
@@ -1394,16 +1205,43 @@
         tbody.innerHTML = html;
     }
     
-    // دوال مساعدة للإحصائيات
+    async function renderRegistrationStats() {
+        const container = document.getElementById('registrationStatsContent');
+        if (!container) return;
+        const dailyStats = calculateDailyStats();
+        const firstChoiceRank = calculateFirstChoiceRank();
+        const groupedFirstChoice = calculateGroupedFirstChoice();
+        const gradeDistribution = calculateGradeDistributionFromStudents();
+        const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
+        let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4><table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
+        let cumulative = 0;
+        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></tr>`; }
+        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></tr>`;
+        html += `</tbody></table></div>
+        <div class="stats-section"><h4>⭐ أكثر الرغبات كخيار أول (تفصيلي)</h4>${renderRankList(firstChoiceRank, 'individualFirst')}</div>
+        <div class="stats-section"><h4>⭐ أكثر الاختصاصات كخيار أول (تجميعي - يشمل دراسات عام + موازي + صحة)</h4>${renderRankList(groupedFirstChoice, 'groupedFirst')}</div>
+        <div class="stats-section"><h4>📊 توزيع المعدلات (العينة الحالية)</h4><div class="grade-distribution">`;
+        for (let item of gradeDistribution) html += `<div class="grade-bar"><div class="grade-label">${item.range}</div><div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div><div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div></div>`;
+        html += `</div></div><div class="stats-section"><h4>🏆 أكثر اختصاص مرغوب حسب فئة المعدل (تجميعي)</h4>
+        <select id="gradeRangeSelect" class="dropdown-select" onchange="updateGradeRangeTop()"><option value="90-95">90-95</option><option value="85-90">85-90</option><option value="80-85">80-85</option><option value="75-80">75-80</option><option value="70-75">70-75</option><option value="65-70">65-70</option><option value="60-65">60-65</option></select>
+        <div id="gradeRangeTopResult">${renderGradeRangeTop(topSpecialtyByGrade, '90-95')}</div></div>`;
+        container.innerHTML = html;
+    }
+    
+    function renderGradeRangeTop(data, selectedRange) {
+        const item = data.find(d => d.range === selectedRange);
+        if (!item || item.specialty === "لا يوجد") return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
+        return `<div style="padding:10px; background:#eef2ff; border-radius:12px;"><strong>${escapeHtml(item.specialty)}</strong> - ${item.count} طالب</div>`;
+    }
+    
+    function updateGradeRangeTop() { const range = document.getElementById('gradeRangeSelect').value; const topSpecialtyByGrade = calculateTopSpecialtyByGrade(); document.getElementById('gradeRangeTopResult').innerHTML = renderGradeRangeTop(topSpecialtyByGrade, range); }
     function calculateDailyStats() { const dailyMap = new Map(); for (let student of allStudents) { if (!student.timestamp) continue; let dateStr; try { let date = new Date(student.timestamp); if (isNaN(date.getTime())) dateStr = student.timestamp.split(' ')[0]; else dateStr = date.toISOString().split('T')[0]; } catch(e) { continue; } if (dateStr) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1); } return Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date)); }
     function calculateFirstChoiceRank() { const firstChoice = new Map(); for (let student of allStudents) if (student.prefs.length > 0) { const pref = student.prefs[0]; firstChoice.set(pref, (firstChoice.get(pref) || 0) + 1); } return Array.from(firstChoice.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count); }
     function calculateGroupedFirstChoice() { const specialtyToGroup = new Map(); for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group); const grouped = new Map(); for (let student of allStudents) if (student.prefs.length > 0) { const pref = student.prefs[0]; const group = specialtyToGroup.get(pref); if (group) grouped.set(group, (grouped.get(group) || 0) + 1); } return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count); }
     function calculateGradeDistributionFromStudents() { const ranges = [{min:90,max:95,label:"90-95",count:0},{min:85,max:90,label:"85-90",count:0},{min:80,max:85,label:"80-85",count:0},{min:75,max:80,label:"75-80",count:0},{min:70,max:75,label:"70-75",count:0},{min:65,max:70,label:"65-70",count:0},{min:60,max:65,label:"60-65",count:0}]; for (let student of allStudents) { const gpa = student.gpa; for (let range of ranges) if (gpa >= range.min && gpa < range.max) { range.count++; break; } } const total = allStudents.length || 1; return ranges.map(r => ({ range: r.label, count: r.count, percentage: (r.count / total) * 100 })); }
     function calculateTopSpecialtyByGrade() { const ranges = [{min:90,max:95,label:"90-95",specialties:new Map()},{min:85,max:90,label:"85-90",specialties:new Map()},{min:80,max:85,label:"80-85",specialties:new Map()},{min:75,max:80,label:"75-80",specialties:new Map()},{min:70,max:75,label:"70-75",specialties:new Map()},{min:65,max:70,label:"65-70",specialties:new Map()},{min:60,max:65,label:"60-65",specialties:new Map()}]; const specialtyToGroup = new Map(); for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group); for (let student of allStudents) { const gpa = student.gpa; let rangeObj = null; for (let r of ranges) if (gpa >= r.min && gpa < r.max) { rangeObj = r; break; } if (rangeObj && student.prefs.length > 0) { const pref = student.prefs[0]; const group = specialtyToGroup.get(pref); if (group) rangeObj.specialties.set(group, (rangeObj.specialties.get(group) || 0) + 1); } } const result = []; for (let range of ranges) { let top = { specialty: "لا يوجد", count: 0 }; for (let [spec, count] of range.specialties) if (count > top.count) top = { specialty: spec, count: count }; result.push({ range: range.label, specialty: top.specialty, count: top.count }); } return result; }
-    function renderGradeRangeTop(data, selectedRange) { const item = data.find(d => d.range === selectedRange); if (!item || item.specialty === "لا يوجد") return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>'; return `<div style="padding:10px; background:#eef2ff; border-radius:12px;"><strong>${escapeHtml(item.specialty)}</strong> - ${item.count} طالب</div>`; }
-    function updateGradeRangeTop() { const range = document.getElementById('gradeRangeSelect').value; const topSpecialtyByGrade = calculateTopSpecialtyByGrade(); document.getElementById('gradeRangeTopResult').innerHTML = renderGradeRangeTop(topSpecialtyByGrade, range); }
     function renderRankList(rankArray, type) { let limit = 10; if (type === 'individualFirst') limit = rankLimits.individualFirst; else if (type === 'groupedFirst') limit = rankLimits.groupedFirst; else limit = 10; const displayItems = rankArray.slice(0, limit); if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>'; let html = '<ul class="rank-list">'; for (let i=0; i<displayItems.length; i++) html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].count}</span></li>`; html += '</ul>'; if (rankArray.length > limit && (type === 'individualFirst' || type === 'groupedFirst')) html += `<button class="show-more-btn" onclick="showMoreRank('${type}')">➕ عرض المزيد</button>`; return html; }
-    function showMoreRank(type) { if (type === 'individualFirst') rankLimits.individualFirst += 10; else if (type === 'groupedFirst') rankLimits.groupedFirst += 10; window.renderRegistrationStats(); }
+    function showMoreRank(type) { if (type === 'individualFirst') rankLimits.individualFirst += 10; else if (type === 'groupedFirst') rankLimits.groupedFirst += 10; renderRegistrationStats(); }
     function setupAlertsSearch() { const searchInput = document.getElementById('alertsSearchInput'); if (!searchInput) return; searchInput.addEventListener('input', function(e) { const keyword = e.target.value.trim().toLowerCase(); if (!window.allAlerts) return; if (keyword === '') { renderAlertsList(window.allAlerts); document.getElementById('alertsCount').innerText = window.allAlerts.length; document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${window.allAlerts.length})`; } else { const filtered = window.allAlerts.filter(item => item.id.toLowerCase().includes(keyword) || item.description.toLowerCase().includes(keyword)); renderAlertsList(filtered); document.getElementById('alertsCount').innerText = filtered.length; document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${filtered.length} من ${window.allAlerts.length})`; } }); }
     
     async function showAdminLogin(){
@@ -1450,16 +1288,10 @@
             const tabName = btn.dataset.tab;
             if (tabName === 'stats') document.getElementById('tabStats').classList.add('active');
             else if (tabName === 'students') { document.getElementById('tabStudents').classList.add('active'); renderStudentsTable(); }
-            else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); window.renderRegistrationStats(); }
+            else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); renderRegistrationStats(); }
             else if (tabName === 'batches') { document.getElementById('tabBatches').classList.add('active'); renderBatchesPage(); }
         });
     });
-    
-    window.updateTotalWishersLimit = updateTotalWishersLimit;
-    window.updateTopMinLimit = updateTopMinLimit;
-    window.updateGradeRangeTop = updateGradeRangeTop;
-    window.showMoreRank = showMoreRank;
-    window.renderRegistrationStats = window.renderRegistrationStats;
     
     loadBatchesTabVisibility();
     loadStudents();
@@ -1471,6 +1303,8 @@
     
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
+    window.showMoreRank = showMoreRank;
+    window.updateGradeRangeTop = updateGradeRangeTop;
 </script>
 </body>
 </html>
