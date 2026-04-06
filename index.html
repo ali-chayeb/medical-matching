@@ -418,7 +418,6 @@
         .col-batch50 { background-color: #e8f5e9; }
         .col-batch51 { background-color: #e3f2fd; }
         .col-batch52 { background-color: #fff3e0; }
-        .col-batch53 { background-color: #f3e5f5; }
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
             .specialty-card h3 { font-size: 14px; }
@@ -705,7 +704,7 @@
         const container = document.getElementById('rejectedHiddenStudents');
         if (!container) return;
         if (rejectedHiddenStudents.length === 0) { container.innerHTML = '<div style="color:green; padding:10px;">✅ لا توجد أرقام مخفية مرفوضة</div>'; return; }
-        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;"><thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></tr></thead><tbody>`;
+        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;"><thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th><tr></thead><tbody>`;
         for (let student of rejectedHiddenStudents) html += `<tr><td><strong>${escapeHtml(student.realId)}</strong></div><td>${escapeHtml(student.hiddenId)}</div><td style="color:#dc3545;">${escapeHtml(student.reason)}</div><td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</div><td>${student.gpa}</div></tr>`;
         html += `</tbody></table><div style="margin-top:10px; font-size:11px; color:#666;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>`;
         container.innerHTML = html;
@@ -726,7 +725,7 @@
         else { let html = '<ul style="margin-right:20px;">'; for (let item of suspendedList) html += `<li><strong>${escapeHtml(item.id)}</strong>: ${escapeHtml(item.description)}</li>`; html += '</ul>'; container.innerHTML = html; }
     }
     
-    // ===================== دوال الدفعات السابقة =====================
+    // ===================== دوال الدفعات السابقة (معدلة - بدون توقعات) =====================
     async function loadBatchesTabVisibility() {
         try {
             const url = `https://docs.google.com/spreadsheets/d/${BATCHES_SHEET_ID}/gviz/tq?tqx=out:csv`;
@@ -869,8 +868,6 @@
         for (let spec50 of specialties50) {
             const spec51 = specialties51.find(s => s.name === spec50.name);
             const spec52 = specialties52.find(s => s.name === spec50.name);
-            const currentMin = currentData?.accepted[spec50.name]?.length > 0 ? 
-                Math.min(...currentData.accepted[spec50.name].map(a => a.gpa)).toFixed(2) : '-';
             
             specialtiesTable += `<tr>
                 <td>${escapeHtml(spec50.name)}</div>
@@ -880,8 +877,6 @@
                 <td class="col-batch51">${spec51 && spec51.minGrade > 0 ? spec51.minGrade.toFixed(2) : '-'}</div>
                 <td class="col-batch52">${spec52 ? getSeatsStatus(spec52.seats, spec52.accepted) : '-'}</div>
                 <td class="col-batch52">${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</div>
-                <td class="col-batch53">${getSeatsStatus(currentSeats, currentAccepted)}</div>
-                <td class="col-batch53">${currentMin}</div>
             </tr>`;
         }
         
@@ -935,7 +930,7 @@
                     <h4 style="margin-bottom:10px;">📋 مقارنة الاختصاصات</h4>
                     <table class="batches-table">
                         <thead>
-                            <tr><th>الاختصاص</th><th>مقاعد 50</th><th>حد 50</th><th>مقاعد 51</th><th>حد 51</th><th>مقاعد 52</th><th>حد 52</th><th>مقاعد 53</th><th>حد 53</th>
+                            <tr><th>الاختصاص</th><th>مقاعد 50</th><th>حد 50</th><th>مقاعد 51</th><th>حد 51</th><th>مقاعد 52</th><th>حد 52</th>
                             </tr>
                         </thead>
                         <tbody>${specialtiesTable}</tbody>
@@ -1199,7 +1194,7 @@
         let filtered = processed;
         const isSearching = search.length > 0;
         if (isSearching) filtered = processed.filter(s => s.isHidden ? s.hiddenId.includes(search) : s.realId.includes(search));
-        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</div></td>'; return; }
+        if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</div></tr>'; return; }
         let html = '';
         filtered.forEach((s,i) => {
             const isAlert = alertIds.has(s.realId);
@@ -1229,8 +1224,8 @@
         
         let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4><table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
         let cumulative = 0;
-        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></tr>`; }
-        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></tr>`;
+        for (let day of dailyStats) { cumulative += day.count; html += `<td><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></tr>`; }
+        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></td>`;
         html += `</tbody></table></div>
         
         <div class="stats-section"><h4>⭐ أكثر الرغبات كخيار أول (تفصيلي)</h4>${renderRankList(firstChoiceRank, 'individualFirst')}</div>
@@ -1326,7 +1321,7 @@
     function delSpec(i){ if(confirm("حذف هذا الاختصاص؟")){ specialties.splice(i,1); renderAdminSpecialties(); runMatch(); } }
     function renderAdminTable(){ let tbody=document.getElementById('adminStudentsList'); if(!tbody) return; let sorted=[...processed].sort((a,b)=>b.gpa-a.gpa); tbody.innerHTML=''; sorted.forEach((s,i)=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=i+1; row.insertCell(1).innerText=s.realId; row.insertCell(2).innerText=s.gpa; row.insertCell(3).innerText=s.assigned; row.insertCell(4).innerText=s.prefs.slice(0,4).join(' → ')+(s.prefs.length>4?' ...':''); }); }
     async function findMissingAndDuplicates() { const missingDiv=document.getElementById('missingNumbersResult'); const duplicateDiv=document.getElementById('duplicateNumbersResult'); missingDiv.style.display='block'; duplicateDiv.style.display='block'; missingDiv.innerHTML='🔄 جاري البحث...'; duplicateDiv.innerHTML='🔄 جاري البحث...'; const {validMap, ignoreSet}=await (async()=>{ const ref=await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`); const csv=await ref.text(); return parseReferenceCSV(csv); })(); const missing=[], found=[]; for(let student of allStudents){ const id=student.realId; if(ignoreSet.has(id)) continue; if(validMap.has(id)) found.push(id); else missing.push(id); } const idCount=new Map(); for(let student of allStudents){ const id=student.realId; idCount.set(id,(idCount.get(id)||0)+1); } const duplicates=[]; for(let [id,count] of idCount.entries()) if(count>1) duplicates.push({id,count}); let missingHtml=`<div class="debug-info">📊 الطلاب: ${allStudents.length} | 📚 المرجع: ${validMap.size}<br>✅ موجود: ${found.length} | ❌ مفقود: ${missing.length}</div>`; if(missing.length===0) missingHtml+='<br>✅ جميع الأرقام موجودة.'; else missingHtml+=`<br><strong>🔍 الأرقام المفقودة:</strong><br>${missing.join(' - ')}`; missingDiv.innerHTML=missingHtml; let duplicateHtml=`<div class="debug-info">📊 إجمالي الطلاب: ${allStudents.length}</div>`; if(duplicates.length===0) duplicateHtml+='<br>✅ لا توجد أرقام جامعية مكررة.'; else{ duplicateHtml+=`<br><strong>⚠️ الأرقام المكررة (ظهرت أكثر من مرة):</strong><br>`; duplicates.forEach(d=>{ duplicateHtml+=`${d.id} (${d.count} مرات) - `; }); duplicateHtml=duplicateHtml.slice(0,-2); } duplicateDiv.innerHTML=duplicateHtml; }
-    async function checkGrades() { const resultDiv=document.getElementById('gradeMismatchResult'); resultDiv.style.display='block'; resultDiv.innerHTML='🔄 جاري التحقق...'; const {validMap,ignoreSet}=await (async()=>{ const ref=await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`); const csv=await ref.text(); return parseReferenceCSV(csv); })(); const mismatches=[]; for(let student of allStudents){ const id=student.realId; if(ignoreSet.has(id)) continue; const refValue=validMap.get(id); if(typeof refValue==='number' && Math.abs(student.gpa-refValue)>GRADE_TOLERANCE) mismatches.push({id, actual:student.gpa, expected:refValue}); } if(mismatches.length===0) resultDiv.innerHTML='✅ جميع المعدلات مطابقة.'; else{ let html=`<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br><table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th><tr></thead><tbody>`; mismatches.forEach(m=>{ html+=`<tr><td><strong>${escapeHtml(m.id)}</strong></div><td>${m.actual}</div><td>${m.expected}</div><td>${Math.abs(m.actual-m.expected).toFixed(2)}</div></tr>`; }); html+=`</tbody></table><button class="copy-column-btn" onclick="copyIdsColumn()">📋 نسخ الأرقام كعمود</button><div id="gradeMismatchIdsColumnContent" style="display:none;">${mismatches.map(m=>m.id).join('\n')}</div>`; resultDiv.innerHTML=html; } }
+    async function checkGrades() { const resultDiv=document.getElementById('gradeMismatchResult'); resultDiv.style.display='block'; resultDiv.innerHTML='🔄 جاري التحقق...'; const {validMap,ignoreSet}=await (async()=>{ const ref=await fetch(`https://docs.google.com/spreadsheets/d/${REF_SHEET_ID}/gviz/tq?tqx=out:csv`); const csv=await ref.text(); return parseReferenceCSV(csv); })(); const mismatches=[]; for(let student of allStudents){ const id=student.realId; if(ignoreSet.has(id)) continue; const refValue=validMap.get(id); if(typeof refValue==='number' && Math.abs(student.gpa-refValue)>GRADE_TOLERANCE) mismatches.push({id, actual:student.gpa, expected:refValue}); } if(mismatches.length===0) resultDiv.innerHTML='✅ جميع المعدلات مطابقة.'; else{ let html=`<strong>⚠️ اختلاف في المعدل (${mismatches.length}):</strong><br><br><table style="width:100%; border-collapse:collapse;"><thead><tr><th>الرقم</th><th>المدخل</th><th>المتوقع</th><th>الفرق</th></tr></thead><tbody>`; mismatches.forEach(m=>{ html+=`<tr><td><strong>${escapeHtml(m.id)}</strong></div><td>${m.actual}</div><td>${m.expected}</div><td>${Math.abs(m.actual-m.expected).toFixed(2)}</div></tr>`; }); html+=`</tbody></table><button class="copy-column-btn" onclick="copyIdsColumn()">📋 نسخ الأرقام كعمود</button><div id="gradeMismatchIdsColumnContent" style="display:none;">${mismatches.map(m=>m.id).join('\n')}</div>`; resultDiv.innerHTML=html; } }
     window.copyIdsColumn=function(){ const content=document.getElementById('gradeMismatchIdsColumnContent').innerText; if(content){ navigator.clipboard.writeText(content); alert('تم نسخ الأرقام (كل رقم في سطر منفصل)'); } else alert('لا توجد أرقام لنسخها'); };
     function manualRefresh(){ loadStudents(); }
     function exportCSV(){ let csv="الرقم,المعدل,الاختصاص,الرغبات\n"; processed.forEach(s=>csv+=`"${s.realId}",${s.gpa},"${s.assigned}","${s.prefs.join(' | ')}"\n`); let blob=new Blob(["\uFEFF"+csv],{type:'text/csv'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`نتائج_${Date.now()}.csv`; a.click(); }
