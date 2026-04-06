@@ -402,7 +402,7 @@
         .batches-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 11px;
             margin-top: 12px;
             overflow-x: auto;
             display: block;
@@ -415,6 +415,14 @@
         .batches-table th {
             background: #eef2ff;
         }
+        .factors-box {
+            background: #e8f0fe;
+            padding: 12px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
         @media (max-width: 600px) {
             .big-number .number { font-size: 44px; }
             .specialty-card h3 { font-size: 14px; }
@@ -423,6 +431,7 @@
             .tab-btn { min-width: 80px; font-size: 12px; }
             .grade-bar { flex-wrap: wrap; }
             .countdown-timer { font-size: 14px; }
+            .batches-table { font-size: 9px; }
         }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
@@ -517,7 +526,7 @@
         <div class="students-table-wrapper">
             <table class="students-table">
                 <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th></tr></thead>
-                <tbody id="studentsList"><tr><td colspan="4">جاري التحميل......</div></td></tbody>
+                <tbody id="studentsList"><td><td colspan="4">جاري التحميل......</div></td></tbody>
             </table>
         </div>
     </div>
@@ -569,7 +578,7 @@
     <div style="margin:15px 0;"><button id="exportCSVBtn" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></td></thead>
+            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
             <tbody id="adminStudentsList"></tbody>
         </table>
     </div>
@@ -606,9 +615,9 @@
     let batchesTabVisible = true;
     let batchesDataCache = null;
     
-    let rankLimits = { individualFirst: 10, groupedFirst: 10 };
+    let rankLimits = { individualFirst: 10, groupedFirst: 10, totalWishersLimit: 10, topMinLimit: 10 };
     
-    // ===================== الدوال الأساسية (لم تتغير) =====================
+    // ===================== الدوال الأساسية =====================
     function cleanId(id) { if (!id) return ""; return id.toString().trim(); }
     function hideIdNumber(id) { if (!id || id.length < 4) return id; return `${id.charAt(0)}**${id.slice(-2)}`; }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
@@ -700,7 +709,7 @@
         const container = document.getElementById('rejectedHiddenStudents');
         if (!container) return;
         if (rejectedHiddenStudents.length === 0) { container.innerHTML = '<div style="color:green; padding:10px;">✅ لا توجد أرقام مخفية مرفوضة</div>'; return; }
-        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;"><thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></td></thead><tbody>`;
+        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;"><thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></tr></thead><tbody>`;
         for (let student of rejectedHiddenStudents) html += `<tr><td><strong>${escapeHtml(student.realId)}</strong></div><td>${escapeHtml(student.hiddenId)}</div><td style="color:#dc3545;">${escapeHtml(student.reason)}</div><td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</div><td>${student.gpa}</div></tr>`;
         html += `</tbody></table><div style="margin-top:10px; font-size:11px; color:#666;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>`;
         container.innerHTML = html;
@@ -750,12 +759,13 @@
             const lines = csvText.split(/\r?\n/);
             if (lines.length < 2) return null;
             
-            const headers = parseCSVLine(lines[0]);
+            // أعمدة الدفعات: 50 (A,B,C,D,E), 51 (M,N,O,P,Q), 52 (F,G,H,I,K)
             const col50Name = 0, col50Min = 1, col50Seats = 2, col50Accepted = 3, col50Grades = 4;
             const col52Name = 5, col52Min = 6, col52Seats = 7, col52Accepted = 8, col52Grades = 10;
+            const col51Name = 12, col51Min = 13, col51Seats = 14, col51Accepted = 15, col51Grades = 16;
             
-            const specialties50 = [], specialties52 = [];
-            let grades50 = [], grades52 = [];
+            const specialties50 = [], specialties51 = [], specialties52 = [];
+            let grades50 = [], grades51 = [], grades52 = [];
             
             for (let i = 1; i < lines.length; i++) {
                 const cols = parseCSVLine(lines[i]);
@@ -767,6 +777,14 @@
                         minGrade: parseFloat(cols[col50Min]) || 0,
                         seats: parseInt(cols[col50Seats]) || 0,
                         accepted: parseInt(cols[col50Accepted]) || 0
+                    });
+                }
+                if (cols[col51Name] && cols[col51Name].trim()) {
+                    specialties51.push({
+                        name: cols[col51Name].trim(),
+                        minGrade: parseFloat(cols[col51Min]) || 0,
+                        seats: parseInt(cols[col51Seats]) || 0,
+                        accepted: parseInt(cols[col51Accepted]) || 0
                     });
                 }
                 if (cols[col52Name] && cols[col52Name].trim()) {
@@ -781,12 +799,16 @@
                     const grade = parseFloat(cols[col50Grades]);
                     if (!isNaN(grade)) grades50.push(grade);
                 }
-                if (col52Grades !== -1 && cols[col52Grades] && cols[col52Grades].trim()) {
+                if (cols[col51Grades] && cols[col51Grades].trim()) {
+                    const grade = parseFloat(cols[col51Grades]);
+                    if (!isNaN(grade)) grades51.push(grade);
+                }
+                if (cols[col52Grades] && cols[col52Grades].trim()) {
                     const grade = parseFloat(cols[col52Grades]);
                     if (!isNaN(grade)) grades52.push(grade);
                 }
             }
-            return { specialties50, specialties52, grades50, grades52 };
+            return { specialties50, specialties51, specialties52, grades50, grades51, grades52 };
         } catch(e) { console.error("فشل تحميل بيانات الدفعات", e); return null; }
     }
     
@@ -827,14 +849,28 @@
     
     function calculateAverage(grades) { if (grades.length === 0) return 0; return grades.reduce((a,b) => a + b, 0) / grades.length; }
     
-    function calculateSeatFactor(specialties50, specialties52, avg50, avg52, avg53) {
+    function calculateSeatFactor(specialties50, specialties51, specialties52, avg50, avg51, avg52) {
         let validPairs = [];
+        // من 50 إلى 51
         for (let spec50 of specialties50) {
-            const spec52 = specialties52.find(s => s.name === spec50.name);
-            if (spec52 && spec50.seats > 0 && spec52.seats > 0 && spec50.minGrade > 0 && spec52.minGrade > 0) {
-                const deltaMin = spec52.minGrade - spec50.minGrade;
-                const deltaAvg = avg52 - avg50;
-                const deltaSeatsRatio = (spec52.seats - spec50.seats) / spec50.seats;
+            const spec51 = specialties51.find(s => s.name === spec50.name);
+            if (spec51 && spec50.seats > 0 && spec51.seats > 0 && spec50.minGrade > 0 && spec51.minGrade > 0) {
+                const deltaMin = spec51.minGrade - spec50.minGrade;
+                const deltaAvg = avg51 - avg50;
+                const deltaSeatsRatio = (spec51.seats - spec50.seats) / spec50.seats;
+                if (Math.abs(deltaSeatsRatio) > 0.01) {
+                    const factor = (deltaMin - deltaAvg) / deltaSeatsRatio;
+                    if (Math.abs(factor) < 5) validPairs.push(factor);
+                }
+            }
+        }
+        // من 51 إلى 52
+        for (let spec51 of specialties51) {
+            const spec52 = specialties52.find(s => s.name === spec51.name);
+            if (spec52 && spec51.seats > 0 && spec52.seats > 0 && spec51.minGrade > 0 && spec52.minGrade > 0) {
+                const deltaMin = spec52.minGrade - spec51.minGrade;
+                const deltaAvg = avg52 - avg51;
+                const deltaSeatsRatio = (spec52.seats - spec51.seats) / spec51.seats;
                 if (Math.abs(deltaSeatsRatio) > 0.01) {
                     const factor = (deltaMin - deltaAvg) / deltaSeatsRatio;
                     if (Math.abs(factor) < 5) validPairs.push(factor);
@@ -845,66 +881,109 @@
         return validPairs.reduce((a,b) => a + b, 0) / validPairs.length;
     }
     
-    function predictMinGrade(spec50, seatFactor, avg53, avg50, currentSeats) {
-        if (!spec50 || spec50.minGrade === 0) return null;
-        const deltaAvg = avg53 - avg50;
-        const deltaSeatsRatio = currentSeats > 0 && spec50.seats > 0 ? (currentSeats - spec50.seats) / spec50.seats : 0;
-        const predicted = spec50.minGrade + deltaAvg + (seatFactor * deltaSeatsRatio);
-        return Math.min(100, Math.max(60, predicted));
+    function predictMinGradeRange(spec50, spec51, spec52, seatFactor, avg53, avg50, avg51, avg52, currentSeats) {
+        // استخدام متوسط مرجح للحدود الدنيا من 50 و 51 و 52
+        let weightedMin = 0;
+        let weights = 0;
+        if (spec50 && spec50.minGrade > 0) { weightedMin += spec50.minGrade * 1; weights += 1; }
+        if (spec51 && spec51.minGrade > 0) { weightedMin += spec51.minGrade * 2; weights += 2; }
+        if (spec52 && spec52.minGrade > 0) { weightedMin += spec52.minGrade * 3; weights += 3; }
+        if (weights === 0) return null;
+        
+        const refMin = weightedMin / weights;
+        const refAvg = (avg50 * 1 + avg51 * 2 + avg52 * 3) / 6;
+        const deltaAvg = avg53 - refAvg;
+        
+        // متوسط المقاعد المرجعي
+        let refSeats = 0;
+        let seatsWeights = 0;
+        if (spec50 && spec50.seats > 0) { refSeats += spec50.seats * 1; seatsWeights += 1; }
+        if (spec51 && spec51.seats > 0) { refSeats += spec51.seats * 2; seatsWeights += 2; }
+        if (spec52 && spec52.seats > 0) { refSeats += spec52.seats * 3; seatsWeights += 3; }
+        refSeats = refSeats / seatsWeights;
+        
+        const deltaSeatsRatio = (currentSeats - refSeats) / refSeats;
+        const predicted = refMin + deltaAvg + (seatFactor * deltaSeatsRatio);
+        const margin = 1.2;
+        return { min: Math.min(100, Math.max(60, predicted - margin)), max: Math.min(100, Math.max(60, predicted + margin)) };
+    }
+    
+    function getSeatsStatus(seats, accepted) {
+        if (accepted === 0) return `${seats}`;
+        if (accepted < seats) return `${seats} (${accepted}/${seats}) ⚠️`;
+        return `${seats} ✅`;
     }
     
     function displayBatchesData(cache, container) {
         const { batchesData, grades53 } = cache;
-        const { specialties50, specialties52, grades50, grades52 } = batchesData;
+        const { specialties50, specialties51, specialties52, grades50, grades51, grades52 } = batchesData;
         
         const avg50 = calculateAverage(grades50);
+        const avg51 = calculateAverage(grades51);
         const avg52 = calculateAverage(grades52);
         const avg53 = calculateAverage(grades53);
-        const seatFactor = calculateSeatFactor(specialties50, specialties52, avg50, avg52, avg53);
+        const seatFactor = calculateSeatFactor(specialties50, specialties51, specialties52, avg50, avg51, avg52);
         
         const ranges = ["90-95", "85-90", "80-85", "75-80", "70-75", "65-70", "60-65"];
         const dist50 = calculateGradeDistribution(grades50, ranges);
+        const dist51 = calculateGradeDistribution(grades51, ranges);
         const dist52 = calculateGradeDistribution(grades52, ranges);
         const dist53 = calculateGradeDistribution(grades53, ranges);
         
+        // بناء جدول المقارنة
         let specialtiesTable = '';
         for (let spec50 of specialties50) {
-            const currentSeats = specialties.find(s => s.name === spec50.name)?.seats || spec50.seats;
-            const predictedMin = predictMinGrade(spec50, seatFactor, avg53, avg50, currentSeats);
+            const spec51 = specialties51.find(s => s.name === spec50.name);
             const spec52 = specialties52.find(s => s.name === spec50.name);
+            const currentSeats = specialties.find(s => s.name === spec50.name)?.seats || spec50.seats;
+            const predictedRange = predictMinGradeRange(spec50, spec51, spec52, seatFactor, avg53, avg50, avg51, avg52, currentSeats);
+            
             specialtiesTable += `<tr>
                 <td>${escapeHtml(spec50.name)}</div>
-                <td>${currentSeats}</div>
-                <td>${predictedMin ? predictedMin.toFixed(2) : 'لا توجد بيانات'}</div>
-                <td>${spec52 ? spec52.seats : '-'}</div>
-                <td>${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</div>
-                <td>${spec50.seats}</div>
+                <td>${getSeatsStatus(spec50.seats, spec50.accepted)}</div>
                 <td>${spec50.minGrade > 0 ? spec50.minGrade.toFixed(2) : '-'}</div>
+                <td>${spec51 ? getSeatsStatus(spec51.seats, spec51.accepted) : '-'}</div>
+                <td>${spec51 && spec51.minGrade > 0 ? spec51.minGrade.toFixed(2) : '-'}</div>
+                <td>${spec52 ? getSeatsStatus(spec52.seats, spec52.accepted) : '-'}</div>
+                <td>${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</div>
+                <td>${currentSeats}</div>
+                <td>${predictedRange ? `${predictedRange.min.toFixed(1)}-${predictedRange.max.toFixed(1)}` : 'لا توجد بيانات كافية'}</div>
             </tr>`;
         }
         
-        let distributionHtml = '<table class="batches-table"><thead><tr><th>الفئة</th><th>الدفعة 50</th><th>الدفعة 52</th><th>الدفعة 53</th></tr></thead><tbody>';
+        let distributionHtml = '<table class="batches-table"><thead><tr><th>الفئة</th><th>الدفعة 50</th><th>الدفعة 51</th><th>الدفعة 52</th><th>الدفعة 53</th></tr></thead><tbody>';
         for (let range of ranges) {
             distributionHtml += `<tr>
                 <td>${range}</div>
                 <td>${dist50.percentages[range]}% (${dist50.counts[range]})</div>
+                <td>${dist51.percentages[range]}% (${dist51.counts[range]})</div>
                 <td>${dist52.percentages[range]}% (${dist52.counts[range]})</div>
                 <td>${dist53.percentages[range]}% (${dist53.counts[range]})</div>
             </tr>`;
         }
         distributionHtml += '</tbody></table>';
         
-        const margin = 1.2;
+        const factorsText = `الحدود الدنيا يحددها 5 عوامل: 
+1. معدلات الطلاب أو متوسط المعدلات
+2. عدد المقاعد
+3. عدد الطلاب الذين يتقدمون للمفاضلة (سابقاً الدفعة 50 و 51 جميع الطلاب يتقدمون لكي يحصلوا على تأجيل للخدمة الإلزامية للجيش على زمن 52 والآن تم إلغاء الخدمة الإلزامية، عدد الذين تقدموا بالـ 52 كان أقل نفس الشيء متوقع الآن أيضاً)
+4. رغبات الطلاب (هناك اختصاصات مرغوبة وعليها طلب دائماً ولكن أحياناً التفضيل يختلف من سنة إلى أخرى)
+5. بقية المحافظات (ليس لدينا أي معلومات عن هذا المتغير، سوف نهمله لكن بالتأكيد له تأثير)`;
         
         const html = `
             <div class="batches-box">
+                <div class="factors-box">
+                    <p style="font-weight:bold; margin-bottom:8px;">📌 العوامل المؤثرة على الحدود الدنيا:</p>
+                    <p style="font-size:12px; white-space:pre-line;">${escapeHtml(factorsText)}</p>
+                </div>
+                
                 <div style="background:#e8f0fe; padding:12px; border-radius:16px; margin-bottom:16px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                        <p style="font-size:14px; font-weight:bold; margin:0;">📊 دفعات سابقة (50، 52، 53)</p>
+                        <p style="font-size:14px; font-weight:bold; margin:0;">📊 دفعات سابقة (50، 51، 52، 53)</p>
                         <span style="background:#ff9800; color:white; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:bold;">⚠️ تجريبي</span>
                     </div>
-                    <p style="font-size:13px;">تم استخدام بيانات الدفعات 50 و 52 و 53 (الكاملة) لتقدير الحدود الدنيا المتوقعة للدفعة الحالية.</p>
-                    <p style="font-size:13px; margin-top:8px;"><strong>معامل تأثير المقاعد المحسوب:</strong> ${seatFactor.toFixed(3)} (تم استخلاصه من بيانات 50 و 52)</p>
+                    <p style="font-size:13px;">تم استخدام بيانات الدفعات 50 و 51 و 52 و 53 (الكاملة) لتقدير الحدود الدنيا المتوقعة للدفعة الحالية.</p>
+                    <p style="font-size:13px; margin-top:8px;"><strong>معامل تأثير المقاعد المحسوب:</strong> ${seatFactor.toFixed(3)} (تم استخلاصه من بيانات 50→51→52)</p>
                     <p style="font-size:12px; color:#666; margin-top:4px;">📌 آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}</p>
                 </div>
                 
@@ -912,6 +991,10 @@
                     <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
                         <div style="font-size:12px; color:#666;">متوسط الدفعة 50</div>
                         <div style="font-size:24px; font-weight:bold;">${avg50.toFixed(2)}</div>
+                    </div>
+                    <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
+                        <div style="font-size:12px; color:#666;">متوسط الدفعة 51</div>
+                        <div style="font-size:24px; font-weight:bold;">${avg51.toFixed(2)}</div>
                     </div>
                     <div style="flex:1; background:#f8fafc; padding:12px; border-radius:16px; text-align:center;">
                         <div style="font-size:12px; color:#666;">متوسط الدفعة 52</div>
@@ -928,23 +1011,24 @@
                     ${distributionHtml}
                 </div>
                 
-                <div style="margin-bottom:20px;">
+                <div style="margin-bottom:20px; overflow-x:auto;">
                     <h4 style="margin-bottom:10px;">📋 مقارنة الاختصاصات</h4>
-                    <div style="overflow-x:auto;">
-                        <table class="batches-table">
-                            <thead><tr><th>الاختصاص</th><th>مقاعد 53</th><th>حد 53 متوقع</th><th>مقاعد 52</th><th>حد 52</th><th>مقاعد 50</th><th>حد 50</th></tr></thead>
-                            <tbody>${specialtiesTable}</tbody>
-                        </table>
-                    </div>
+                    <table class="batches-table">
+                        <thead>
+                            <tr><th>الاختصاص</th><th>مقاعد 50</th><th>حد 50</th><th>مقاعد 51</th><th>حد 51</th><th>مقاعد 52</th><th>حد 52</th><th>مقاعد 53</th><th>حد 53 متوقع</th>
+                            </tr>
+                        </thead>
+                        <tbody>${specialtiesTable}</tbody>
+                    </table>
                     <div class="confidence-interval" style="margin-top:12px;">
-                        📌 نطاق الثقة المقدر: ±${margin} درجة (هامش خطأ تقديري)
+                        📌 نطاق الثقة المقدر: ±1.2 درجة (هامش خطأ تقديري)
                     </div>
                 </div>
                 
                 <div style="background:#fff3cd; padding:12px; border-radius:16px; border-right:4px solid #ffc107;">
                     <p style="font-size:13px; margin:0;">⚠️ <strong>ملاحظة:</strong> هذه التقديرات للاستئناس فقط. تم حساب الحد المتوقع باستخدام الصيغة: <br>
-                    <code>حد_متوقع = حد_50 + (متوسط_53 - متوسط_50) + (معامل_المقاعد × (مقاعد_53 - مقاعد_50) / مقاعد_50)</code><br>
-                    حيث معامل المقاعد (${seatFactor.toFixed(3)}) تم حسابه إحصائياً من بيانات الدفعتين 50 و 52.</p>
+                    <code>حد_متوقع = (حد_50 + 2×حد_51 + 3×حد_52)/6 + (متوسط_53 - متوسط_مرجعي) + معامل_المقاعد × (مقاعد_53 - مقاعد_مرجعية)/مقاعد_مرجعية</code><br>
+                    حيث معامل المقاعد (${seatFactor.toFixed(3)}) تم حسابه إحصائياً من بيانات الدفعات 50، 51، 52.</p>
                 </div>
             </div>
         `;
@@ -980,7 +1064,192 @@
         }
     }
     
-    // ===================== الدوال الأساسية للموقع (لم تتغير) =====================
+    // ===================== إضافات إحصائيات التسجيل =====================
+    function calculateGroupedTotalWishers() {
+        const specialtyToGroup = new Map();
+        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
+        const grouped = new Map();
+        for (let student of allStudents) {
+            const seen = new Set();
+            for (let pref of student.prefs) {
+                const group = specialtyToGroup.get(pref);
+                if (group && !seen.has(group)) {
+                    seen.add(group);
+                    grouped.set(group, (grouped.get(group) || 0) + 1);
+                }
+            }
+        }
+        return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+    }
+    
+    function calculateTopMinSpecs() {
+        // أعلى رغبة من حيث الحد الأدنى (من بيانات المفاضلة الحالية)
+        if (!currentData || !currentData.accepted) return [];
+        const result = [];
+        for (let [specName, acceptedList] of Object.entries(currentData.accepted)) {
+            if (acceptedList.length > 0) {
+                const minGrade = Math.min(...acceptedList.map(a => a.gpa));
+                result.push({ name: specName, minGrade: minGrade });
+            }
+        }
+        return result.sort((a, b) => b.minGrade - a.minGrade);
+    }
+    
+    function calculateTopSpecialtiesByGradeGrouped() {
+        const ranges = [
+            { min: 90, max: 95, label: "90-95", specialties: new Map(), limit: 3 },
+            { min: 85, max: 90, label: "85-90", specialties: new Map(), limit: 5 },
+            { min: 80, max: 85, label: "80-85", specialties: new Map(), limit: 5 },
+            { min: 75, max: 80, label: "75-80", specialties: new Map(), limit: 5 },
+            { min: 70, max: 75, label: "70-75", specialties: new Map(), limit: 5 },
+            { min: 65, max: 70, label: "65-70", specialties: new Map(), limit: 5 },
+            { min: 60, max: 65, label: "60-65", specialties: new Map(), limit: 5 }
+        ];
+        
+        const specialtyToGroup = new Map();
+        for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
+        
+        for (let student of allStudents) {
+            const gpa = student.gpa;
+            let rangeObj = null;
+            for (let r of ranges) {
+                if (gpa >= r.min && gpa < r.max) {
+                    rangeObj = r;
+                    break;
+                }
+            }
+            if (rangeObj && student.prefs.length > 0) {
+                const pref = student.prefs[0];
+                const group = specialtyToGroup.get(pref);
+                if (group) {
+                    rangeObj.specialties.set(group, (rangeObj.specialties.get(group) || 0) + 1);
+                }
+            }
+        }
+        
+        const result = [];
+        for (let range of ranges) {
+            const sorted = Array.from(range.specialties.entries())
+                .map(([name, count]) => ({ name, count }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, range.limit);
+            result.push({ range: range.label, specialties: sorted });
+        }
+        return result;
+    }
+    
+    function renderGroupedWishersList(data, limit) {
+        const displayItems = data.slice(0, limit);
+        if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
+        let html = '<ul class="rank-list">';
+        for (let i = 0; i < displayItems.length; i++) {
+            html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].count}</span></li>`;
+        }
+        html += '</ul>';
+        return html;
+    }
+    
+    function renderTopMinList(data, limit) {
+        const displayItems = data.slice(0, limit);
+        if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
+        let html = '<ul class="rank-list">';
+        for (let i = 0; i < displayItems.length; i++) {
+            html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].minGrade.toFixed(2)}</span></li>`;
+        }
+        html += '</ul>';
+        return html;
+    }
+    
+    // تحديث دالة renderRegistrationStats لإضافة الميزات الجديدة
+    const originalRenderRegistrationStats = renderRegistrationStats;
+    window.renderRegistrationStats = async function() {
+        const container = document.getElementById('registrationStatsContent');
+        if (!container) return;
+        
+        const dailyStats = calculateDailyStats();
+        const firstChoiceRank = calculateFirstChoiceRank();
+        const groupedFirstChoice = calculateGroupedFirstChoice();
+        const gradeDistribution = calculateGradeDistributionFromStudents();
+        const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
+        const groupedTotalWishers = calculateGroupedTotalWishers();
+        const topMinSpecs = calculateTopMinSpecs();
+        const topSpecialtiesByGradeGrouped = calculateTopSpecialtiesByGradeGrouped();
+        
+        let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4><table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead><tbody>`;
+        let cumulative = 0;
+        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></tr>`; }
+        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></tr>`;
+        html += `</tbody></table></div>
+        
+        <div class="stats-section"><h4>⭐ أكثر الرغبات كخيار أول (تفصيلي)</h4>${renderRankList(firstChoiceRank, 'individualFirst')}</div>
+        
+        <div class="stats-section"><h4>⭐ أكثر الاختصاصات كخيار أول (تجميعي - يشمل دراسات عام + موازي + صحة)</h4>${renderRankList(groupedFirstChoice, 'groupedFirst')}</div>
+        
+        <div class="stats-section">
+            <h4>📊 أكثر اختصاص من حيث عدد الراغبين (تجميعي)</h4>
+            <select id="totalWishersLimit" class="dropdown-select" onchange="updateTotalWishersLimit()">
+                <option value="5">عرض 5</option>
+                <option value="10" selected>عرض 10</option>
+                <option value="15">عرض 15</option>
+                <option value="30">عرض الكل</option>
+            </select>
+            <div id="totalWishersList">${renderGroupedWishersList(groupedTotalWishers, 10)}</div>
+        </div>
+        
+        <div class="stats-section">
+            <h4>🏆 أعلى رغبة من حيث الحد الأدنى</h4>
+            <select id="topMinLimit" class="dropdown-select" onchange="updateTopMinLimit()">
+                <option value="5">عرض 5</option>
+                <option value="10" selected>عرض 10</option>
+                <option value="15">عرض 15</option>
+                <option value="30">عرض الكل</option>
+            </select>
+            <div id="topMinList">${renderTopMinList(topMinSpecs, 10)}</div>
+        </div>
+        
+        <div class="stats-section">
+            <h4>🏆 أكثر اختصاصات مرغوب حسب فئة المعدل (تجميعي)</h4>`;
+        
+        for (let item of topSpecialtiesByGradeGrouped) {
+            html += `<div style="margin-bottom:16px;">
+                        <strong style="display:block; margin-bottom:8px;">📌 فئة ${item.range}:</strong>
+                        <ul class="rank-list" style="margin-right:20px;">`;
+            for (let spec of item.specialties) {
+                html += `<li><span class="rank-name">${escapeHtml(spec.name)}</span><span class="rank-count">${spec.count}</span></li>`;
+            }
+            if (item.specialties.length === 0) html += `<li style="color:#999;">لا توجد بيانات</li>`;
+            html += `</ul></div>`;
+        }
+        
+        html += `</div>
+        
+        <div class="stats-section"><h4>📊 توزيع المعدلات (العينة الحالية)</h4><div class="grade-distribution">`;
+        for (let item of gradeDistribution) html += `<div class="grade-bar"><div class="grade-label">${item.range}</div><div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div><div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div></div>`;
+        html += `</div></div>
+        
+        <div class="stats-section"><h4>🏆 أكثر اختصاص مرغوب حسب فئة المعدل (تفصيلي - كل اختصاص بمفرده)</h4>
+        <select id="gradeRangeSelect" class="dropdown-select" onchange="updateGradeRangeTop()">
+            <option value="90-95">90-95</option><option value="85-90">85-90</option><option value="80-85">80-85</option>
+            <option value="75-80">75-80</option><option value="70-75">70-75</option><option value="65-70">65-70</option><option value="60-65">60-65</option>
+        </select>
+        <div id="gradeRangeTopResult">${renderGradeRangeTop(topSpecialtyByGrade, '90-95')}</div></div>`;
+        
+        container.innerHTML = html;
+    };
+    
+    function updateTotalWishersLimit() {
+        const limit = parseInt(document.getElementById('totalWishersLimit').value);
+        const groupedTotalWishers = calculateGroupedTotalWishers();
+        document.getElementById('totalWishersList').innerHTML = renderGroupedWishersList(groupedTotalWishers, limit);
+    }
+    
+    function updateTopMinLimit() {
+        const limit = parseInt(document.getElementById('topMinLimit').value);
+        const topMinSpecs = calculateTopMinSpecs();
+        document.getElementById('topMinList').innerHTML = renderTopMinList(topMinSpecs, limit);
+    }
+    
+    // ===================== الدوال الأساسية للموقع (المتبقية) =====================
     async function loadStudents() {
         try {
             const [studentsRes, referenceRes] = await Promise.all([
@@ -1057,7 +1326,7 @@
         currentData = {accepted, seats};
         renderStats();
         renderStudentsTable();
-        renderRegistrationStats();
+        window.renderRegistrationStats();
         if(isAdmin) renderAdminTable();
         document.getElementById('updateTime').innerHTML = `آخر تحديث: ${new Date().toLocaleTimeString('ar-SA')}`;
     }
@@ -1114,7 +1383,7 @@
         filtered.forEach((s,i) => {
             const isAlert = alertIds.has(s.realId);
             const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
-            if (s.isHidden && !isSearching) { html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</div><td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</div></tr>`; }
+            if (s.isHidden && !isSearching) { html += `<tr style="${rowStyle}"><td style="font-weight:bold;">${i+1}</div><td colspan="3" style="text-align: center; color: #888;">🔒 مخفي</div><tr>`; }
             else {
                 const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
                 const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
@@ -1125,43 +1394,16 @@
         tbody.innerHTML = html;
     }
     
-    async function renderRegistrationStats() {
-        const container = document.getElementById('registrationStatsContent');
-        if (!container) return;
-        const dailyStats = calculateDailyStats();
-        const firstChoiceRank = calculateFirstChoiceRank();
-        const groupedFirstChoice = calculateGroupedFirstChoice();
-        const gradeDistribution = calculateGradeDistributionFromStudents();
-        const topSpecialtyByGrade = calculateTopSpecialtyByGrade();
-        let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4><table class="stats-daily-table"><thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th><tr></thead><tbody>`;
-        let cumulative = 0;
-        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</div><td>${day.count}</div><td>${cumulative}</div></tr>`; }
-        if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</div></tr>`;
-        html += `</tbody></table></div>
-        <div class="stats-section"><h4>⭐ أكثر الرغبات كخيار أول (تفصيلي)</h4>${renderRankList(firstChoiceRank, 'individualFirst')}</div>
-        <div class="stats-section"><h4>⭐ أكثر الاختصاصات كخيار أول (تجميعي - يشمل دراسات عام + موازي + صحة)</h4>${renderRankList(groupedFirstChoice, 'groupedFirst')}</div>
-        <div class="stats-section"><h4>📊 توزيع المعدلات (العينة الحالية)</h4><div class="grade-distribution">`;
-        for (let item of gradeDistribution) html += `<div class="grade-bar"><div class="grade-label">${item.range}</div><div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div><div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div></div>`;
-        html += `</div></div><div class="stats-section"><h4>🏆 أكثر اختصاص مرغوب حسب فئة المعدل (تجميعي)</h4>
-        <select id="gradeRangeSelect" class="dropdown-select" onchange="updateGradeRangeTop()"><option value="90-95">90-95</option><option value="85-90">85-90</option><option value="80-85">80-85</option><option value="75-80">75-80</option><option value="70-75">70-75</option><option value="65-70">65-70</option><option value="60-65">60-65</option></select>
-        <div id="gradeRangeTopResult">${renderGradeRangeTop(topSpecialtyByGrade, '90-95')}</div></div>`;
-        container.innerHTML = html;
-    }
-    
-    function renderGradeRangeTop(data, selectedRange) {
-        const item = data.find(d => d.range === selectedRange);
-        if (!item || item.specialty === "لا يوجد") return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-        return `<div style="padding:10px; background:#eef2ff; border-radius:12px;"><strong>${escapeHtml(item.specialty)}</strong> - ${item.count} طالب</div>`;
-    }
-    
-    function updateGradeRangeTop() { const range = document.getElementById('gradeRangeSelect').value; const topSpecialtyByGrade = calculateTopSpecialtyByGrade(); document.getElementById('gradeRangeTopResult').innerHTML = renderGradeRangeTop(topSpecialtyByGrade, range); }
+    // دوال مساعدة للإحصائيات
     function calculateDailyStats() { const dailyMap = new Map(); for (let student of allStudents) { if (!student.timestamp) continue; let dateStr; try { let date = new Date(student.timestamp); if (isNaN(date.getTime())) dateStr = student.timestamp.split(' ')[0]; else dateStr = date.toISOString().split('T')[0]; } catch(e) { continue; } if (dateStr) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1); } return Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date)); }
     function calculateFirstChoiceRank() { const firstChoice = new Map(); for (let student of allStudents) if (student.prefs.length > 0) { const pref = student.prefs[0]; firstChoice.set(pref, (firstChoice.get(pref) || 0) + 1); } return Array.from(firstChoice.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count); }
     function calculateGroupedFirstChoice() { const specialtyToGroup = new Map(); for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group); const grouped = new Map(); for (let student of allStudents) if (student.prefs.length > 0) { const pref = student.prefs[0]; const group = specialtyToGroup.get(pref); if (group) grouped.set(group, (grouped.get(group) || 0) + 1); } return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count); }
     function calculateGradeDistributionFromStudents() { const ranges = [{min:90,max:95,label:"90-95",count:0},{min:85,max:90,label:"85-90",count:0},{min:80,max:85,label:"80-85",count:0},{min:75,max:80,label:"75-80",count:0},{min:70,max:75,label:"70-75",count:0},{min:65,max:70,label:"65-70",count:0},{min:60,max:65,label:"60-65",count:0}]; for (let student of allStudents) { const gpa = student.gpa; for (let range of ranges) if (gpa >= range.min && gpa < range.max) { range.count++; break; } } const total = allStudents.length || 1; return ranges.map(r => ({ range: r.label, count: r.count, percentage: (r.count / total) * 100 })); }
     function calculateTopSpecialtyByGrade() { const ranges = [{min:90,max:95,label:"90-95",specialties:new Map()},{min:85,max:90,label:"85-90",specialties:new Map()},{min:80,max:85,label:"80-85",specialties:new Map()},{min:75,max:80,label:"75-80",specialties:new Map()},{min:70,max:75,label:"70-75",specialties:new Map()},{min:65,max:70,label:"65-70",specialties:new Map()},{min:60,max:65,label:"60-65",specialties:new Map()}]; const specialtyToGroup = new Map(); for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group); for (let student of allStudents) { const gpa = student.gpa; let rangeObj = null; for (let r of ranges) if (gpa >= r.min && gpa < r.max) { rangeObj = r; break; } if (rangeObj && student.prefs.length > 0) { const pref = student.prefs[0]; const group = specialtyToGroup.get(pref); if (group) rangeObj.specialties.set(group, (rangeObj.specialties.get(group) || 0) + 1); } } const result = []; for (let range of ranges) { let top = { specialty: "لا يوجد", count: 0 }; for (let [spec, count] of range.specialties) if (count > top.count) top = { specialty: spec, count: count }; result.push({ range: range.label, specialty: top.specialty, count: top.count }); } return result; }
+    function renderGradeRangeTop(data, selectedRange) { const item = data.find(d => d.range === selectedRange); if (!item || item.specialty === "لا يوجد") return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>'; return `<div style="padding:10px; background:#eef2ff; border-radius:12px;"><strong>${escapeHtml(item.specialty)}</strong> - ${item.count} طالب</div>`; }
+    function updateGradeRangeTop() { const range = document.getElementById('gradeRangeSelect').value; const topSpecialtyByGrade = calculateTopSpecialtyByGrade(); document.getElementById('gradeRangeTopResult').innerHTML = renderGradeRangeTop(topSpecialtyByGrade, range); }
     function renderRankList(rankArray, type) { let limit = 10; if (type === 'individualFirst') limit = rankLimits.individualFirst; else if (type === 'groupedFirst') limit = rankLimits.groupedFirst; else limit = 10; const displayItems = rankArray.slice(0, limit); if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>'; let html = '<ul class="rank-list">'; for (let i=0; i<displayItems.length; i++) html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].count}</span></li>`; html += '</ul>'; if (rankArray.length > limit && (type === 'individualFirst' || type === 'groupedFirst')) html += `<button class="show-more-btn" onclick="showMoreRank('${type}')">➕ عرض المزيد</button>`; return html; }
-    function showMoreRank(type) { if (type === 'individualFirst') rankLimits.individualFirst += 10; else if (type === 'groupedFirst') rankLimits.groupedFirst += 10; renderRegistrationStats(); }
+    function showMoreRank(type) { if (type === 'individualFirst') rankLimits.individualFirst += 10; else if (type === 'groupedFirst') rankLimits.groupedFirst += 10; window.renderRegistrationStats(); }
     function setupAlertsSearch() { const searchInput = document.getElementById('alertsSearchInput'); if (!searchInput) return; searchInput.addEventListener('input', function(e) { const keyword = e.target.value.trim().toLowerCase(); if (!window.allAlerts) return; if (keyword === '') { renderAlertsList(window.allAlerts); document.getElementById('alertsCount').innerText = window.allAlerts.length; document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${window.allAlerts.length})`; } else { const filtered = window.allAlerts.filter(item => item.id.toLowerCase().includes(keyword) || item.description.toLowerCase().includes(keyword)); renderAlertsList(filtered); document.getElementById('alertsCount').innerText = filtered.length; document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${filtered.length} من ${window.allAlerts.length})`; } }); }
     
     async function showAdminLogin(){
@@ -1208,10 +1450,16 @@
             const tabName = btn.dataset.tab;
             if (tabName === 'stats') document.getElementById('tabStats').classList.add('active');
             else if (tabName === 'students') { document.getElementById('tabStudents').classList.add('active'); renderStudentsTable(); }
-            else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); renderRegistrationStats(); }
+            else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); window.renderRegistrationStats(); }
             else if (tabName === 'batches') { document.getElementById('tabBatches').classList.add('active'); renderBatchesPage(); }
         });
     });
+    
+    window.updateTotalWishersLimit = updateTotalWishersLimit;
+    window.updateTopMinLimit = updateTopMinLimit;
+    window.updateGradeRangeTop = updateGradeRangeTop;
+    window.showMoreRank = showMoreRank;
+    window.renderRegistrationStats = window.renderRegistrationStats;
     
     loadBatchesTabVisibility();
     loadStudents();
@@ -1223,8 +1471,6 @@
     
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
-    window.showMoreRank = showMoreRank;
-    window.updateGradeRangeTop = updateGradeRangeTop;
 </script>
 </body>
 </html>
