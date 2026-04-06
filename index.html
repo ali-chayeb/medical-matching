@@ -582,7 +582,7 @@
     <div style="margin:15px 0;"><button id="exportCSVBtn" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
+            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></td></thead>
             <tbody id="adminStudentsList"></tbody>
         </table>
     </div>
@@ -621,7 +621,7 @@
     
     let rankLimits = { individualFirst: 10, groupedFirst: 10 };
     
-    // ===================== الدوال الأساسية =====================
+    // ===================== الدوال الأساسية (بدون تعديل) =====================
     function cleanId(id) { if (!id) return ""; return id.toString().trim(); }
     function hideIdNumber(id) { if (!id || id.length < 4) return id; return `${id.charAt(0)}**${id.slice(-2)}`; }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
@@ -713,9 +713,9 @@
         const container = document.getElementById('rejectedHiddenStudents');
         if (!container) return;
         if (rejectedHiddenStudents.length === 0) { container.innerHTML = '<div style="color:green; padding:10px;">✅ لا توجد أرقام مخفية مرفوضة</div>'; return; }
-        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;"><thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th></tr></thead><tbody>`;
+        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;"><thead><tr><th>الرقم الحقيقي</th><th>الرقم المخفي</th><th>السبب</th><th>التاريخ</th><th>المعدل</th><tr></thead><tbody>`;
         for (let student of rejectedHiddenStudents) html += `<tr><td><strong>${escapeHtml(student.realId)}</strong></div><td>${escapeHtml(student.hiddenId)}</div><td style="color:#dc3545;">${escapeHtml(student.reason)}</div><td>${student.timestamp ? new Date(student.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</div><td>${student.gpa}</div></tr>`;
-        html += `</tbody></table><div style="margin-top:10px; font-size:11px; color:#666;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>`;
+        html += `</tbody></td><div style="margin-top:10px; font-size:11px; color:#666;">📌 عندما يصحح الطالب تسجيله، سيتم إزالته تلقائياً</div>`;
         container.innerHTML = html;
     }
     
@@ -936,14 +936,14 @@
             
             specialtiesTable += `<tr>
                 <td>${escapeHtml(spec50.name)}</div>
-                <td class="col-batch50">${getSeatsStatus(spec50.seats, spec50.accepted)}</td>
-                <td class="col-batch50">${spec50.minGrade > 0 ? spec50.minGrade.toFixed(2) : '-'}</td>
-                <td class="col-batch51">${spec51 ? getSeatsStatus(spec51.seats, spec51.accepted) : '-'}</td>
-                <td class="col-batch51">${spec51 && spec51.minGrade > 0 ? spec51.minGrade.toFixed(2) : '-'}</td>
-                <td class="col-batch52">${spec52 ? getSeatsStatus(spec52.seats, spec52.accepted) : '-'}</td>
-                <td class="col-batch52">${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</td>
-                <td class="col-batch53">${currentSeats}</td>
-                <td class="col-batch53">${predictedRange ? `${predictedRange.min.toFixed(1)}-${predictedRange.max.toFixed(1)}` : 'لا توجد بيانات كافية'}</td>
+                <td class="col-batch50">${getSeatsStatus(spec50.seats, spec50.accepted)}</div>
+                <td class="col-batch50">${spec50.minGrade > 0 ? spec50.minGrade.toFixed(2) : '-'}</div>
+                <td class="col-batch51">${spec51 ? getSeatsStatus(spec51.seats, spec51.accepted) : '-'}</div>
+                <td class="col-batch51">${spec51 && spec51.minGrade > 0 ? spec51.minGrade.toFixed(2) : '-'}</div>
+                <td class="col-batch52">${spec52 ? getSeatsStatus(spec52.seats, spec52.accepted) : '-'}</div>
+                <td class="col-batch52">${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</div>
+                <td class="col-batch53">${currentSeats}</div>
+                <td class="col-batch53">${predictedRange ? `${predictedRange.min.toFixed(1)}-${predictedRange.max.toFixed(1)}` : 'لا توجد بيانات كافية'}</div>
             </tr>`;
         }
         
@@ -951,10 +951,10 @@
         for (let range of ranges) {
             distributionHtml += `<tr>
                 <td>${range}</div>
-                <td class="col-batch50">${dist50.percentages[range]}% (${dist50.counts[range]})</td>
-                <td class="col-batch51">${dist51.percentages[range]}% (${dist51.counts[range]})</td>
-                <td class="col-batch52">${dist52.percentages[range]}% (${dist52.counts[range]})</td>
-                <td class="col-batch53">${dist53.percentages[range]}% (${dist53.counts[range]})</td>
+                <td class="col-batch50">${dist50.percentages[range]}% (${dist50.counts[range]})</div>
+                <td class="col-batch51">${dist51.percentages[range]}% (${dist51.counts[range]})</div>
+                <td class="col-batch52">${dist52.percentages[range]}% (${dist52.counts[range]})</div>
+                <td class="col-batch53">${dist53.percentages[range]}% (${dist53.counts[range]})</div>
             </tr>`;
         }
         distributionHtml += '</tbody></table>';
