@@ -590,7 +590,7 @@
     <div style="margin:15px 0;"><button id="exportCSVBtn" style="background:#28a745; border:none; padding:8px 20px; border-radius:30px; color:white;">📥 تصدير CSV</button></div>
     <div style="overflow-x:auto;">
         <table class="students-table">
-            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></td></thead>
+            <thead><tr><th>#</th><th>الرقم</th><th>المعدل</th><th>الاختصاص</th><th>الرغبات</th></tr></thead>
             <tbody id="adminStudentsList"></tbody>
         </table>
     </div>
@@ -941,7 +941,7 @@
                 <td class="col-batch52">${spec52 ? getSeatsStatus(spec52.seats, spec52.accepted) : '-'}</div>
                 <td class="col-batch52">${spec52 && spec52.minGrade > 0 ? spec52.minGrade.toFixed(2) : '-'}</div>
                 <td class="col-batch53">${currentSeats}</div>
-            </table>`;
+            </tr>`;
         }
         specialtiesTable += '</tbody>';
         
@@ -1273,7 +1273,7 @@
         const isSearching = search.length > 0;
         if (isSearching) filtered = processed.filter(s => s.isHidden ? s.hiddenId.includes(search) : s.realId.includes(search));
         if (!filtered.length) { 
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</div></tr>'; 
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</td></tr>'; 
             return; 
         }
         
@@ -1288,10 +1288,10 @@
             if (s.isHidden && !isSearching) {
                 html += `<tr style="${rowStyle}">
                             <td style="font-weight:bold;">${i+1}</td>
-                            <td style="direction: ltr; text-align: center; color: #888;">🔒 ${escapeHtml(s.hiddenId)}</div>
-                            <td style="color: #888;">مخفي</div>
-                            <td style="color: #888;">مخفي</div>
-                            <td style="text-align: center;">${higherUnregistered}</div>
+                            <td style="direction: ltr; text-align: center; color: #888;">🔒 ${escapeHtml(s.hiddenId)}</td>
+                            <td style="color: #888;">مخفي</td>
+                            <td style="color: #888;">مخفي</td>
+                            <td style="text-align: center;">${higherUnregistered}</td>
                           </tr>`;
             } else {
                 const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
@@ -1299,8 +1299,7 @@
                 const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
                 html += `<tr style="${rowStyle}">
                             <td style="font-weight:bold;">${i+1}</td>
-                            <td style="direction: ltr; text-align: center;">${idDisplay}
-                                                        <td style="direction: ltr; text-align: center;">${idDisplay}</td>
+                            <td style="direction: ltr; text-align: center;">${idDisplay}</td>
                             <td>${s.gpa}</td>
                             <td class="${assignedClass}">${escapeHtml(s.assigned)}</td>
                             <td style="text-align: center;">${higherUnregistered}</td>
