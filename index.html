@@ -459,8 +459,8 @@
             background: #eef2ff;
         }
         .missing-count-col {
-            background: #fff3cd;
-            font-weight: bold;
+            font-size: 11px;
+            width: 50px;
         }
         .hidden-merged-cell {
             text-align: center;
@@ -569,7 +569,7 @@
         </div>
         <div class="students-table-wrapper">
             <table class="students-table">
-                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><th>👥 غير المسجلين قبله</th></tr></thead>
+                <thead><tr><th>#</th><th>الرقم الجامعي</th><th>المعدل</th><th>الاختصاص المقبول</th><th style="width: 50px;">👥 غير المسجلين قبله</th></tr></thead>
                 <tbody id="studentsList"><tr><td colspan="5">جاري التحميل......</td></tr></tbody>
             </table>
         </div>
@@ -686,8 +686,8 @@
             if (!refId) continue;
             const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
             
-            // تخزين في fullCohortData
-            if (!isNaN(grade)) {
+            // تخزين في fullCohortData - تأكد من أن grade رقم صحيح
+            if (!isNaN(grade) && grade > 0) {
                 fullCohortData.set(refId, grade);
                 tempCohort.push({ id: refId, gpa: grade });
             }
@@ -700,7 +700,7 @@
             if (cols.length > 7 && cols[7]?.trim()) suspendedList.push({ id: cleanId(cols[7]), description: (cols.length > 8 && cols[8]?.trim()) ? cols[8].trim() : "تم إيقاف هذا الرقم مؤقتاً" });
         }
         
-        // ترتيب الدفعة الكاملة تنازلياً
+        // ترتيب الدفعة الكاملة تنازلياً حسب المعدل
         fullCohortSorted = tempCohort.sort((a, b) => b.gpa - a.gpa);
         
         return { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList };
@@ -1086,27 +1086,27 @@
     
     // حساب ترتيب الطالب في الدفعة الكاملة
     function getFullCohortRank(realId) {
-        const studentGpa = fullCohortData.get(realId);
-        if (studentGpa === undefined) return null;
-        
-        // البحث عن أول ظهور لنفس المعدل (للتعامل مع التساوي)
-        let rank = 1;
-        for (let s of fullCohortSorted) {
-            if (s.id === realId) return rank;
-            rank++;
+        // البحث عن الطالب في المصفوفة المرتبة
+        for (let i = 0; i < fullCohortSorted.length; i++) {
+            if (fullCohortSorted[i].id === realId) {
+                return i + 1; // الترتيب يبدأ من 1
+            }
         }
         return null;
     }
     
     // حساب عدد غير المسجلين الذين ترتيبهم قبل طالب معين
-    function calculateMissingBeforeStudent(realId, currentRank) {
+    function calculateMissingBeforeStudent(realId) {
         const fullRank = getFullCohortRank(realId);
         if (fullRank === null) return '?';
         
         const registeredIds = new Set(allStudents.map(s => s.realId));
-        const missingBefore = fullCohortSorted.slice(0, fullRank - 1).filter(s => !registeredIds.has(s.id)).length;
         
-        return missingBefore;
+        // عدد الأشخاص الذين ترتيبهم أفضل (أي fullRank - 1) والغير مسجلين
+        const betterStudents = fullCohortSorted.slice(0, fullRank - 1);
+        const missingBetter = betterStudents.filter(s => !registeredIds.has(s.id)).length;
+        
+        return missingBetter;
     }
     
     // ===================== إضافات إحصائيات التسجيل =====================
@@ -1341,11 +1341,6 @@
         if (isSearching) filtered = processed.filter(s => s.isHidden ? s.hiddenId.includes(search) : s.realId.includes(search));
         if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="5">🔍 لا توجد نتائج - تأكد من كتابة الرقم المخفي (مثل 2**84) إذا كنت مخفياً</td></tr>'; return; }
         
-        // حساب الترتيب الحالي في قائمة المقبولين (فقط الطلاب الذين حصلوا على اختصاص)
-        const acceptedStudents = processed.filter(s => s.assigned !== 'لم يحصل').sort((a, b) => b.gpa - a.gpa);
-        const currentRankMap = new Map();
-        acceptedStudents.forEach((s, idx) => currentRankMap.set(s.realId, idx + 1));
-        
         let html = '';
         filtered.forEach((s, i) => {
             const isAlert = alertIds.has(s.realId);
@@ -1353,8 +1348,7 @@
             
             if (s.isHidden && !isSearching) {
                 // صف مخفي - دمج الأعمدة الثلاثة
-                const currentRank = currentRankMap.get(s.realId);
-                const missingBefore = currentRank ? calculateMissingBeforeStudent(s.realId, currentRank) : '?';
+                const missingBefore = calculateMissingBeforeStudent(s.realId);
                 html += `<tr style="${rowStyle}">
                     <td style="font-weight:bold;">${i+1}</td>
                     <td colspan="3" class="hidden-merged-cell">🔒 مخفي</td>
@@ -1364,8 +1358,7 @@
                 const displayIdValue = s.isHidden ? s.hiddenId : s.realId;
                 const idDisplay = isAlert ? `<span class="student-alert-id">⚠️ ${escapeHtml(displayIdValue)}</span>` : escapeHtml(displayIdValue);
                 const assignedClass = s.assigned === 'لم يحصل' ? 'rejected' : 'accepted';
-                const currentRank = currentRankMap.get(s.realId);
-                const missingBefore = currentRank ? calculateMissingBeforeStudent(s.realId, currentRank) : '?';
+                const missingBefore = calculateMissingBeforeStudent(s.realId);
                 
                 html += `<tr style="${rowStyle}">
                     <td style="font-weight:bold;">${i+1}</td>
@@ -1501,20 +1494,10 @@
         container.innerHTML = html;
     };
     
-    function renderGradeRangeTop(data, selectedRange) {
-        const item = data.find(d => d.range === selectedRange);
-        if (!item || item.specialty === "لا يوجد") return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>';
-        return `<div style="padding:10px; background:#eef2ff; border-radius:12px;"><strong>${escapeHtml(item.specialty)}</strong> - ${item.count} طالب</div>`;
-    }
-    
-    function updateGradeRangeTop() { const range = document.getElementById('gradeRangeSelect').value; const topSpecialtyByGrade = calculateTopSpecialtyByGrade(); document.getElementById('gradeRangeTopResult').innerHTML = renderGradeRangeTop(topSpecialtyByGrade, range); }
-    function updateTotalWishersLimit() { const limit = parseInt(document.getElementById('totalWishersLimit').value); const groupedTotalWishers = calculateGroupedTotalWishers(); document.getElementById('totalWishersList').innerHTML = renderGroupedWishersList(groupedTotalWishers, limit); }
-    function updateTopMinLimit() { const limit = parseInt(document.getElementById('topMinLimit').value); const topMinSpecs = calculateTopMinSpecs(); document.getElementById('topMinList').innerHTML = renderTopMinList(topMinSpecs, limit); }
     function calculateDailyStats() { const dailyMap = new Map(); for (let student of allStudents) { if (!student.timestamp) continue; let dateStr; try { let date = new Date(student.timestamp); if (isNaN(date.getTime())) dateStr = student.timestamp.split(' ')[0]; else dateStr = date.toISOString().split('T')[0]; } catch(e) { continue; } if (dateStr) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1); } return Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date)); }
     function calculateFirstChoiceRank() { const firstChoice = new Map(); for (let student of allStudents) if (student.prefs.length > 0) { const pref = student.prefs[0]; firstChoice.set(pref, (firstChoice.get(pref) || 0) + 1); } return Array.from(firstChoice.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count); }
     function calculateGroupedFirstChoice() { const specialtyToGroup = new Map(); for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group); const grouped = new Map(); for (let student of allStudents) if (student.prefs.length > 0) { const pref = student.prefs[0]; const group = specialtyToGroup.get(pref); if (group) grouped.set(group, (grouped.get(group) || 0) + 1); } return Array.from(grouped.entries()).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count); }
     function calculateGradeDistributionFromStudents() { const ranges = [{min:90,max:95,label:"90-95",count:0},{min:85,max:90,label:"85-90",count:0},{min:80,max:85,label:"80-85",count:0},{min:75,max:80,label:"75-80",count:0},{min:70,max:75,label:"70-75",count:0},{min:65,max:70,label:"65-70",count:0},{min:60,max:65,label:"60-65",count:0}]; for (let student of allStudents) { const gpa = student.gpa; for (let range of ranges) if (gpa >= range.min && gpa < range.max) { range.count++; break; } } const total = allStudents.length || 1; return ranges.map(r => ({ range: r.label, count: r.count, percentage: (r.count / total) * 100 })); }
-    function calculateTopSpecialtyByGrade() { const ranges = [{min:90,max:95,label:"90-95",specialties:new Map()},{min:85,max:90,label:"85-90",specialties:new Map()},{min:80,max:85,label:"80-85",specialties:new Map()},{min:75,max:80,label:"75-80",specialties:new Map()},{min:70,max:75,label:"70-75",specialties:new Map()},{min:65,max:70,label:"65-70",specialties:new Map()},{min:60,max:65,label:"60-65",specialties:new Map()}]; const specialtyToGroup = new Map(); for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group); for (let student of allStudents) { const gpa = student.gpa; let rangeObj = null; for (let r of ranges) if (gpa >= r.min && gpa < r.max) { rangeObj = r; break; } if (rangeObj && student.prefs.length > 0) { const pref = student.prefs[0]; const group = specialtyToGroup.get(pref); if (group) rangeObj.specialties.set(group, (rangeObj.specialties.get(group) || 0) + 1); } } const result = []; for (let range of ranges) { let top = { specialty: "لا يوجد", count: 0 }; for (let [spec, count] of range.specialties) if (count > top.count) top = { specialty: spec, count: count }; result.push({ range: range.label, specialty: top.specialty, count: top.count }); } return result; }
     function renderRankList(rankArray, type) { let limit = 10; if (type === 'individualFirst') limit = rankLimits.individualFirst; else if (type === 'groupedFirst') limit = rankLimits.groupedFirst; else limit = 10; const displayItems = rankArray.slice(0, limit); if (displayItems.length === 0) return '<div style="color:#999; padding:10px;">لا توجد بيانات</div>'; let html = '<ul class="rank-list">'; for (let i=0; i<displayItems.length; i++) html += `<li><span class="rank-number">${i+1}.</span><span class="rank-name">${escapeHtml(displayItems[i].name)}</span><span class="rank-count">${displayItems[i].count}</span></li>`; html += '</ul>'; if (rankArray.length > limit && (type === 'individualFirst' || type === 'groupedFirst')) html += `<button class="show-more-btn" onclick="showMoreRank('${type}')">➕ عرض المزيد</button>`; return html; }
     function showMoreRank(type) { if (type === 'individualFirst') rankLimits.individualFirst += 10; else if (type === 'groupedFirst') rankLimits.groupedFirst += 10; renderRegistrationStats(); }
     function setupAlertsSearch() { const searchInput = document.getElementById('alertsSearchInput'); if (!searchInput) return; searchInput.addEventListener('input', function(e) { const keyword = e.target.value.trim().toLowerCase(); if (!window.allAlerts) return; if (keyword === '') { renderAlertsList(window.allAlerts); document.getElementById('alertsCount').innerText = window.allAlerts.length; document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${window.allAlerts.length})`; } else { const filtered = window.allAlerts.filter(item => item.id.toLowerCase().includes(keyword) || item.description.toLowerCase().includes(keyword)); renderAlertsList(filtered); document.getElementById('alertsCount').innerText = filtered.length; document.getElementById('alertsTitle').innerHTML = `⚠️ تنبيهات (${filtered.length} من ${window.allAlerts.length})`; } }); }
@@ -1579,9 +1562,8 @@
     window.updateSpec = updateSpec;
     window.delSpec = delSpec;
     window.showMoreRank = showMoreRank;
-    window.updateGradeRangeTop = updateGradeRangeTop;
     window.updateTotalWishersLimit = updateTotalWishersLimit;
     window.updateTopMinLimit = updateTopMinLimit;
 </script>
 </body>
-</html>
+    </html>
