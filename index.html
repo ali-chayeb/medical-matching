@@ -601,16 +601,17 @@
         <button id="closeAdminBtn" class="admin-btn" style="background:#dc3545;">🚪 إغلاق</button>
     </div>
     <div style="background:#dc3545; color:white; padding:4px 12px; border-radius:30px; display:inline-block; margin-bottom:15px;">وضع المشرف</div>
-        <div class="admin-section">
+    
+    <div class="admin-section">
         <h3>🔬 تشخيص البيانات</h3>
         <button id="checkDataBtn" style="background:#17a2b8;" class="btn-sm">📊 فحص حجم البيانات</button>
         <div id="checkDataResult" class="result-box" style="display:none;"></div>
     </div>
-
-            <div class="admin-section">
-            <h3>🧪 اختبار missingBefore</h3>
-            <button id="testMissingBtn" style="background:#ff9800;" class="btn-sm">🧪 اختبار missingBefore</button>
-        </div>
+    
+    <div class="admin-section">
+        <h3>🧪 اختبار missingBefore</h3>
+        <button id="testMissingBtn" style="background:#ff9800;" class="btn-sm">🧪 اختبار missingBefore</button>
+    </div>
     
     <div class="admin-section">
         <h3>🔍 التحقق من الأرقام الجامعية</h3>
@@ -632,8 +633,8 @@
     </div>
     
     <div class="admin-section">
-        <h3>🚫 الطلاب المنسحبون (قالوا "لا")</h3>
-        <button id="refreshOptedOutBtn" style="background:#dc3545;" class="btn-sm">🔄 تحديث قائمة المنسحبين</button>
+        <h3>🚫 الطلاب الذين لن يفاضلوا</h3>
+        <button id="refreshOptedOutBtn" style="background:#dc3545;" class="btn-sm">🔄 تحديث قائمة الذين لن يفاضلوا</button>
         <div id="optedOutStudentsList" class="result-box" style="margin-top:12px; max-height:300px; overflow-y:auto;"><div class="loading">جاري التحميل...</div></div>
     </div>
     
@@ -677,7 +678,7 @@
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
     let rejectedHiddenStudents = [];
-    let optedOutStudents = []; // الطلاب الذين قالوا "لا"
+    let optedOutStudents = [];
     let refreshTimer, isAdmin = false;
     let displayLimit = 30, currentData = null;
     let referenceDataCache = null;
@@ -685,7 +686,6 @@
     let batchesTabVisible = true;
     let batchesDataCache = null;
     
-    // بيانات جديدة
     let fullCohortData = new Map();
     let fullCohortSorted = [];
     
@@ -761,8 +761,7 @@
                 isHidden = hiddenValue === 'مخفي' || hiddenValue === 'hidden' || hiddenValue === 'نعم';
             }
             
-            // قراءة خيار المفاضلة
-            let wantsToApply = true; // افتراضي نعم
+            let wantsToApply = true;
             if (optOutIdx !== -1 && cols.length > optOutIdx) {
                 const optValue = cols[optOutIdx]?.trim().toLowerCase();
                 if (optValue === 'لا' || optValue === 'no') {
@@ -774,9 +773,8 @@
             for(let j=0;j<prefIdx.length&&j<100;j++){ const p = cols[prefIdx[j]]?.trim(); if(p) prefs.push(p); }
             
             if (!wantsToApply) {
-                // طالب قال لا - يضاف لقائمة المنسحبين فقط
                 optedOutList.push({ realId: id, gpa: gpa, timestamp: timestamp });
-                continue; // لا يضاف للطلاب العاديين
+                continue;
             }
             
             if(prefs.length) {
@@ -823,7 +821,7 @@
         const container = document.getElementById('optedOutStudentsList');
         if (!container) return;
         if (optedOutStudents.length === 0) { 
-            container.innerHTML = '<div style="color:green; padding:10px;">✅ لا يوجد طلاب منسحبون حالياً</div>'; 
+            container.innerHTML = '<div style="color:green; padding:10px;">✅ لا يوجد طلاب لن يفاضلوا حالياً</div>'; 
             return; 
         }
         let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;">
@@ -1115,7 +1113,7 @@
         }
     }
     
-    // ===================== دوال إحصائية جديدة =====================
+    // ===================== دوال إحصائية =====================
     
     function calculateMissingAboveMin(specName, minGrade) {
         if (minGrade === 'لا يوجد' || minGrade === Infinity) return 0;
@@ -1126,7 +1124,6 @@
         
         for (let student of fullCohortSorted) {
             if (student.gpa <= minGrade) break;
-            // لا نحسب المسجلين ولا المنسحبين
             if (!registeredIds.has(student.id) && !optedOutIds.has(student.id)) {
                 count++;
             }
@@ -1176,14 +1173,12 @@
         const registeredIds = new Set(allStudents.map(s => s.realId));
         const optedOutIds = new Set(optedOutStudents.map(s => s.realId));
         
-        // عدد الأشخاص الذين ترتيبهم أفضل والغير مسجلين (وليسوا منسحبين)
         const betterStudents = fullCohortSorted.slice(0, fullRank - 1);
         const missingBetter = betterStudents.filter(s => !registeredIds.has(s.id) && !optedOutIds.has(s.id)).length;
         
         return missingBetter;
     }
     
-    // ===================== إضافات إحصائيات التسجيل =====================
     function calculateGroupedTotalWishers() {
         const specialtyToGroup = new Map();
         for (let spec of specialties) specialtyToGroup.set(spec.name, spec.group);
@@ -1464,7 +1459,7 @@
         const topMinSpecs = calculateTopMinSpecs();
         const topSpecialtiesByGradeGrouped = calculateTopSpecialtiesByGradeGrouped();
         
-          // جدول التسجيل اليومي - يظهر أول 5 أيام فقط مع زر إظهار المزيد
+        // جدول التسجيل اليومي - يظهر أول 5 أيام فقط مع زر إظهار المزيد
         const initialDailyCount = 5;
         const hasMoreDaily = dailyStats.length > initialDailyCount;
         const visibleDays = dailyStats.slice(0, initialDailyCount);
@@ -1492,7 +1487,8 @@
             html += `<button id="showMoreDailyBtn" class="show-more-btn" style="margin-top:8px;" onclick="toggleDailyStats()">➕ إظهار المزيد (${hiddenDays.length} أيام إضافية)</button>`;
         }
         
-        html += `</div></div>
+        html += `</div></div>`;
+        
         // معدلات الذين لن يفاضلوا
         const optedOutGrades = optedOutStudents.map(s => s.gpa).sort((a, b) => b - a);
         const optedOutGradesDisplay = optedOutGrades.length > 0 
@@ -1514,7 +1510,8 @@
         
         html += `</div>`;
         
-        <div class="stats-section"><h4>📊 توزيع المعدلات (العينة الحالية)</h4><div class="grade-distribution">`;
+        // توزيع المعدلات
+        html += `<div class="stats-section"><h4>📊 توزيع المعدلات (العينة الحالية)</h4><div class="grade-distribution">`;
         for (let item of gradeDistribution) html += `<div class="grade-bar"><div class="grade-label">${item.range}</div><div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div><div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div></div>`;
         html += `</div></div>
         
@@ -1609,8 +1606,9 @@
         
         container.innerHTML = html;
     };
-
-        window.toggleDailyStats = function() {
+    
+    // دوال الأزرار الجديدة
+    window.toggleDailyStats = function() {
         const hidden = document.getElementById('dailyStatsHidden');
         const btn = document.getElementById('showMoreDailyBtn');
         if (hidden.style.display === 'none') {
@@ -1622,8 +1620,8 @@
             btn.textContent = `➕ إظهار المزيد (${count} أيام إضافية)`;
         }
     };
-
-        window.toggleOptedOutGrades = function() {
+    
+    window.toggleOptedOutGrades = function() {
         const hidden = document.getElementById('allOptedOutGrades');
         const btn = document.getElementById('showAllOptedOutBtn');
         if (hidden.style.display === 'none') {
@@ -1676,16 +1674,17 @@
     document.getElementById('manualRefreshBtn').onclick = manualRefresh;
     document.getElementById('exportCSVBtn').onclick = exportCSV;
     document.getElementById('refreshRejectedBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد الأرقام المخفية المرفوضة: ${rejectedHiddenStudents.length}`); };
-    document.getElementById('refreshOptedOutBtn') ? document.getElementById('refreshOptedOutBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد المنسحبين: ${optedOutStudents.length}`); } : null;
-        document.getElementById('checkDataBtn').onclick = function() {
+    document.getElementById('refreshOptedOutBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد الذين لن يفاضلوا: ${optedOutStudents.length}`); };
+    
+    document.getElementById('checkDataBtn').onclick = function() {
         const resultDiv = document.getElementById('checkDataResult');
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = `
             <div style="font-size:13px; line-height:2;">
                 📊 <strong>حجم fullCohortSorted:</strong> ${fullCohortSorted.length}<br>
                 👥 <strong>عدد الطلاب المسجلين:</strong> ${allStudents.length}<br>
-                🚫 <strong>عدد المنسحبين:</strong> ${optedOutStudents.length}<br>
-                📐 <strong>العدد الفعلي (782 - منسحبين):</strong> ${getActiveTotal()}<br>
+                🚫 <strong>عدد الذين لن يفاضلوا:</strong> ${optedOutStudents.length}<br>
+                📐 <strong>العدد الفعلي (782 - الذين لن يفاضلوا):</strong> ${getActiveTotal()}<br>
                 <hr>
                 <strong>أول 5 طلاب في الدفعة الكاملة:</strong><br>
                 ${fullCohortSorted.slice(0,5).map(s => `${s.id} - ${s.gpa}`).join('<br>')}<br>
@@ -1696,20 +1695,6 @@
         `;
     };
     
-    document.getElementById('searchSpecialty')?.addEventListener('input', ()=>{ displayLimit=30; renderStats(); });
-    document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
-    document.querySelectorAll('.tab-btn').forEach(btn=>{
-        btn.addEventListener('click',()=>{
-            document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-            btn.classList.add('active');
-            const tabName = btn.dataset.tab;
-            if (tabName === 'stats') document.getElementById('tabStats').classList.add('active');
-            else if (tabName === 'students') { document.getElementById('tabStudents').classList.add('active'); renderStudentsTable(); }
-            else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); renderRegistrationStats(); }
-            else if (tabName === 'batches') { document.getElementById('tabBatches').classList.add('active'); renderBatchesPage(); }
-        });
-    });
     document.getElementById('testMissingBtn').onclick = function() {
         const resultDiv = document.getElementById('checkDataResult');
         resultDiv.style.display = 'block';
@@ -1739,12 +1724,27 @@
                 <strong>عدد الأفضل منه:</strong> ${fullRank - 1}<br>
                 <strong>الأفضل منه (جميعهم):</strong> ${allBetter.join(', ')}<br>
                 <strong>المسجلون من الأفضل:</strong> ${registeredBetter.join(', ')}<br>
-                <strong>المنسحبون من الأفضل:</strong> ${optedOutBetter.join(', ')}<br>
-                <strong>غير المسجلين (وليسوا منسحبين):</strong> ${missingBetter.join(', ')}<br>
+                <strong>الذين لن يفاضلوا من الأفضل:</strong> ${optedOutBetter.join(', ')}<br>
+                <strong>غير المسجلين (وليسوا من الذين لن يفاضلوا):</strong> ${missingBetter.join(', ')}<br>
                 <strong>العدد النهائي:</strong> ${missingBetter.length}
             </div>
         `;
     };
+    
+    document.getElementById('searchSpecialty')?.addEventListener('input', ()=>{ displayLimit=30; renderStats(); });
+    document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
+    document.querySelectorAll('.tab-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            const tabName = btn.dataset.tab;
+            if (tabName === 'stats') document.getElementById('tabStats').classList.add('active');
+            else if (tabName === 'students') { document.getElementById('tabStudents').classList.add('active'); renderStudentsTable(); }
+            else if (tabName === 'registration') { document.getElementById('tabRegistration').classList.add('active'); renderRegistrationStats(); }
+            else if (tabName === 'batches') { document.getElementById('tabBatches').classList.add('active'); renderBatchesPage(); }
+        });
+    });
     
     loadBatchesTabVisibility();
     loadStudents();
