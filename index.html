@@ -606,6 +606,11 @@
         <button id="checkDataBtn" style="background:#17a2b8;" class="btn-sm">📊 فحص حجم البيانات</button>
         <div id="checkDataResult" class="result-box" style="display:none;"></div>
     </div>
+
+            <div class="admin-section">
+            <h3>🧪 اختبار missingBefore</h3>
+            <button id="testMissingBtn" style="background:#ff9800;" class="btn-sm">🧪 اختبار missingBefore</button>
+        </div>
     
     <div class="admin-section">
         <h3>🔍 التحقق من الأرقام الجامعية</h3>
@@ -1640,6 +1645,41 @@
             else if (tabName === 'batches') { document.getElementById('tabBatches').classList.add('active'); renderBatchesPage(); }
         });
     });
+    document.getElementById('testMissingBtn').onclick = function() {
+        const resultDiv = document.getElementById('checkDataResult');
+        resultDiv.style.display = 'block';
+        
+        const testId = prompt("أدخل رقم الطالب الذي تريد فحصه:");
+        if (!testId) return;
+        
+        const fullRank = getFullCohortRank(testId);
+        if (fullRank === null) {
+            resultDiv.innerHTML = '<div style="color:#dc3545;">الطالب غير موجود في fullCohortSorted</div>';
+            return;
+        }
+        
+        const optedOutIds = new Set(optedOutStudents.map(s => s.realId));
+        const registeredIds = new Set(allStudents.map(s => s.realId));
+        
+        const betterStudents = fullCohortSorted.slice(0, fullRank - 1);
+        const allBetter = betterStudents.map(s => s.id);
+        const registeredBetter = betterStudents.filter(s => registeredIds.has(s.id)).map(s => s.id);
+        const optedOutBetter = betterStudents.filter(s => optedOutIds.has(s.id)).map(s => s.id);
+        const missingBetter = betterStudents.filter(s => !registeredIds.has(s.id) && !optedOutIds.has(s.id)).map(s => s.id);
+        
+        resultDiv.innerHTML = `
+            <div style="font-size:12px; line-height:1.8;">
+                <strong>رقم الطالب:</strong> ${testId}<br>
+                <strong>الترتيب في الدفعة الكاملة:</strong> ${fullRank}<br>
+                <strong>عدد الأفضل منه:</strong> ${fullRank - 1}<br>
+                <strong>الأفضل منه (جميعهم):</strong> ${allBetter.join(', ')}<br>
+                <strong>المسجلون من الأفضل:</strong> ${registeredBetter.join(', ')}<br>
+                <strong>المنسحبون من الأفضل:</strong> ${optedOutBetter.join(', ')}<br>
+                <strong>غير المسجلين (وليسوا منسحبين):</strong> ${missingBetter.join(', ')}<br>
+                <strong>العدد النهائي:</strong> ${missingBetter.length}
+            </div>
+        `;
+    };
     
     loadBatchesTabVisibility();
     loadStudents();
