@@ -91,6 +91,14 @@
             align-items: center;
             gap: 5px;
         }
+        .opted-out-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 6px;
+        }
         .warning-box {
             background: #fff3cd;
             border-right: 4px solid #ffc107;
@@ -494,12 +502,13 @@
         <div class="number" id="totalCount">--</div>
         <div class="label">عدد الطلاب المسجلين</div>
         <div class="percentage" id="percentageDisplay"></div>
+        <div class="opted-out-badge" id="optedOutDisplay" style="display:none;"></div>
     </div>
     
     <div id="warningBox" class="warning-box" style="display: none;">
         <div class="warning-icon">⚠️</div>
         <div class="warning-text">
-            <strong>تنبيه مهم:</strong> حتى الآن شارك <span id="warningCount">0</span> طالباً فقط من أصل <strong>782</strong> (نسبة <span id="warningPercent">0</span>%).<br>
+            <strong>تنبيه مهم:</strong> حتى الآن شارك <span id="warningCount">0</span> طالباً فقط من أصل <strong><span id="activeTotalSpan">782</span></strong> (نسبة <span id="warningPercent">0</span>%).<br>
             النتائج الحالية <strong>غير دقيقة</strong> وقد تتغير بشكل كبير عند اكتمال العينة. يُرجى مشاركة الرابط مع زملائك لتحسين الدقة.
         </div>
     </div>
@@ -612,6 +621,12 @@
         <div id="rejectedHiddenStudents" class="result-box" style="margin-top:12px; max-height:300px; overflow-y:auto;"><div class="loading">جاري التحميل...</div></div>
     </div>
     
+    <div class="admin-section">
+        <h3>🚫 الطلاب المنسحبون (قالوا "لا")</h3>
+        <button id="refreshOptedOutBtn" style="background:#dc3545;" class="btn-sm">🔄 تحديث قائمة المنسحبين</button>
+        <div id="optedOutStudentsList" class="result-box" style="margin-top:12px; max-height:300px; overflow-y:auto;"><div class="loading">جاري التحميل...</div></div>
+    </div>
+    
     <div style="display:flex; justify-content:space-between; margin:15px 0;">
         <h3>📋 تحديث البيانات</h3>
         <button id="manualRefreshBtn" style="background:#0056b3; border:none; padding:6px 15px; border-radius:30px; color:white;">🔄 تحديث يدوي</button>
@@ -652,6 +667,7 @@
     let specialties = [...specialtiesData];
     let allStudents = [], processed = [];
     let rejectedHiddenStudents = [];
+    let optedOutStudents = []; // الطلاب الذين قالوا "لا"
     let refreshTimer, isAdmin = false;
     let displayLimit = 30, currentData = null;
     let referenceDataCache = null;
@@ -660,8 +676,8 @@
     let batchesDataCache = null;
     
     // بيانات جديدة
-    let fullCohortData = new Map(); // الرقم -> المعدل (من REF_SHEET_ID)
-    let fullCohortSorted = []; // مصفوفة مرتبة تنازلياً حسب المعدل [ {id, gpa}, ... ]
+    let fullCohortData = new Map();
+    let fullCohortSorted = [];
     
     let rankLimits = { individualFirst: 10, groupedFirst: 10, totalWishersLimit: 10, topMinLimit: 10 };
     
@@ -675,7 +691,6 @@
         const lines = csv.split(/\r?\n/);
         const validMap = new Map(), ignoreSet = new Set(), generalAlerts = [], gradeMismatchAlerts = [], suspendedList = [];
         
-        // إعادة تعيين بيانات الدفعة الكاملة
         fullCohortData.clear();
         const tempCohort = [];
         
@@ -686,7 +701,6 @@
             if (!refId) continue;
             const grade = cols.length > 1 ? parseFloat(cols[1]) : NaN;
             
-            // تخزين في fullCohortData - تأكد من أن grade رقم صحيح
             if (!isNaN(grade) && grade > 0) {
                 fullCohortData.set(refId, grade);
                 tempCohort.push({ id: refId, gpa: grade });
@@ -700,7 +714,6 @@
             if (cols.length > 7 && cols[7]?.trim()) suspendedList.push({ id: cleanId(cols[7]), description: (cols.length > 8 && cols[8]?.trim()) ? cols[8].trim() : "تم إيقاف هذا الرقم مؤقتاً" });
         }
         
-        // ترتيب الدفعة الكاملة تنازلياً حسب المعدل
         fullCohortSorted = tempCohort.sort((a, b) => b.gpa - a.gpa);
         
         return { validMap, ignoreSet, generalAlerts, gradeMismatchAlerts, suspendedList };
@@ -710,18 +723,21 @@
         const lines = csv.split(/\r?\n/);
         if(lines.length < 2) return;
         const headers = parseCSVLine(lines[0]);
-        let idIdx=-1, gpaIdx=-1, timestampIdx=-1, hiddenIdx=-1, prefIdx=[];
+        let idIdx=-1, gpaIdx=-1, timestampIdx=-1, hiddenIdx=-1, optOutIdx=-1, prefIdx=[];
         for(let i=0;i<headers.length;i++){
             let h = headers[i].toLowerCase();
             if(h.includes('الرقم')||h.includes('امتحاني')) idIdx=i;
             if(h.includes('معدل')) gpaIdx=i;
             if(h.includes('طابع')||h.includes('timestamp')) timestampIdx=i;
             if(h.includes('مخفي')||h.includes('إخفاء')||h.includes('hidden')) hiddenIdx=i;
+            if(h.includes('مفاضلة')||h.includes('تقدم')) optOutIdx=i;
             if(h.includes('رغبة')) prefIdx.push(i);
         }
         if(idIdx===-1||gpaIdx===-1) return;
         const students = [];
         const idCount = new Map();
+        const optedOutList = [];
+        
         for(let i=1;i<lines.length;i++){
             const cols = parseCSVLine(lines[i]);
             if(cols.length<=idIdx||cols.length<=gpaIdx) continue;
@@ -734,13 +750,33 @@
                 const hiddenValue = cols[hiddenIdx].toLowerCase();
                 isHidden = hiddenValue === 'مخفي' || hiddenValue === 'hidden' || hiddenValue === 'نعم';
             }
+            
+            // قراءة خيار المفاضلة
+            let wantsToApply = true; // افتراضي نعم
+            if (optOutIdx !== -1 && cols.length > optOutIdx) {
+                const optValue = cols[optOutIdx]?.trim().toLowerCase();
+                if (optValue === 'لا' || optValue === 'no') {
+                    wantsToApply = false;
+                }
+            }
+            
             const prefs = [];
             for(let j=0;j<prefIdx.length&&j<100;j++){ const p = cols[prefIdx[j]]?.trim(); if(p) prefs.push(p); }
+            
+            if (!wantsToApply) {
+                // طالب قال لا - يضاف لقائمة المنسحبين فقط
+                optedOutList.push({ realId: id, gpa: gpa, timestamp: timestamp });
+                continue; // لا يضاف للطلاب العاديين
+            }
+            
             if(prefs.length) {
                 students.push({ realId: id, hiddenId: isHidden ? hideIdNumber(id) : id, isHidden: isHidden, gpa: gpa, prefs: prefs, timestamp: timestamp });
                 if (isHidden) idCount.set(id, (idCount.get(id) || 0) + 1);
             }
         }
+        
+        optedOutStudents = optedOutList;
+        
         const rejected = [], validStudents = [];
         for (const student of students) {
             if (!student.isHidden) { validStudents.push(student); continue; }
@@ -757,6 +793,36 @@
         }
         allStudents = validStudents;
         rejectedHiddenStudents = rejected;
+    }
+    
+    function getActiveTotal() {
+        return TOTAL_GRADUATES - optedOutStudents.length;
+    }
+    
+    function renderOptedOutDisplay() {
+        const display = document.getElementById('optedOutDisplay');
+        if (optedOutStudents.length > 0) {
+            display.style.display = 'inline-block';
+            display.innerHTML = `📋 عدد الذين لن يتقدموا للمفاضلة: ${optedOutStudents.length}`;
+        } else {
+            display.style.display = 'none';
+        }
+    }
+    
+    function renderOptedOutAdminTable() {
+        const container = document.getElementById('optedOutStudentsList');
+        if (!container) return;
+        if (optedOutStudents.length === 0) { 
+            container.innerHTML = '<div style="color:green; padding:10px;">✅ لا يوجد طلاب منسحبون حالياً</div>'; 
+            return; 
+        }
+        let html = `<table style="width:100%; border-collapse:collapse; font-size:12px;">
+            <thead><tr><th>الرقم</th><th>المعدل</th><th>التاريخ</th></tr></thead><tbody>`;
+        for (let s of optedOutStudents) {
+            html += `<tr><td><strong>${escapeHtml(s.realId)}</strong></td><td>${s.gpa}</td><td>${s.timestamp ? new Date(s.timestamp).toLocaleDateString('ar-SA') : 'غير معروف'}</td></tr>`;
+        }
+        html += `</tbody></table>`;
+        container.innerHTML = html;
     }
     
     function renderPublicRejectedList() {
@@ -1041,23 +1107,23 @@
     
     // ===================== دوال إحصائية جديدة =====================
     
-    // حساب عدد الطلاب غير المسجلين الذين معدلهم أعلى من الحد الأدنى لاختصاص معين
     function calculateMissingAboveMin(specName, minGrade) {
         if (minGrade === 'لا يوجد' || minGrade === Infinity) return 0;
         
         const registeredIds = new Set(allStudents.map(s => s.realId));
+        const optedOutIds = new Set(optedOutStudents.map(s => s.realId));
         let count = 0;
         
         for (let student of fullCohortSorted) {
-            if (student.gpa <= minGrade) break; // لأن المصفوفة مرتبة تنازلياً
-            if (!registeredIds.has(student.id)) {
+            if (student.gpa <= minGrade) break;
+            // لا نحسب المسجلين ولا المنسحبين
+            if (!registeredIds.has(student.id) && !optedOutIds.has(student.id)) {
                 count++;
             }
         }
         return count;
     }
     
-    // حساب عدد الطلاب الذين وضعوا اختصاصاً معيناً كرغبة أولى، مقسمين حسب فئات المعدل
     function calculateFirstChoiceByGrade(specName) {
         const ranges = [
             { min: 90, max: 95, label: "90-95", count: 0 },
@@ -1084,27 +1150,25 @@
         return ranges;
     }
     
-    // حساب ترتيب الطالب في الدفعة الكاملة
     function getFullCohortRank(realId) {
-        // البحث عن الطالب في المصفوفة المرتبة
         for (let i = 0; i < fullCohortSorted.length; i++) {
             if (fullCohortSorted[i].id === realId) {
-                return i + 1; // الترتيب يبدأ من 1
+                return i + 1;
             }
         }
         return null;
     }
     
-    // حساب عدد غير المسجلين الذين ترتيبهم قبل طالب معين
     function calculateMissingBeforeStudent(realId) {
         const fullRank = getFullCohortRank(realId);
         if (fullRank === null) return '?';
         
         const registeredIds = new Set(allStudents.map(s => s.realId));
+        const optedOutIds = new Set(optedOutStudents.map(s => s.realId));
         
-        // عدد الأشخاص الذين ترتيبهم أفضل (أي fullRank - 1) والغير مسجلين
+        // عدد الأشخاص الذين ترتيبهم أفضل والغير مسجلين (وليسوا منسحبين)
         const betterStudents = fullCohortSorted.slice(0, fullRank - 1);
-        const missingBetter = betterStudents.filter(s => !registeredIds.has(s.id)).length;
+        const missingBetter = betterStudents.filter(s => !registeredIds.has(s.id) && !optedOutIds.has(s.id)).length;
         
         return missingBetter;
     }
@@ -1222,11 +1286,17 @@
             }
             updateSuspendedFromColumnsHI();
             parseStudentsCSVFast(studentsCsv, validMap, ignoreSet);
-            const percentage = ((allStudents.length / TOTAL_GRADUATES) * 100).toFixed(1);
-            document.getElementById('percentageDisplay').innerHTML = `📊 نسبة المشاركة: ${percentage}% (${allStudents.length} من ${TOTAL_GRADUATES})`;
+            
+            const activeTotal = getActiveTotal();
+            const percentage = ((allStudents.length / activeTotal) * 100).toFixed(1);
+            document.getElementById('percentageDisplay').innerHTML = `📊 نسبة المشاركة: ${percentage}% (${allStudents.length} من ${activeTotal})`;
             document.getElementById('totalCount').innerText = allStudents.length;
+            document.getElementById('activeTotalSpan').innerText = activeTotal;
+            
+            renderOptedOutDisplay();
             renderPublicRejectedList();
             if (document.getElementById('rejectedHiddenStudents')) renderRejectedHiddenTable();
+            if (document.getElementById('optedOutStudentsList')) renderOptedOutAdminTable();
             updateWarningBox();
             runMatch();
         } catch(e) { console.error(e); document.getElementById('totalCount').innerText = "!خطأ"; }
@@ -1235,10 +1305,12 @@
     function updateWarningBox() {
         const warningBox = document.getElementById('warningBox');
         const count = allStudents.length;
-        if (count < 550) {
-            const percentage = ((count / TOTAL_GRADUATES) * 100).toFixed(1);
+        const activeTotal = getActiveTotal();
+        if (count < (activeTotal * 0.7)) {
+            const percentage = ((count / activeTotal) * 100).toFixed(1);
             document.getElementById('warningCount').innerText = count;
             document.getElementById('warningPercent').innerText = percentage;
+            document.getElementById('activeTotalSpan').innerText = activeTotal;
             warningBox.style.display = 'flex';
         } else { warningBox.style.display = 'none'; }
     }
@@ -1308,7 +1380,6 @@
             let minGrade = acc.length ? Math.min(...acc.map(a=>a.gpa)) : 'لا يوجد';
             let minS = acc.length ? minGrade.toFixed(2) : 'لا يوجد';
             
-            // حساب عدد غير المسجلين الأعلى من الحد الأدنى
             const missingAboveMin = minGrade !== 'لا يوجد' ? calculateMissingAboveMin(spec.name, minGrade) : 0;
             const missingBadge = missingAboveMin > 0 ? `<span class="missing-above-min-badge">⚠️ ${missingAboveMin} غير مسجل معدله أعلى</span>` : '';
             
@@ -1347,7 +1418,6 @@
             const rowStyle = isAlert ? 'background-color: #ffe5e5;' : '';
             
             if (s.isHidden && !isSearching) {
-                // صف مخفي - دمج الأعمدة الثلاثة
                 const missingBefore = calculateMissingBeforeStudent(s.realId);
                 html += `<tr style="${rowStyle}">
                     <td style="font-weight:bold;">${i+1}</td>
@@ -1384,7 +1454,6 @@
         const topMinSpecs = calculateTopMinSpecs();
         const topSpecialtiesByGradeGrouped = calculateTopSpecialtiesByGradeGrouped();
         
-        // إصلاح انزياح جدول التسجيل اليومي
         let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4>
         <div style="overflow-x: auto;">
             <table class="stats-daily-table" style="min-width: 100%;">
@@ -1441,13 +1510,11 @@
         
         html += `</div>
         
-        <!-- إحصائية جديدة: الرغبة الأولى حسب فئات المعدل (قائمة منسدلة) -->
         <div class="stats-section">
             <h4>📊 توزيع الرغبة الأولى حسب فئات المعدل</h4>
             <select id="firstChoiceGradeSpec" class="dropdown-select" onchange="updateFirstChoiceGradeTable()">
                 <option value="">-- اختر اختصاصاً --</option>`;
         
-        // إضافة جميع الاختصاصات للقائمة المنسدلة
         for (let spec of specialties) {
             html += `<option value="${escapeHtml(spec.name)}">${escapeHtml(spec.name)}</option>`;
         }
@@ -1461,7 +1528,6 @@
         container.innerHTML = html;
     }
     
-    // دالة جديدة لتحديث جدول الرغبة الأولى حسب فئات المعدل
     window.updateFirstChoiceGradeTable = function() {
         const select = document.getElementById('firstChoiceGradeSpec');
         const container = document.getElementById('firstChoiceGradeTableContainer');
@@ -1535,6 +1601,7 @@
     document.getElementById('manualRefreshBtn').onclick = manualRefresh;
     document.getElementById('exportCSVBtn').onclick = exportCSV;
     document.getElementById('refreshRejectedBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد الأرقام المخفية المرفوضة: ${rejectedHiddenStudents.length}`); };
+    document.getElementById('refreshOptedOutBtn') ? document.getElementById('refreshOptedOutBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد المنسحبين: ${optedOutStudents.length}`); } : null;
     
     document.getElementById('searchSpecialty')?.addEventListener('input', ()=>{ displayLimit=30; renderStats(); });
     document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
@@ -1566,4 +1633,4 @@
     window.updateTopMinLimit = updateTopMinLimit;
 </script>
 </body>
-    </html>
+</html>
