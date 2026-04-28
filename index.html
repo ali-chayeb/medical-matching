@@ -601,6 +601,11 @@
         <button id="closeAdminBtn" class="admin-btn" style="background:#dc3545;">🚪 إغلاق</button>
     </div>
     <div style="background:#dc3545; color:white; padding:4px 12px; border-radius:30px; display:inline-block; margin-bottom:15px;">وضع المشرف</div>
+        <div class="admin-section">
+        <h3>🔬 تشخيص البيانات</h3>
+        <button id="checkDataBtn" style="background:#17a2b8;" class="btn-sm">📊 فحص حجم البيانات</button>
+        <div id="checkDataResult" class="result-box" style="display:none;"></div>
+    </div>
     
     <div class="admin-section">
         <h3>🔍 التحقق من الأرقام الجامعية</h3>
@@ -1602,6 +1607,24 @@
     document.getElementById('exportCSVBtn').onclick = exportCSV;
     document.getElementById('refreshRejectedBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد الأرقام المخفية المرفوضة: ${rejectedHiddenStudents.length}`); };
     document.getElementById('refreshOptedOutBtn') ? document.getElementById('refreshOptedOutBtn').onclick = async () => { await loadStudents(); alert(`تم التحديث. عدد المنسحبين: ${optedOutStudents.length}`); } : null;
+        document.getElementById('checkDataBtn').onclick = function() {
+        const resultDiv = document.getElementById('checkDataResult');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+            <div style="font-size:13px; line-height:2;">
+                📊 <strong>حجم fullCohortSorted:</strong> ${fullCohortSorted.length}<br>
+                👥 <strong>عدد الطلاب المسجلين:</strong> ${allStudents.length}<br>
+                🚫 <strong>عدد المنسحبين:</strong> ${optedOutStudents.length}<br>
+                📐 <strong>العدد الفعلي (782 - منسحبين):</strong> ${getActiveTotal()}<br>
+                <hr>
+                <strong>أول 5 طلاب في الدفعة الكاملة:</strong><br>
+                ${fullCohortSorted.slice(0,5).map(s => `${s.id} - ${s.gpa}`).join('<br>')}<br>
+                <hr>
+                <strong>آخر 5 طلاب في الدفعة الكاملة:</strong><br>
+                ${fullCohortSorted.slice(-5).map(s => `${s.id} - ${s.gpa}`).join('<br>')}
+            </div>
+        `;
+    };
     
     document.getElementById('searchSpecialty')?.addEventListener('input', ()=>{ displayLimit=30; renderStats(); });
     document.getElementById('searchStudent')?.addEventListener('input', renderStudentsTable);
