@@ -1464,15 +1464,55 @@
         const topMinSpecs = calculateTopMinSpecs();
         const topSpecialtiesByGradeGrouped = calculateTopSpecialtiesByGradeGrouped();
         
+          // جدول التسجيل اليومي - يظهر أول 5 أيام فقط مع زر إظهار المزيد
+        const initialDailyCount = 5;
+        const hasMoreDaily = dailyStats.length > initialDailyCount;
+        const visibleDays = dailyStats.slice(0, initialDailyCount);
+        const hiddenDays = dailyStats.slice(initialDailyCount);
+        
         let html = `<div class="stats-section"><h4>🗓️ التسجيل اليومي</h4>
         <div style="overflow-x: auto;">
             <table class="stats-daily-table" style="min-width: 100%;">
                 <thead><tr><th>التاريخ</th><th>عدد الطلاب الجدد</th><th>الإجمالي التراكمي</th></tr></thead>
-                <tbody>`;
+                <tbody id="dailyStatsVisible">`;
         let cumulative = 0;
-        for (let day of dailyStats) { cumulative += day.count; html += `<tr><td>${day.date}</td><td>${day.count}</td><td>${cumulative}</td></tr>`; }
+        for (let day of visibleDays) { cumulative += day.count; html += `<tr><td>${day.date}</td><td>${day.count}</td><td>${cumulative}</td></tr>`; }
+        html += `</tbody>`;
+        
+        if (hasMoreDaily) {
+            html += `<tbody id="dailyStatsHidden" style="display:none;">`;
+            for (let day of hiddenDays) { cumulative += day.count; html += `<tr><td>${day.date}</td><td>${day.count}</td><td>${cumulative}</td></tr>`; }
+            html += `</tbody>`;
+        }
+        
         if (dailyStats.length === 0) html += `<tr><td colspan="3">لا توجد بيانات كافية</td></tr>`;
-        html += `</tbody></table></div></div>
+        html += `</table>`;
+        
+        if (hasMoreDaily) {
+            html += `<button id="showMoreDailyBtn" class="show-more-btn" style="margin-top:8px;" onclick="toggleDailyStats()">➕ إظهار المزيد (${hiddenDays.length} أيام إضافية)</button>`;
+        }
+        
+        html += `</div></div>
+        // معدلات الذين لن يفاضلوا
+        const optedOutGrades = optedOutStudents.map(s => s.gpa).sort((a, b) => b - a);
+        const optedOutGradesDisplay = optedOutGrades.length > 0 
+            ? optedOutGrades.slice(0, 20).map(g => g.toFixed(2)).join(' - ') + (optedOutGrades.length > 20 ? ' ...' : '')
+            : 'لا يوجد';
+        
+        html += `<div class="stats-section">
+            <h4>📋 معدلات الذين لن يفاضلوا (${optedOutStudents.length})</h4>
+            <div style="font-size:12px; word-break: break-all; line-height:2;">
+                ${optedOutGradesDisplay}
+            </div>`;
+        
+        if (optedOutGrades.length > 20) {
+            html += `<button id="showAllOptedOutBtn" class="show-more-btn" style="margin-top:8px;" onclick="toggleOptedOutGrades()">➕ إظهار كل المعدلات</button>
+            <div id="allOptedOutGrades" style="display:none; font-size:12px; word-break: break-all; line-height:2; margin-top:8px;">
+                ${optedOutGrades.map(g => g.toFixed(2)).join(' - ')}
+            </div>`;
+        }
+        
+        html += `</div>`;
         
         <div class="stats-section"><h4>📊 توزيع المعدلات (العينة الحالية)</h4><div class="grade-distribution">`;
         for (let item of gradeDistribution) html += `<div class="grade-bar"><div class="grade-label">${item.range}</div><div class="grade-progress"><div class="grade-progress-fill" style="width: ${item.percentage}%;"></div></div><div class="grade-count">${item.count} (${item.percentage.toFixed(1)}%)</div></div>`;
@@ -1568,6 +1608,31 @@
         }
         
         container.innerHTML = html;
+    };
+
+        window.toggleDailyStats = function() {
+        const hidden = document.getElementById('dailyStatsHidden');
+        const btn = document.getElementById('showMoreDailyBtn');
+        if (hidden.style.display === 'none') {
+            hidden.style.display = '';
+            btn.textContent = '🔼 إخفاء';
+        } else {
+            hidden.style.display = 'none';
+            const count = hidden.querySelectorAll('tr').length;
+            btn.textContent = `➕ إظهار المزيد (${count} أيام إضافية)`;
+        }
+    };
+
+        window.toggleOptedOutGrades = function() {
+        const hidden = document.getElementById('allOptedOutGrades');
+        const btn = document.getElementById('showAllOptedOutBtn');
+        if (hidden.style.display === 'none') {
+            hidden.style.display = 'block';
+            btn.textContent = '🔼 إخفاء';
+        } else {
+            hidden.style.display = 'none';
+            btn.textContent = '➕ إظهار كل المعدلات';
+        }
     };
     
     function calculateDailyStats() { const dailyMap = new Map(); for (let student of allStudents) { if (!student.timestamp) continue; let dateStr; try { let date = new Date(student.timestamp); if (isNaN(date.getTime())) dateStr = student.timestamp.split(' ')[0]; else dateStr = date.toISOString().split('T')[0]; } catch(e) { continue; } if (dateStr) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + 1); } return Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date)); }
