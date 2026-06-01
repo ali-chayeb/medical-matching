@@ -372,7 +372,7 @@
 
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
@@ -384,7 +384,7 @@
             box-shadow: var(--shadow-md);
             transition: var(--transition);
             border: 2px solid transparent;
-            min-height: 160px;
+            min-height: 170px;
         }
 
         .calendar-day:hover {
@@ -409,7 +409,7 @@
         }
 
         .day-number {
-            font-size: 1.3em;
+            font-size: 1em;
             font-weight: 900;
             color: var(--text-dark);
         }
@@ -436,9 +436,9 @@
         }
 
         .shift-name {
-            font-size: 0.85em;
+            font-size: 0.8em;
             font-weight: 600;
-            padding: 3px 8px;
+            padding: 2px 8px;
             border-radius: 15px;
             display: inline-block;
             margin: 2px 0;
@@ -686,41 +686,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .month-stats-bar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .month-stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: var(--radius-lg);
-            text-align: center;
-            box-shadow: var(--shadow-md);
-            transition: var(--transition);
-        }
-
-        .month-stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .month-stat-icon {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-
-        .month-stat-value {
-            font-size: 2em;
-            font-weight: 900;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
         .info-banner {
             background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
             border-radius: var(--radius-lg);
@@ -844,13 +809,12 @@
                 </div>
                 
                 <div class="calendar-legend">
-                    <div class="legend-item"><span class="legend-dot er"></span> مناوبة الإسعاف (5 طلاب)</div>
-                    <div class="legend-item"><span class="legend-dot ward"></span> مناوبة الجناح (1 طالب)</div>
-                    <div class="legend-item"><span class="legend-dot or"></span> مناوبة العمليات (1 طالب)</div>
-                    <div class="legend-item"><span class="legend-dot holiday"></span> يوم عطلة</div>
+                    <div class="legend-item"><span class="legend-dot er"></span> 🚑 مناوبة الإسعاف (5 طلاب)</div>
+                    <div class="legend-item"><span class="legend-dot ward"></span> 🏥 مناوبة الجناح (1 طالب)</div>
+                    <div class="legend-item"><span class="legend-dot or"></span> 💉 مناوبة العمليات (1 طالب)</div>
+                    <div class="legend-item"><span class="legend-dot holiday"></span> 🏖️ يوم عطلة</div>
                 </div>
 
-                <div class="month-stats-bar" id="monthStats"></div>
                 <div class="calendar-grid" id="calendarGrid"></div>
             </div>
         </div>
@@ -885,48 +849,64 @@
             6: { 
                 name: 'الشهر السابع (تموز)', 
                 days: 31, 
-                columnIndex: 5, // العمود F (index 5)
-                columnLetter: 'F'
+                columnIndex: 5, // العمود F (index 5) - صف 2 فيه أيام العطل الإضافية
+                columnLetter: 'F',
+                year: 2026,
+                monthNumber: 7 // July
             },
             7: { 
                 name: 'الشهر الثامن (آب)', 
                 days: 31, 
-                columnIndex: 6, // العمود G
-                columnLetter: 'G'
+                columnIndex: 6,
+                columnLetter: 'G',
+                year: 2026,
+                monthNumber: 8
             },
             8: { 
                 name: 'الشهر التاسع (أيلول)', 
                 days: 30, 
-                columnIndex: 7, // العمود H
-                columnLetter: 'H'
+                columnIndex: 7,
+                columnLetter: 'H',
+                year: 2026,
+                monthNumber: 9
             },
             9: { 
                 name: 'الشهر العاشر (تشرين الأول)', 
                 days: 31, 
-                columnIndex: 8, // العمود I
-                columnLetter: 'I'
+                columnIndex: 8,
+                columnLetter: 'I',
+                year: 2026,
+                monthNumber: 10
             },
             10: { 
                 name: 'الشهر الحادي عشر (تشرين الثاني)', 
                 days: 30, 
-                columnIndex: 9, // العمود J
-                columnLetter: 'J'
+                columnIndex: 9,
+                columnLetter: 'J',
+                year: 2026,
+                monthNumber: 11
             },
             11: { 
                 name: 'الشهر الثاني عشر (كانون الأول)', 
                 days: 31, 
-                columnIndex: 10, // العمود K
-                columnLetter: 'K'
+                columnIndex: 10,
+                columnLetter: 'K',
+                year: 2026,
+                monthNumber: 12
             }
         };
 
         const CURRENT_MONTH = 6; // الشهر السابع (تموز)
         const CURRENT_MONTH_CONFIG = MONTHS_CONFIG[CURRENT_MONTH];
         
+        // أسماء أيام الأسبوع بالعربية
+        const DAY_NAMES = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        
         // ============ GLOBAL STATE ============
         let studentsData = [];
         let monthlySchedule = {};
         let holidays = new Set();
+        let additionalHolidaysFromSheet = [];
         
         // ============ STARS BACKGROUND ============
         function createStars() {
@@ -990,6 +970,19 @@
             }
         }
 
+        // ============ GET DAY NAME AND DATE ============
+        function getDayInfo(dayNumber, monthConfig) {
+            const date = new Date(monthConfig.year, monthConfig.monthNumber - 1, dayNumber);
+            const dayName = DAY_NAMES[date.getDay()];
+            return `${dayName} ${dayNumber}/${monthConfig.monthNumber}`;
+        }
+
+        function isFridayOrSaturday(dayNumber, monthConfig) {
+            const date = new Date(monthConfig.year, monthConfig.monthNumber - 1, dayNumber);
+            const dayOfWeek = date.getDay();
+            return dayOfWeek === 5 || dayOfWeek === 6; // 5=Friday, 6=Saturday
+        }
+
         // ============ GOOGLE SHEETS DATA LOADING ============
         async function loadGoogleSheetData() {
             showLoading();
@@ -1006,8 +999,8 @@
                 const csvText = await response.text();
                 parseCSVData(csvText);
                 
-                // قراءة أيام العطل من العمود المناسب
-                extractHolidaysFromData();
+                // حساب أيام العطل
+                calculateHolidays();
                 
                 // توليد توزيع المناوبات
                 generateMonthSchedule();
@@ -1018,9 +1011,8 @@
                 console.error('❌ خطأ في التحميل:', error);
                 showToast('⚠️ خطأ في تحميل البيانات. جاري استخدام بيانات تجريبية.', 'info');
                 
-                // استخدام بيانات تجريبية
                 generateSampleData();
-                getDefaultHolidays();
+                calculateHolidays();
                 generateMonthSchedule();
                 renderCalendar();
             } finally {
@@ -1039,22 +1031,36 @@
             const headers = parseCSVLine(lines[0]);
             console.log('📋 العناوين:', headers);
             
+            // السطر الثاني (index 1) يحتوي على أيام العطل الإضافية لكل شهر
+            if (lines.length >= 2) {
+                const holidayRow = parseCSVLine(lines[1]);
+                // قراءة أيام العطل الإضافية من الأعمدة F, G, H, I, J, K (index 5-10)
+                const holidayColumnIndex = CURRENT_MONTH_CONFIG.columnIndex;
+                if (holidayRow[holidayColumnIndex] && holidayRow[holidayColumnIndex].trim() !== '') {
+                    const holidaysText = holidayRow[holidayColumnIndex].trim();
+                    additionalHolidaysFromSheet = holidaysText.split(/[,;،\s]+/).map(d => parseInt(d.trim())).filter(d => !isNaN(d));
+                    console.log('🎉 أيام العطل الإضافية من الصف الثاني:', additionalHolidaysFromSheet);
+                } else {
+                    additionalHolidaysFromSheet = [];
+                    console.log('📅 لا توجد أيام عطل إضافية في الصف الثاني');
+                }
+            }
+            
             studentsData = [];
             
-            // قراءة البيانات من السطر الثاني
-            for (let i = 1; i < lines.length; i++) {
+            // قراءة بيانات الطلاب من السطر الثالث فصاعداً (index 2+)
+            for (let i = 2; i < lines.length; i++) {
                 const values = parseCSVLine(lines[i]);
                 
                 if (!values[0] || values[0].trim() === '') continue;
                 
                 const student = {
-                    id: i - 1,
+                    id: i - 2,
                     name: values[0]?.trim() || '',
                     cumulativeHolidays: parseInt(values[1]) || 0,
                     cumulativeER: parseInt(values[2]) || 0,
                     cumulativeWard: parseInt(values[3]) || 0,
                     cumulativeOR: parseInt(values[4]) || 0,
-                    // تخزين بيانات الأشهر من الأعمدة
                     monthsData: {}
                 };
                 
@@ -1091,52 +1097,40 @@
             return result;
         }
 
-        // ============ EXTRACT HOLIDAYS FROM DATA ============
-        function extractHolidaysFromData() {
-            const monthConfig = MONTHS_CONFIG[CURRENT_MONTH];
-            const allHolidayDays = new Set();
+        // ============ CALCULATE HOLIDAYS ============
+        function calculateHolidays() {
+            const monthConfig = CURRENT_MONTH_CONFIG;
+            const allHolidays = new Set();
             
-            console.log(`🔍 جاري استخراج أيام العطل من العمود ${monthConfig.columnLetter} للـ ${monthConfig.name}...`);
+            // إضافة أيام الجمعة والسبت تلقائياً
+            for (let day = 1; day <= monthConfig.days; day++) {
+                if (isFridayOrSaturday(day, monthConfig)) {
+                    allHolidays.add(day);
+                }
+            }
             
-            // جمع أيام العطل من جميع الطلاب
-            studentsData.forEach(student => {
-                const holidayData = student.monthsData[CURRENT_MONTH];
-                if (holidayData && holidayData.trim() !== '') {
-                    // تقسيم النص إلى أرقام (يدعم الفاصلة والمسافة والفاصلة المنقوطة)
-                    const days = holidayData.split(/[,;،\s]+/);
-                    days.forEach(day => {
-                        const dayNum = parseInt(day.trim());
-                        if (dayNum >= 1 && dayNum <= monthConfig.days) {
-                            allHolidayDays.add(dayNum);
-                        }
-                    });
+            // إضافة أيام العطل الإضافية من الصف الثاني
+            additionalHolidaysFromSheet.forEach(day => {
+                if (day >= 1 && day <= monthConfig.days) {
+                    allHolidays.add(day);
                 }
             });
             
-            holidays = allHolidayDays;
+            holidays = allHolidays;
             
-            console.log(`🎉 أيام العطل المستخرجة (${holidays.size}):`, [...holidays].sort((a, b) => a - b));
+            const sortedHolidays = [...holidays].sort((a, b) => a - b);
+            console.log(`📅 إجمالي أيام العطل (${sortedHolidays.length}):`, sortedHolidays);
             
             // عرض معلومات العطل
-            const sortedHolidays = [...holidays].sort((a, b) => a - b);
             const holidaysInfo = document.getElementById('holidaysInfo');
             const holidaysText = document.getElementById('holidaysText');
             
             if (sortedHolidays.length > 0) {
                 holidaysInfo.style.display = 'flex';
-                holidaysText.textContent = `أيام العطل لهذا الشهر (${monthConfig.name}): ${sortedHolidays.join(' - ')} (${sortedHolidays.length} أيام)`;
-            } else {
-                holidaysInfo.style.display = 'flex';
-                holidaysText.textContent = `⚠️ لم يتم العثور على أيام عطل في العمود ${monthConfig.columnLetter}. سيتم استخدام العطل الافتراضية (الجمعة والسبت).`;
-                getDefaultHolidays();
+                const autoCount = [...holidays].filter(d => isFridayOrSaturday(d, monthConfig)).length;
+                const additionalCount = sortedHolidays.length - autoCount;
+                holidaysText.textContent = `أيام العطل: ${sortedHolidays.join(' - ')} (${sortedHolidays.length} أيام: ${autoCount} جمعة وسبت${additionalCount > 0 ? ' + ' + additionalCount + ' إضافية' : ''})`;
             }
-        }
-
-        function getDefaultHolidays() {
-            // أيام العطل الافتراضية (الجمعة والسبت) للشهر السابع 2026
-            const defaultHolidays = [3, 4, 10, 11, 17, 18, 24, 25, 31];
-            holidays = new Set(defaultHolidays);
-            console.log('📅 استخدام أيام العطل الافتراضية:', [...holidays].sort((a, b) => a - b));
         }
 
         function generateSampleData() {
@@ -1144,18 +1138,24 @@
                 'أحمد محمد', 'عمر خالد', 'حسن علي', 'محمود سامر', 'خالد وليد',
                 'سامر فادي', 'محمد ناصر', 'علي حسين', 'يوسف أحمد', 'إبراهيم سعيد',
                 'طارق محمود', 'باسل عمر', 'أنس خليل', 'رامي جهاد', 'نضال سمير',
-                'عامر سهيل', 'فراس كمال', 'هيثم نور', 'وسام بشار', 'زياد مازن'
+                'عامر سهيل', 'فراس كمال', 'هيثم نور', 'وسام بشار', 'زياد مازن',
+                'سامي هاني', 'نبيل عارف', 'هشام دياب', 'مازن توفيق', 'لؤي عدنان',
+                'غسان رامي', 'رائد فوزي', 'جميل سعيد', 'كمال ناجي', 'نديم بسام',
+                'أسامة راضي', 'فؤاد سامح', 'بشار رياض', 'عدنان سعد', 'منير حبيب',
+                'أيمن خالد', 'نزار فادي', 'سعد الدين'
             ];
 
             studentsData = names.map((name, index) => ({
                 id: index,
                 name: name,
-                cumulativeHolidays: Math.floor(Math.random() * 5),
-                cumulativeER: Math.floor(Math.random() * 10) + 5,
-                cumulativeWard: Math.floor(Math.random() * 5) + 2,
-                cumulativeOR: Math.floor(Math.random() * 5) + 2,
+                cumulativeHolidays: Math.floor(Math.random() * 8) + 2,
+                cumulativeER: Math.floor(Math.random() * 15) + 5,
+                cumulativeWard: Math.floor(Math.random() * 5) + 1,
+                cumulativeOR: Math.floor(Math.random() * 5) + 1,
                 monthsData: {}
             }));
+            
+            additionalHolidaysFromSheet = [];
         }
 
         // ============ SCHEDULE GENERATION ============
@@ -1168,123 +1168,112 @@
             const totalER = 5 * daysInMonth;
             const totalWard = 1 * daysInMonth;
             const totalOR = 1 * daysInMonth;
+            const totalShifts = totalER + totalWard + totalOR;
             
-            const erPerStudent = Math.floor(totalER / numStudents);
-            const wardPerStudent = Math.floor(totalWard / numStudents);
-            const orPerStudent = Math.floor(totalOR / numStudents);
+            // Calculate targets
+            const avgShifts = totalShifts / numStudents;
+            const highTarget = Math.ceil(avgShifts);
+            const lowTarget = Math.floor(avgShifts);
             
-            const erRemainder = totalER - (erPerStudent * numStudents);
-            const wardRemainder = totalWard - (wardPerStudent * numStudents);
-            const orRemainder = totalOR - (orPerStudent * numStudents);
+            // How many students get the higher target
+            const numHigh = totalShifts - (lowTarget * numStudents);
+            const numLow = numStudents - numHigh;
             
+            // Sort students by cumulative total (ascending)
+            const sortedStudents = [...studentsData].sort((a, b) => {
+                const totalA = a.cumulativeER + a.cumulativeWard + a.cumulativeOR + a.cumulativeHolidays;
+                const totalB = b.cumulativeER + b.cumulativeWard + b.cumulativeOR + b.cumulativeHolidays;
+                return totalA - totalB;
+            });
+            
+            // Assign targets
+            const studentTargets = {};
+            sortedStudents.forEach((student, index) => {
+                studentTargets[student.id] = index < numHigh ? highTarget : lowTarget;
+            });
+            
+            // Initialize schedule
             monthlySchedule = {};
             studentsData.forEach(student => {
                 monthlySchedule[student.id] = {
                     name: student.name,
                     schedule: {},
                     stats: { er: 0, ward: 0, or: 0, holidayShifts: 0 },
-                    shifts: { er: [], ward: [], or: [] }
+                    shifts: { er: [], ward: [], or: [] },
+                    target: studentTargets[student.id]
                 };
             });
-
-            // ترتيب الطلاب حسب التراكمي (الأقل أولاً للعدالة)
-            const sortedByTotal = [...studentsData].sort((a, b) => {
-                const totalA = a.cumulativeER + a.cumulativeWard + a.cumulativeOR;
-                const totalB = b.cumulativeER + b.cumulativeWard + b.cumulativeOR;
-                return totalA - totalB;
-            });
-
-            // تحديد أهداف كل طالب
-            const erTargets = {};
-            const wardTargets = {};
-            const orTargets = {};
             
-            studentsData.forEach(s => {
-                erTargets[s.id] = erPerStudent;
-                wardTargets[s.id] = wardPerStudent;
-                orTargets[s.id] = orPerStudent;
-            });
+            // Count holiday shifts needed
+            const holidayShiftCount = holidays.size * 7; // 7 shifts per holiday
+            const avgHolidayShifts = holidayShiftCount / numStudents;
             
-            // إضافة المتبقي للطلاب ذوي التراكمي الأقل
-            for (let i = 0; i < erRemainder; i++) {
-                erTargets[sortedByTotal[i].id]++;
-            }
-            for (let i = 0; i < wardRemainder; i++) {
-                wardTargets[sortedByTotal[i].id]++;
-            }
-            for (let i = 0; i < orRemainder; i++) {
-                orTargets[sortedByTotal[i].id]++;
-            }
-
-            // توزيع الإسعاف
+            // Distribute shifts day by day
             for (let day = 1; day <= daysInMonth; day++) {
-                const available = studentsData
-                    .filter(s => monthlySchedule[s.id].stats.er < erTargets[s.id])
-                    .sort((a, b) => {
-                        const totalA = monthlySchedule[a.id].stats.er + monthlySchedule[a.id].stats.ward + monthlySchedule[a.id].stats.or;
-                        const totalB = monthlySchedule[b.id].stats.er + monthlySchedule[b.id].stats.ward + monthlySchedule[b.id].stats.or;
-                        if (totalA !== totalB) return totalA - totalB;
-                        return (a.cumulativeER + a.cumulativeWard + a.cumulativeOR) - (b.cumulativeER + b.cumulativeWard + b.cumulativeOR);
-                    });
-
-                const selected = available.slice(0, Math.min(5, available.length));
-                selected.forEach(student => {
-                    monthlySchedule[student.id].schedule[day] = 'ER';
-                    monthlySchedule[student.id].stats.er++;
-                    monthlySchedule[student.id].shifts.er.push(day);
-                    if (holidays.has(day)) monthlySchedule[student.id].stats.holidayShifts++;
-                });
-            }
-
-            // توزيع الجناح
-            for (let day = 1; day <= daysInMonth; day++) {
-                const available = studentsData
-                    .filter(s => !monthlySchedule[s.id].schedule[day] && 
-                                monthlySchedule[s.id].stats.ward < wardTargets[s.id])
-                    .sort((a, b) => {
-                        const totalA = monthlySchedule[a.id].stats.er + monthlySchedule[a.id].stats.ward + monthlySchedule[a.id].stats.or;
-                        const totalB = monthlySchedule[b.id].stats.er + monthlySchedule[b.id].stats.ward + monthlySchedule[b.id].stats.or;
-                        if (totalA !== totalB) return totalA - totalB;
-                        return (a.cumulativeER + a.cumulativeWard + a.cumulativeOR) - (b.cumulativeER + b.cumulativeWard + b.cumulativeOR);
-                    });
-
-                if (available.length > 0) {
-                    const student = available[0];
-                    monthlySchedule[student.id].schedule[day] = 'WARD';
-                    monthlySchedule[student.id].stats.ward++;
-                    monthlySchedule[student.id].shifts.ward.push(day);
-                    if (holidays.has(day)) monthlySchedule[student.id].stats.holidayShifts++;
-                }
-            }
-
-            // توزيع العمليات
-            for (let day = 1; day <= daysInMonth; day++) {
-                const available = studentsData
-                    .filter(s => !monthlySchedule[s.id].schedule[day] && 
-                                monthlySchedule[s.id].stats.or < orTargets[s.id])
-                    .sort((a, b) => {
-                        const totalA = monthlySchedule[a.id].stats.er + monthlySchedule[a.id].stats.ward + monthlySchedule[a.id].stats.or;
-                        const totalB = monthlySchedule[b.id].stats.er + monthlySchedule[b.id].stats.ward + monthlySchedule[b.id].stats.or;
-                        if (totalA !== totalB) return totalA - totalB;
-                        return (a.cumulativeER + a.cumulativeWard + a.cumulativeOR) - (b.cumulativeER + b.cumulativeWard + b.cumulativeOR);
-                    });
-
-                if (available.length > 0) {
-                    const student = available[0];
-                    monthlySchedule[student.id].schedule[day] = 'OR';
-                    monthlySchedule[student.id].stats.or++;
-                    monthlySchedule[student.id].shifts.or.push(day);
-                    if (holidays.has(day)) monthlySchedule[student.id].stats.holidayShifts++;
-                }
+                const isHoliday = holidays.has(day);
+                
+                // Assign ER (5 students)
+                assignShiftForDay(day, 'ER', 5, isHoliday, 'er');
+                
+                // Assign Ward (1 student)
+                assignShiftForDay(day, 'WARD', 1, isHoliday, 'ward');
+                
+                // Assign OR (1 student)
+                assignShiftForDay(day, 'OR', 1, isHoliday, 'or');
             }
             
             console.log('✅ تم توزيع المناوبات بنجاح');
+            console.log(`📊 الطلاب ذوي ${highTarget} مناوبات: ${numHigh} طالب`);
+            console.log(`📊 الطلاب ذوي ${lowTarget} مناوبات: ${numLow} طالب`);
+        }
+
+        function assignShiftForDay(day, shiftType, count, isHoliday, statKey) {
+            const candidates = studentsData.filter(s => {
+                // Student hasn't reached target
+                if ((monthlySchedule[s.id].stats.er + monthlySchedule[s.id].stats.ward + monthlySchedule[s.id].stats.or) >= monthlySchedule[s.id].target) return false;
+                // Student not already assigned today
+                if (monthlySchedule[s.id].schedule[day]) return false;
+                return true;
+            });
+            
+            // Sort candidates
+            candidates.sort((a, b) => {
+                const aData = monthlySchedule[a.id];
+                const bData = monthlySchedule[b.id];
+                
+                // First: by how far from target (closer to target = higher priority)
+                const aRemaining = aData.target - (aData.stats.er + aData.stats.ward + aData.stats.or);
+                const bRemaining = bData.target - (bData.stats.er + bData.stats.ward + bData.stats.or);
+                if (aRemaining !== bRemaining) return bRemaining - aRemaining;
+                
+                // Second: if holiday, prefer students with fewer holiday shifts
+                if (isHoliday) {
+                    if (aData.stats.holidayShifts !== bData.stats.holidayShifts) {
+                        return aData.stats.holidayShifts - bData.stats.holidayShifts;
+                    }
+                }
+                
+                // Third: lower cumulative gets priority
+                const aCum = a.cumulativeER + a.cumulativeWard + a.cumulativeOR + a.cumulativeHolidays;
+                const bCum = b.cumulativeER + b.cumulativeWard + b.cumulativeOR + b.cumulativeHolidays;
+                return aCum - bCum;
+            });
+            
+            // Assign top candidates
+            const assigned = candidates.slice(0, Math.min(count, candidates.length));
+            assigned.forEach(student => {
+                monthlySchedule[student.id].schedule[day] = shiftType;
+                monthlySchedule[student.id].stats[statKey]++;
+                monthlySchedule[student.id].shifts[statKey].push(day);
+                if (isHoliday) {
+                    monthlySchedule[student.id].stats.holidayShifts++;
+                }
+            });
         }
 
         // ============ RENDER CALENDAR ============
         function renderCalendar() {
             const calendarGrid = document.getElementById('calendarGrid');
-            const monthStats = document.getElementById('monthStats');
             const daysInMonth = CURRENT_MONTH_CONFIG.days;
             
             if (Object.keys(monthlySchedule).length === 0) {
@@ -1296,38 +1285,10 @@
                 return;
             }
 
-            const allStats = Object.values(monthlySchedule);
-            const totalER = allStats.reduce((s, st) => s + st.stats.er, 0);
-            const totalWard = allStats.reduce((s, st) => s + st.stats.ward, 0);
-            const totalOR = allStats.reduce((s, st) => s + st.stats.or, 0);
-            const totalHoliday = allStats.reduce((s, st) => s + st.stats.holidayShifts, 0);
-
-            monthStats.innerHTML = `
-                <div class="month-stat-card">
-                    <div class="month-stat-icon">🚑</div>
-                    <div class="month-stat-value">${totalER}</div>
-                    <div class="month-stat-label">مناوبات الإسعاف</div>
-                </div>
-                <div class="month-stat-card">
-                    <div class="month-stat-icon">🏥</div>
-                    <div class="month-stat-value">${totalWard}</div>
-                    <div class="month-stat-label">مناوبات الجناح</div>
-                </div>
-                <div class="month-stat-card">
-                    <div class="month-stat-icon">🔪</div>
-                    <div class="month-stat-value">${totalOR}</div>
-                    <div class="month-stat-label">مناوبات العمليات</div>
-                </div>
-                <div class="month-stat-card">
-                    <div class="month-stat-icon">🏖️</div>
-                    <div class="month-stat-value">${totalHoliday}</div>
-                    <div class="month-stat-label">مناوبات أيام العطل</div>
-                </div>
-            `;
-
             calendarGrid.innerHTML = '';
             for (let day = 1; day <= daysInMonth; day++) {
                 const isHoliday = holidays.has(day);
+                const dayInfo = getDayInfo(day, CURRENT_MONTH_CONFIG);
                 
                 const erStaff = [];
                 const wardStaff = [];
@@ -1344,11 +1305,11 @@
                 
                 dayCard.innerHTML = `
                     <div class="day-header">
-                        <span class="day-number">${day} ${CURRENT_MONTH_CONFIG.name.split(' ')[0].substring(0, 3)}</span>
-                        ${isHoliday ? '<span class="holiday-badge">🎉 عطلة</span>' : ''}
+                        <span class="day-number">${dayInfo}</span>
+                        ${isHoliday ? '<span class="holiday-badge">🏖️ عطلة</span>' : ''}
                     </div>
                     <div class="shift-section">
-                        <div class="shift-label">🚑 إسعاف (${erStaff.length})</div>
+                        <div class="shift-label">🚑 إسعاف</div>
                         ${erStaff.map(name => `<span class="shift-name er">${name}</span>`).join('<br>')}
                         ${erStaff.length === 0 ? '<span class="shift-name" style="color: #999;">-</span>' : ''}
                     </div>
@@ -1358,7 +1319,7 @@
                         ${wardStaff.length === 0 ? '<span class="shift-name" style="color: #999;">-</span>' : ''}
                     </div>
                     <div class="shift-section">
-                        <div class="shift-label">🔪 عمليات</div>
+                        <div class="shift-label">💉 عمليات</div>
                         ${orStaff.map(name => `<span class="shift-name or">${name}</span>`).join('<br>')}
                         ${orStaff.length === 0 ? '<span class="shift-name" style="color: #999;">-</span>' : ''}
                     </div>
@@ -1397,6 +1358,7 @@
                 const schedule = monthlySchedule[student.id];
                 const stats = schedule?.stats || { er: 0, ward: 0, or: 0, holidayShifts: 0 };
                 const shifts = schedule?.shifts || { er: [], ward: [], or: [] };
+                const target = schedule?.target || 0;
                 
                 const totalCurrent = stats.er + stats.ward + stats.or;
                 
@@ -1408,7 +1370,7 @@
                             </div>
                             <div>
                                 <div class="student-name">${student.name}</div>
-                                <div style="color: var(--text-light);">إجمالي المناوبات هذا الشهر: <strong>${totalCurrent}</strong></div>
+                                <div style="color: var(--text-light);">إجمالي المناوبات هذا الشهر: <strong>${totalCurrent}</strong> (المستهدف: ${target})</div>
                             </div>
                         </div>
                         
@@ -1424,7 +1386,7 @@
                                 <div class="stat-label">مناوبات الجناح</div>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-icon">🔪</div>
+                                <div class="stat-icon">💉</div>
                                 <div class="stat-value">${stats.or}</div>
                                 <div class="stat-label">مناوبات العمليات</div>
                             </div>
@@ -1444,7 +1406,8 @@
                                     ${shifts.er.length > 0 ? 
                                       shifts.er.map(day => {
                                           const isHoliday = holidays.has(day);
-                                          return `<span class="date-badge er">${day} ${isHoliday ? '🏖️' : ''}</span>`;
+                                          const dayInfo = getDayInfo(day, CURRENT_MONTH_CONFIG);
+                                          return `<span class="date-badge er">${dayInfo} ${isHoliday ? '🏖️' : ''}</span>`;
                                       }).join(' ') :
                                       '<span style="color: #999;">لا يوجد</span>'}
                                 </div>
@@ -1456,19 +1419,21 @@
                                     ${shifts.ward.length > 0 ? 
                                       shifts.ward.map(day => {
                                           const isHoliday = holidays.has(day);
-                                          return `<span class="date-badge ward">${day} ${isHoliday ? '🏖️' : ''}</span>`;
+                                          const dayInfo = getDayInfo(day, CURRENT_MONTH_CONFIG);
+                                          return `<span class="date-badge ward">${dayInfo} ${isHoliday ? '🏖️' : ''}</span>`;
                                       }).join(' ') :
                                       '<span style="color: #999;">لا يوجد</span>'}
                                 </div>
                             </div>
                             
                             <div class="shift-detail or">
-                                <strong>🔪 مناوبات العمليات (${shifts.or.length}):</strong>
+                                <strong>💉 مناوبات العمليات (${shifts.or.length}):</strong>
                                 <div class="shift-dates">
                                     ${shifts.or.length > 0 ? 
                                       shifts.or.map(day => {
                                           const isHoliday = holidays.has(day);
-                                          return `<span class="date-badge or">${day} ${isHoliday ? '🏖️' : ''}</span>`;
+                                          const dayInfo = getDayInfo(day, CURRENT_MONTH_CONFIG);
+                                          return `<span class="date-badge or">${dayInfo} ${isHoliday ? '🏖️' : ''}</span>`;
                                       }).join(' ') :
                                       '<span style="color: #999;">لا يوجد</span>'}
                                 </div>
@@ -1487,7 +1452,7 @@
                                     <div style="color: var(--text-light);">مناوبات الجناح</div>
                                 </div>
                                 <div style="text-align: center; padding: 15px; background: white; border-radius: 10px;">
-                                    <div style="font-size: 1.5em; font-weight: 900; color: #10ac84;">🔪 ${student.cumulativeOR}</div>
+                                    <div style="font-size: 1.5em; font-weight: 900; color: #10ac84;">💉 ${student.cumulativeOR}</div>
                                     <div style="color: var(--text-light);">مناوبات العمليات</div>
                                 </div>
                                 <div style="text-align: center; padding: 15px; background: white; border-radius: 10px;">
@@ -1507,9 +1472,10 @@
             const monthConfig = MONTHS_CONFIG[monthKey];
             const daysInMonth = monthConfig.days;
             
-            const data = [['اليوم', 'إسعاف', 'جناح', 'عمليات', 'عطلة']];
+            const data = [['اليوم والتاريخ', 'إسعاف', 'جناح', 'عمليات', 'عطلة']];
             
             for (let day = 1; day <= daysInMonth; day++) {
+                const dayInfo = getDayInfo(day, monthConfig);
                 const erStaff = [];
                 const wardStaff = [];
                 const orStaff = [];
@@ -1521,7 +1487,7 @@
                 });
                 
                 data.push([
-                    day,
+                    dayInfo,
                     erStaff.join(', '),
                     wardStaff.join(', '),
                     orStaff.join(', '),
